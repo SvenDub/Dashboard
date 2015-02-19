@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Dashboard</string>
+    <string name="dialog_notification_access_message">Please enable Notification Access to use media controls or spoken notifications</string>
+    <string name="dialog_notification_access_negative">No, thanks</string>
+    <string name="dialog_notification_access_positive">Make it so!</string>
+    <string name="dialog_notification_access_title">No Notification Access</string>
+    <string name="media_idle">No media playing</string>
+    <string name="media_up_next">Up next:</string>
+    <string name="pref_summary_speak_notifications_off">"Don't read notifications out loud when car mode is on"</string>
+    <string name="pref_summary_speak_notifications_on">Read notifications out loud when car mode is on</string>
+    <string name="pref_title_bg">Background</string>
+    <string name="pref_title_colors">Colors</string>
+    <string name="pref_title_keep_screen_on">Keep screen on</string>
+    <string name="pref_title_night_mode">Night mode</string>
+    <string name="pref_title_other">Other</string>
+    <string name="pref_title_show_date">Date and time</string>
+    <string name="pref_title_show_items">Show items</string>
+    <string name="pref_title_show_media">Media controls</string>
+    <string name="pref_title_show_speed">Speed</string>
+    <string name="pref_title_show_status">Status</string>
+    <string name="pref_title_speak_notifications">Spoken notifications</string>
+    <string name="pref_title_unit_speed">Speed</string>
+    <string name="pref_title_unit_temp">Temperature</string>
+    <string name="pref_title_units">Units</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="transition_media_album">transition_media_album</string>
+    <string name="transition_media_art">transition_media_art</string>
+    <string name="transition_media_artist">transition_media_artist</string>
+    <string name="transition_media_container">transition_media_container</string>
+    <string name="transition_media_next">transition_media_next</string>
+    <string name="transition_media_play">transition_media_play</string>
+    <string name="transition_media_play_progress">transition_media_play_progress</string>
+    <string name="transition_media_prev">transition_media_prev</string>
+    <string name="transition_media_title">transition_media_title</string>
+    <string name="transition_media_vol_down">transition_media_vol_down</string>
+    <string name="transition_media_vol_up">transition_media_vol_up</string>
+</resources>

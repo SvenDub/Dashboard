@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="colorDialer" format="color" />
+    <attr name="colorNavigation" format="color" />
+    <attr name="colorVoice" format="color" />
+</resources>

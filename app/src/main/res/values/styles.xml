@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fitsSystemWindows">false</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:windowAllowReturnTransitionOverlap">true</item>
+        <item name="android:windowAllowEnterTransitionOverlap">true</item>
+        <item name="android:backgroundTint">@color/background_light</item>
+        <item name="colorDialer">@android:color/holo_blue_dark</item>
+        <item name="colorNavigation">@android:color/holo_green_light</item>
+        <item name="colorVoice">@android:color/holo_red_light</item>
+        <item name="background">@color/background_light</item>
+        <item name="cardBackgroundColor">@color/white</item>
+        <item name="cardElevation">2.0dip</item>
+    </style>
+
+    <style name="Card" parent="@style/CardView">
+        <item name="android:background">?cardBackgroundColor</item>
+        <item name="android:layout_height">96.0dip</item>
+        <item name="android:layout_margin">2.0dip</item>
+        <item name="android:minHeight">96.0dip</item>
+        <item name="cardBackgroundColor">?cardBackgroundColor</item>
+        <item name="cardElevation">?cardElevation</item>
+        <item name="cardUseCompatPadding">true</item>
+    </style>
+</resources>
