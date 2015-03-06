@@ -25,10 +25,17 @@ package nl.svendubbeld.car;
 
 import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.view.View;
 import android.widget.Toolbar;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SettingsActivity extends Activity {
 
@@ -38,7 +45,10 @@ public class SettingsActivity extends Activity {
         setContentView(R.layout.activity_settings);
 
         setActionBar((Toolbar) findViewById(R.id.toolbar));
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+
+        if (getActionBar() != null) {
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         if (savedInstanceState == null) {
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
@@ -49,6 +59,8 @@ public class SettingsActivity extends Activity {
 
     public static class SettingsFragment extends PreferenceFragment {
 
+        Intent findHomeIntent;
+
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
@@ -58,6 +70,34 @@ public class SettingsActivity extends Activity {
             super.onViewCreated(view, savedInstanceState);
 
             view.findViewById(android.R.id.list).setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.nav_bar_height));
+
+            ListPreference prefLauncher = (ListPreference) findPreference("pref_key_launcher");
+
+            PackageManager packageManager = getActivity().getPackageManager();
+            findHomeIntent = new Intent(Intent.ACTION_MAIN);
+            findHomeIntent.addCategory(Intent.CATEGORY_HOME);
+
+            List<ResolveInfo> homeActivitiesFiltered = new ArrayList<>();
+            List<ResolveInfo> homeActivities = packageManager.queryIntentActivities(findHomeIntent, PackageManager.MATCH_DEFAULT_ONLY);
+            for (ResolveInfo resolveInfo : homeActivities) {
+                if (!resolveInfo.activityInfo.name.equals("nl.svendubbeld.car.HomeActivity")) {
+                    homeActivitiesFiltered.add(resolveInfo);
+                    if (prefLauncher.getValue().isEmpty()) {
+                        prefLauncher.setValue(resolveInfo.activityInfo.packageName + "/" + resolveInfo.activityInfo.name);
+                    }
+                }
+            }
+
+            CharSequence[] prefLauncherEntries = new CharSequence[homeActivitiesFiltered.size()];
+            CharSequence[] prefLauncherValues = new CharSequence[homeActivitiesFiltered.size()];
+            for (int i = 0; i < homeActivitiesFiltered.size(); i++) {
+                ResolveInfo resolveInfo = homeActivitiesFiltered.get(i);
+                prefLauncherEntries[i] = resolveInfo.activityInfo.loadLabel(packageManager);
+                prefLauncherValues[i] = resolveInfo.activityInfo.packageName + "/" + resolveInfo.activityInfo.name;
+            }
+
+            prefLauncher.setEntries(prefLauncherEntries);
+            prefLauncher.setEntryValues(prefLauncherValues);
         }
     }
 }

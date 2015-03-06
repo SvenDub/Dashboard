@@ -46,6 +46,11 @@
             android:title="@string/pref_title_unit_speed" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_title_other">
+        <ListPreference
+            android:defaultValue=""
+            android:key="pref_key_launcher"
+            android:summary="%s"
+            android:title="@string/pref_title_launcher" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_key_keep_screen_on"

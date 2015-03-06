@@ -27,20 +27,71 @@ import android.app.Activity;
 import android.app.UiModeManager;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+
+import java.util.List;
 
 public class HomeActivity extends Activity {
+
+    Intent findHomeIntent;
+    SharedPreferences mSharedPref;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        findHomeIntent = new Intent(Intent.ACTION_MAIN);
+        findHomeIntent.addCategory(Intent.CATEGORY_HOME);
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
         if (((UiModeManager) getSystemService(UI_MODE_SERVICE)).getCurrentModeType() == Configuration.UI_MODE_TYPE_CAR) {
             Intent carIntent = new Intent(this, CarActivity.class);
             startActivity(carIntent);
         } else {
+            String launcher = mSharedPref.getString("pref_key_launcher", "");
+
             Intent homeIntent = new Intent();
-            homeIntent.setComponent(new ComponentName("com.google.android.googlequicksearchbox", "com.google.android.launcher.GEL"));
             homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+            ComponentName componentName = null;
+
+            if (launcher.isEmpty()) {
+                List<ResolveInfo> activities = getPackageManager().queryIntentActivities(findHomeIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                for (ResolveInfo resolveInfo : activities) {
+                    if (!resolveInfo.activityInfo.name.equals("nl.svendubbeld.car.HomeActivity")) {
+                        componentName = new ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
+                        break;
+                    }
+                }
+            } else {
+                String[] split = launcher.split("/");
+                componentName = new ComponentName(split[0], split[1]);
+                homeIntent.setComponent(componentName);
+
+                if (getPackageManager().resolveActivity(homeIntent, PackageManager.MATCH_DEFAULT_ONLY) == null) {
+                    List<ResolveInfo> activities = getPackageManager().queryIntentActivities(findHomeIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                    for (ResolveInfo resolveInfo : activities) {
+                        if (!resolveInfo.activityInfo.name.equals("nl.svendubbeld.car.HomeActivity")) {
+                            componentName = new ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
+                            break;
+                        }
+                    }
+                }
+            }
+
+
+            homeIntent.setComponent(componentName);
             startActivity(homeIntent);
         }
         overridePendingTransition(0, 0);
