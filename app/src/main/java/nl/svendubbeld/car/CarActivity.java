@@ -128,8 +128,8 @@ public class CarActivity extends Activity
     long mLastLocationMillis = 0l;
     LocationManager mLocationManager;
     private static final String LOCATION_PROVIDER = "gps";
-    private static final int GPS_UPDATE_FIX_THRESHOLD = 2000;
     private static final int GPS_UPDATE_INTERVAL = 1000;
+    private static final int GPS_UPDATE_FIX_THRESHOLD = 2 * GPS_UPDATE_INTERVAL;
 
     private void resetLayout() {
         setContentView(R.layout.activity_car);
