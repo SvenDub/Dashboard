@@ -41,7 +41,6 @@
     <string name="pref_title_show_items">Show items</string>
     <string name="pref_title_show_media">Media controls</string>
     <string name="pref_title_show_speed">Speed</string>
-    <string name="pref_title_show_status">Status</string>
     <string name="pref_title_speak_notifications">Spoken notifications</string>
     <string name="pref_title_unit_speed">Speed</string>
     <string name="pref_title_unit_temp">Temperature</string>

@@ -27,9 +27,7 @@ import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.UiModeManager;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -77,17 +75,6 @@ public class CarActivity extends Activity
     // Background
     FrameLayout mBackground;
     String mPrefBackground = "launcher";
-
-    // Status
-    CardView mStatusContainer;
-    TextView mBattery;
-    ImageView mBatteryImage;
-    TextView mTemp;
-    ImageView mTempImage;
-    TextView mGPS;
-    ImageView mGPSImage;
-    int mPrefTempUnit = 0;
-    boolean mPrefShowStatus = true;
 
     // Buttons
     CardView mButtonDialer;
@@ -157,15 +144,6 @@ public class CarActivity extends Activity
         mSpeed = ((TextView) findViewById(R.id.speed));
         mSpeedUnit = ((TextView) findViewById(R.id.speed_unit));
 
-        // Get status views
-        mStatusContainer = ((CardView) findViewById(R.id.status_container));
-        mBattery = ((TextView) findViewById(R.id.battery));
-        mBatteryImage = ((ImageView) findViewById(R.id.battery_img));
-        mTemp = ((TextView) findViewById(R.id.temp));
-        mTempImage = ((ImageView) findViewById(R.id.temp_img));
-        mGPS = ((TextView) findViewById(R.id.gps));
-        mGPSImage = ((ImageView) findViewById(R.id.gps_img));
-
         // Get media views
         mMediaContainer = ((CardView) findViewById(R.id.media_container));
         mMediaArt = ((ImageView) findViewById(R.id.media_art));
@@ -193,7 +171,6 @@ public class CarActivity extends Activity
 
         toggleDate();
         toggleSpeed();
-        toggleStatus();
         toggleMedia();
 
         // Format the date
@@ -210,10 +187,6 @@ public class CarActivity extends Activity
         mMediaContainer.setOnClickListener(this);
 
         mMediaPlay.setImageTintList(ColorStateList.valueOf(getTheme().obtainStyledAttributes(new int[]{R.attr.cardBackgroundColor}).getColor(0, getResources().getColor(R.color.white))));
-
-        // Set status views
-        mGPSImage.setImageTintList(ColorStateList.valueOf(getTheme().obtainStyledAttributes(new int[]{android.R.attr.textColorSecondary}).getColor(0, getResources().getColor(android.R.color.secondary_text_light))));
-        mBatteryImage.setImageTintList(ColorStateList.valueOf(getTheme().obtainStyledAttributes(new int[]{android.R.attr.textColorSecondary}).getColor(0, getResources().getColor(android.R.color.secondary_text_light))));
 
         // Set buttons
         mButtonSettings.setOnClickListener(this);
@@ -277,10 +250,6 @@ public class CarActivity extends Activity
                 mSpeedUnit.setText("km/h");
                 break;
         }
-    }
-
-    private void toggleStatus() {
-        mStatusContainer.setVisibility(View.GONE);
     }
 
     public void onActiveSessionsChanged(List<MediaController> controllers) {
@@ -363,12 +332,10 @@ public class CarActivity extends Activity
         mPrefShowDate = mSharedPref.getBoolean("pref_key_show_date", true);
         mPrefShowSpeed = mSharedPref.getBoolean("pref_key_show_speed", true);
         mPrefShowMedia = mSharedPref.getBoolean("pref_key_show_media", true);
-        mPrefShowStatus = mSharedPref.getBoolean("pref_key_show_status", true);
         mPrefSpeakNotifications = mSharedPref.getBoolean("pref_key_speak_notifications", true);
         mPrefKeepScreenOn = mSharedPref.getBoolean("pref_key_keep_screen_on", true);
         mPrefNightMode = mSharedPref.getString("pref_key_night_mode", "auto");
         mPrefSpeedUnit = Integer.parseInt(mSharedPref.getString("pref_key_unit_speed", "1"));
-        mPrefTempUnit = Integer.parseInt(mSharedPref.getString("pref_key_unit_temp", "0"));
         mPrefBackground = mSharedPref.getString("pref_key_color_bg", "launcher");
 
         if (mPrefKeepScreenOn) {
@@ -386,35 +353,6 @@ public class CarActivity extends Activity
     }
 
     public void onGpsStatusChanged(int event) {
-        /*
-        int i = 0;
-        int j = 0;
-        Iterator localIterator = this.mLocationManager.getGpsStatus(null).getSatellites().iterator();
-        while (localIterator.hasNext()) {
-            if (((GpsSatellite) localIterator.next()).usedInFix())
-                j++;
-            i++;
-        }
-        int k;
-        ImageView localImageView;
-        if (SystemClock.elapsedRealtime() - this.mLastLocationMillis < 2000L) {
-            k = 1;
-            int m = k;
-            TextView localTextView = this.mGPS;
-            StringBuilder localStringBuilder = new StringBuilder();
-            localTextView.setText(j + "/" + i);
-            localImageView = this.mGPSImage;
-            if (m == 0)
-                break label148;
-        }
-        label148:
-        for (int n = 2130837580; ; n = 2130837581) {
-            localImageView.setImageResource(n);
-            return;
-            k = 0;
-            break;
-        }
-         */
     }
 
     public void onLocationChanged(Location location) {
@@ -471,18 +409,15 @@ public class CarActivity extends Activity
         mPrefShowDate = mSharedPref.getBoolean("pref_key_show_date", true);
         mPrefShowSpeed = mSharedPref.getBoolean("pref_key_show_speed", true);
         mPrefShowMedia = mSharedPref.getBoolean("pref_key_show_media", true);
-        mPrefShowStatus = mSharedPref.getBoolean("pref_key_show_status", true);
         mPrefSpeakNotifications = mSharedPref.getBoolean("pref_key_speak_notifications", true);
         mPrefKeepScreenOn = mSharedPref.getBoolean("pref_key_keep_screen_on", true);
         mPrefNightMode = mSharedPref.getString("pref_key_night_mode", "auto");
         mPrefSpeedUnit = Integer.parseInt(mSharedPref.getString("pref_key_unit_speed", "1"));
-        mPrefTempUnit = Integer.parseInt(mSharedPref.getString("pref_key_unit_temp", "0"));
         mPrefBackground = mSharedPref.getString("pref_key_color_bg", "launcher");
 
         toggleDate();
         toggleSpeed();
         toggleMedia();
-        toggleStatus();
         toggleNightMode();
         toggleSpeakNotificationsIcon();
 
@@ -550,10 +485,6 @@ public class CarActivity extends Activity
                 mPrefShowSpeed = sharedPreferences.getBoolean("pref_key_show_speed", true);
                 toggleSpeed();
                 break;
-            case "pref_key_show_status":
-                mPrefShowStatus = sharedPreferences.getBoolean("pref_key_show_status", true);
-                toggleStatus();
-                break;
             case "pref_key_keep_screen_on":
                 mPrefKeepScreenOn = sharedPreferences.getBoolean("pref_key_keep_screen_on", true);
                 if (this.mPrefKeepScreenOn) {
@@ -603,99 +534,6 @@ public class CarActivity extends Activity
 
     public void onStatusChanged(String provider, int status, Bundle extras) {
     }
-
-    BroadcastReceiver mBroadcastReceiverBattery = new BroadcastReceiver() {
-        public void onReceive(Context broadcastReceiver, Intent intent) {
-            /*int i = intent.getIntExtra("status", -1);
-            float f1;
-            int m;
-            int n;
-            float f2;
-            String str;
-            if (i != -1) {
-                int j = intent.getIntExtra("level", -1);
-                int k = intent.getIntExtra("scale", -1);
-                f1 = intent.getIntExtra("temperature", -1) / 10.0F;
-                m = Math.round(100.0F * (j / k));
-                if ((i != 2) && (i != 5))
-                    break label306;
-                if (m >= 0.2D)
-                    break label214;
-                n = 2130837572;
-                TextView localTextView1 = CarActivity.this.mBattery;
-                StringBuilder localStringBuilder1 = new StringBuilder();
-                localTextView1.setText(String.valueOf(m) + "%");
-                CarActivity.this.mBatteryImage.setImageResource(n);
-                f2 = f1;
-                switch (CarActivity.this.mPrefTempUnit) {
-                    default:
-                        str = "°C";
-                    case 0:
-                    case 1:
-                }
-            }
-            while (true) {
-                TextView localTextView2 = CarActivity.this.mTemp;
-                StringBuilder localStringBuilder2 = new StringBuilder();
-                localTextView2.setText(String.valueOf(f2) + str);
-                return;
-                label214:
-                if (m < 0.3D) {
-                    n = 2130837573;
-                    break;
-                }
-                if (m < 0.5D) {
-                    n = 2130837574;
-                    break;
-                }
-                if (m < 0.6D) {
-                    n = 2130837575;
-                    break;
-                }
-                if (m < 0.8D) {
-                    n = 2130837576;
-                    break;
-                }
-                if (m < 0.9D) {
-                    n = 2130837577;
-                    break;
-                }
-                n = 2130837578;
-                break;
-                label306:
-                if (m < 0.2D) {
-                    n = 2130837566;
-                    break;
-                }
-                if (m < 0.3D) {
-                    n = 2130837567;
-                    break;
-                }
-                if (m < 0.5D) {
-                    n = 2130837568;
-                    break;
-                }
-                if (m < 0.6D) {
-                    n = 2130837569;
-                    break;
-                }
-                if (m < 0.8D) {
-                    n = 2130837570;
-                    break;
-                }
-                if (m < 0.9D) {
-                    n = 2130837571;
-                    break;
-                }
-                n = 2130837579;
-                break;
-                str = "°C";
-                continue;
-                str = "°F";
-                f2 = 32.0F + f1 * 1.8F;
-            }*/
-        }
-    };
 
     MediaController.Callback mMediaCallback = new MediaController.Callback() {
         public void onAudioInfoChanged(MediaController.PlaybackInfo playbackInfo) {
