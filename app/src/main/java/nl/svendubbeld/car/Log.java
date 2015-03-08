@@ -25,12 +25,12 @@ package nl.svendubbeld.car;
 
 public class Log {
 
-    private boolean LOG_D = true;
-    private boolean LOG_E = true;
-    private boolean LOG_I = true;
-    private boolean LOG_V = false;
-    private boolean LOG_W = true;
-    private boolean LOG_WTF = true;
+    private boolean LOG_D = BuildConfig.LOG_D;
+    private boolean LOG_E = BuildConfig.LOG_E;
+    private boolean LOG_I = BuildConfig.LOG_I;
+    private boolean LOG_V = BuildConfig.LOG_V;
+    private boolean LOG_W = BuildConfig.LOG_W;
+    private boolean LOG_WTF = BuildConfig.LOG_WTF;
 
     public void d(String tag, String msg) {
         if (LOG_D)
