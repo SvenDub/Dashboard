@@ -349,10 +349,6 @@ public class CarActivity extends Activity
         getWindow().setStatusBarColor(Color.TRANSPARENT);
         getWindow().setNavigationBarColor(Color.TRANSPARENT);
 
-        mUiModeManager = ((UiModeManager) getSystemService(UI_MODE_SERVICE));
-
-        mUiModeManager.enableCarMode(0);
-
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         mPrefShowDate = mSharedPref.getBoolean("pref_key_show_date", true);
@@ -365,9 +361,9 @@ public class CarActivity extends Activity
         mPrefBackground = mSharedPref.getString("pref_key_color_bg", "launcher");
         mPrefAppsDialer = mSharedPref.getString("pref_key_dialer", "default");
 
-        if (mPrefKeepScreenOn) {
-            getWindow().addFlags(View.KEEP_SCREEN_ON);
-        }
+        mUiModeManager = ((UiModeManager) getSystemService(UI_MODE_SERVICE));
+
+        mUiModeManager.enableCarMode(mPrefKeepScreenOn ? 0 : UiModeManager.ENABLE_CAR_MODE_ALLOW_SLEEP);
 
         toggleNightMode();
 
@@ -443,6 +439,8 @@ public class CarActivity extends Activity
         mPrefBackground = mSharedPref.getString("pref_key_color_bg", "launcher");
         mPrefAppsDialer = mSharedPref.getString("pref_key_dialer", "default");
 
+        mUiModeManager.enableCarMode(mPrefKeepScreenOn ? 0 : UiModeManager.ENABLE_CAR_MODE_ALLOW_SLEEP);
+
         toggleDate();
         toggleSpeed();
         toggleMedia();
@@ -515,14 +513,10 @@ public class CarActivity extends Activity
                 break;
             case "pref_key_keep_screen_on":
                 mPrefKeepScreenOn = sharedPreferences.getBoolean("pref_key_keep_screen_on", true);
-                if (this.mPrefKeepScreenOn) {
-                    getWindow().addFlags(View.KEEP_SCREEN_ON);
-                } else {
-                    getWindow().clearFlags(View.KEEP_SCREEN_ON);
-                }
+                mUiModeManager.enableCarMode(mPrefKeepScreenOn ? 0 : UiModeManager.ENABLE_CAR_MODE_ALLOW_SLEEP);
                 break;
             case "pref_key_show_media":
-                mPrefShowMedia = this.mSharedPref.getBoolean("pref_key_show_media", true);
+                mPrefShowMedia = sharedPreferences.getBoolean("pref_key_show_media", true);
                 toggleMedia();
                 break;
             case "pref_key_speak_notifications":
