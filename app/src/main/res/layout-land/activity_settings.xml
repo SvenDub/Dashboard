@@ -21,20 +21,26 @@
   ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:paddingRight="@dimen/nav_bar_height"
-    android:paddingTop="@dimen/status_bar_height">
+    android:paddingRight="@dimen/nav_bar_height">
+
+    <ImageView
+        android:id="@+id/status_bar_background"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/status_bar_height"
+        android:src="@drawable/status_bar_background" />
 
     <Toolbar
+        android:layout_below="@id/status_bar_background"
         android:id="@+id/toolbar"
         android:layout_width="fill_parent"
         android:layout_height="?android:actionBarSize" />
 
     <FrameLayout
+        android:layout_below="@id/toolbar"
         android:id="@+id/container"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
-</LinearLayout>
+</RelativeLayout>

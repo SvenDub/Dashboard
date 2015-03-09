@@ -21,189 +21,207 @@
   ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:layout_marginLeft="10.0dip"
-    android:layout_marginRight="10.0dip"
-    android:paddingBottom="@dimen/nav_bar_height"
-    android:paddingTop="@dimen/status_bar_height">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/media_container"
-        style="@style/Card"
+    <ImageView
+        android:id="@+id/status_bar_background"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/status_bar_height"
+        android:src="@drawable/status_bar_background" />
+
+    <FrameLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin">
 
-        <LinearLayout
+        <android.support.v7.widget.CardView
+            android:id="@+id/media_container"
+            style="@style/Card"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10.0dip"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/media_art"
-                android:layout_width="fill_parent"
-                android:layout_height="0.0dip"
-                android:layout_weight="1.0"
-                android:adjustViewBounds="true"
-                android:padding="8.0dip"
-                android:src="@drawable/bg_default_album_art"
-                android:transitionName="@string/transition_media_art" />
+            android:layout_height="fill_parent">
 
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_margin="10.0dip"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/media_art"
+                    android:layout_width="fill_parent"
+                    android:layout_height="0.0dip"
+                    android:layout_weight="1.0"
+                    android:adjustViewBounds="true"
+                    android:padding="8.0dip"
+                    android:src="@drawable/bg_default_album_art"
+                    android:transitionName="@string/transition_media_art" />
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/media_time_position"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="0:00" />
+
+                    <SeekBar
+                        android:id="@+id/media_time_seek_bar"
+                        android:layout_width="0.0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0" />
+
+                    <TextView
+                        android:id="@+id/media_time_end"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="-0:00" />
+                </LinearLayout>
 
                 <TextView
-                    android:id="@+id/media_time_position"
+                    android:id="@+id/media_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="0:00" />
-
-                <SeekBar
-                    android:id="@+id/media_time_seek_bar"
-                    android:layout_width="0.0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1.0" />
+                    android:ellipsize="marquee"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:singleLine="true"
+                    android:text="@string/media_idle"
+                    android:textSize="30.0sp"
+                    android:transitionName="@string/transition_media_title" />
 
                 <TextView
-                    android:id="@+id/media_time_end"
+                    android:id="@+id/media_artist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="-0:00" />
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textSize="20.0sp"
+                    android:transitionName="@string/transition_media_artist" />
+
+                <TextView
+                    android:id="@+id/media_album"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textSize="20.0sp"
+                    android:transitionName="@string/transition_media_album" />
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/media_vol_down"
+                        android:layout_width="0.0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:adjustViewBounds="true"
+                        android:background="?android:selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_av_volume_down"
+                        android:tint="?android:textColorSecondary"
+                        android:transitionName="@string/transition_media_vol_down" />
+
+                    <ImageView
+                        android:id="@+id/media_prev"
+                        android:layout_width="0.0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:adjustViewBounds="true"
+                        android:background="?android:selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_av_skip_previous"
+                        android:tint="?android:textColorSecondary"
+                        android:transitionName="@string/transition_media_prev" />
+
+                    <ImageView
+                        android:id="@+id/media_play"
+                        android:layout_width="0.0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:adjustViewBounds="true"
+                        android:background="@drawable/round_ripple"
+                        android:src="@drawable/ic_av_play_arrow"
+                        android:tint="?cardBackgroundColor"
+                        android:transitionName="@string/transition_media_play" />
+
+                    <ProgressBar
+                        android:id="@+id/media_play_progress"
+                        android:layout_width="0.0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:indeterminate="true"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/media_next"
+                        android:layout_width="0.0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:adjustViewBounds="true"
+                        android:background="?android:selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_av_skip_next"
+                        android:tint="?android:textColorSecondary"
+                        android:transitionName="@string/transition_media_next" />
+
+                    <ImageView
+                        android:id="@+id/media_vol_up"
+                        android:layout_width="0.0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:adjustViewBounds="true"
+                        android:background="?android:selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_av_volume_up"
+                        android:tint="?android:textColorSecondary"
+                        android:transitionName="@string/transition_media_vol_up" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/media_up_next"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/media_up_next"
+                    android:textColor="?android:textColorTertiary"
+                    android:textSize="16.0sp"
+                    android:textStyle="italic" />
+
+                <TextView
+                    android:id="@+id/media_up_next_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textColor="?android:textColorTertiary"
+                    android:textSize="20.0sp" />
+
+                <TextView
+                    android:id="@+id/media_up_next_artist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textColor="?android:textColorTertiary"
+                    android:textSize="16.0sp" />
             </LinearLayout>
+        </android.support.v7.widget.CardView>
+    </FrameLayout>
 
-            <TextView
-                android:id="@+id/media_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="marquee"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:singleLine="true"
-                android:text="@string/media_idle"
-                android:textSize="30.0sp"
-                android:transitionName="@string/transition_media_title" />
-
-            <TextView
-                android:id="@+id/media_artist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:textSize="20.0sp"
-                android:transitionName="@string/transition_media_artist" />
-
-            <TextView
-                android:id="@+id/media_album"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:textSize="20.0sp"
-                android:transitionName="@string/transition_media_album" />
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/media_vol_down"
-                    android:layout_width="0.0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1.0"
-                    android:adjustViewBounds="true"
-                    android:background="?android:selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_av_volume_down"
-                    android:tint="?android:textColorSecondary"
-                    android:transitionName="@string/transition_media_vol_down" />
-
-                <ImageView
-                    android:id="@+id/media_prev"
-                    android:layout_width="0.0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1.0"
-                    android:adjustViewBounds="true"
-                    android:background="?android:selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_av_skip_previous"
-                    android:tint="?android:textColorSecondary"
-                    android:transitionName="@string/transition_media_prev" />
-
-                <ImageView
-                    android:id="@+id/media_play"
-                    android:layout_width="0.0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1.0"
-                    android:adjustViewBounds="true"
-                    android:background="@drawable/round_ripple"
-                    android:src="@drawable/ic_av_play_arrow"
-                    android:tint="?cardBackgroundColor"
-                    android:transitionName="@string/transition_media_play" />
-
-                <ProgressBar
-                    android:id="@+id/media_play_progress"
-                    android:layout_width="0.0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1.0"
-                    android:indeterminate="true"
-                    android:visibility="gone" />
-
-                <ImageView
-                    android:id="@+id/media_next"
-                    android:layout_width="0.0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1.0"
-                    android:adjustViewBounds="true"
-                    android:background="?android:selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_av_skip_next"
-                    android:tint="?android:textColorSecondary"
-                    android:transitionName="@string/transition_media_next" />
-
-                <ImageView
-                    android:id="@+id/media_vol_up"
-                    android:layout_width="0.0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1.0"
-                    android:adjustViewBounds="true"
-                    android:background="?android:selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_av_volume_up"
-                    android:tint="?android:textColorSecondary"
-                    android:transitionName="@string/transition_media_vol_up" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/media_up_next"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/media_up_next"
-                android:textColor="?android:textColorTertiary"
-                android:textSize="16.0sp"
-                android:textStyle="italic" />
-
-            <TextView
-                android:id="@+id/media_up_next_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:textColor="?android:textColorTertiary"
-                android:textSize="20.0sp" />
-
-            <TextView
-                android:id="@+id/media_up_next_artist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:textColor="?android:textColorTertiary"
-                android:textSize="16.0sp" />
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
-</FrameLayout>
+    <ImageView
+        android:id="@+id/navigation_bar_background"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/nav_bar_height"
+        android:src="@drawable/navigation_bar_background"
+        android:layout_gravity="bottom" />
+</LinearLayout>

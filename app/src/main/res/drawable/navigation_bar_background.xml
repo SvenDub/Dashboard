@@ -21,6 +21,9 @@
   ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   -->
 
-<resources>
-    <dimen name="activity_horizontal_margin">64.0dip</dimen>
-</resources>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:angle="90"
+        android:endColor="#00000000"
+        android:startColor="#99000000" />
+</shape>

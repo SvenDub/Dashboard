@@ -25,8 +25,9 @@
 
     <style name="AppTheme" parent="@android:style/Theme.Material.NoActionBar">
         <item name="android:fitsSystemWindows">false</item>
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowContentTransitions">true</item>
         <item name="android:colorAccent">@color/accent</item>
         <item name="android:windowAllowReturnTransitionOverlap">true</item>

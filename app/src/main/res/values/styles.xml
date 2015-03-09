@@ -25,8 +25,9 @@
 
     <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
         <item name="android:fitsSystemWindows">false</item>
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowContentTransitions">true</item>
         <item name="android:colorAccent">@color/accent</item>
         <item name="android:windowAllowReturnTransitionOverlap">true</item>
@@ -43,7 +44,7 @@
     <style name="Card" parent="@style/CardView">
         <item name="android:background">?cardBackgroundColor</item>
         <item name="android:layout_height">96.0dip</item>
-        <item name="android:layout_margin">2.0dip</item>
+        <item name="android:layout_margin">0.0dip</item>
         <item name="android:minHeight">96.0dip</item>
         <item name="cardBackgroundColor">?cardBackgroundColor</item>
         <item name="cardElevation">?cardElevation</item>
