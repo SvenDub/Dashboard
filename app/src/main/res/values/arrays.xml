@@ -26,6 +26,10 @@
         <item>Launcher</item>
         <item>Black</item>
     </string-array>
+    <string-array name="pref_entries_dialer">
+        <item>Default</item>
+        <item>Built-in</item>
+    </string-array>
     <string-array name="pref_entries_night_mode">
         <item>Auto</item>
         <item>Always</item>
@@ -43,6 +47,10 @@
     <string-array name="pref_values_bg">
         <item>launcher</item>
         <item>black</item>
+    </string-array>
+    <string-array name="pref_values_dialer">
+        <item>default</item>
+        <item>builtin</item>
     </string-array>
     <string-array name="pref_values_night_mode">
         <item>auto</item>

@@ -31,8 +31,10 @@
     <string name="media_up_next">Up next:</string>
     <string name="pref_summary_speak_notifications_off">"Don't read notifications out loud when car mode is on"</string>
     <string name="pref_summary_speak_notifications_on">Read notifications out loud when car mode is on</string>
+    <string name="pref_title_apps">Apps</string>
     <string name="pref_title_bg">Background</string>
     <string name="pref_title_colors">Colors</string>
+    <string name="pref_title_dialer">Dialer</string>
     <string name="pref_title_keep_screen_on">Keep screen on</string>
     <string name="pref_title_launcher">Home launcher</string>
     <string name="pref_title_night_mode">Night mode</string>
@@ -57,4 +59,5 @@
     <string name="transition_media_title">transition_media_title</string>
     <string name="transition_media_vol_down">transition_media_vol_down</string>
     <string name="transition_media_vol_up">transition_media_vol_up</string>
+    <string name="transition_button_dialer">transition_button_dialer</string>
 </resources>

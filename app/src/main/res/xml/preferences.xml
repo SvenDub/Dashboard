@@ -45,12 +45,21 @@
             android:summary="%s"
             android:title="@string/pref_title_unit_speed" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/pref_title_other">
+    <PreferenceCategory android:title="@string/pref_title_apps">
         <ListPreference
             android:defaultValue=""
             android:key="pref_key_launcher"
             android:summary="%s"
             android:title="@string/pref_title_launcher" />
+        <ListPreference
+            android:defaultValue="default"
+            android:entries="@array/pref_entries_dialer"
+            android:entryValues="@array/pref_values_dialer"
+            android:key="pref_key_dialer"
+            android:summary="%s"
+            android:title="@string/pref_title_dialer" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_title_other">
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_key_keep_screen_on"

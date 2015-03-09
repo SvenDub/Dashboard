@@ -85,6 +85,7 @@ public class CarActivity extends Activity
     ImageView mButtonSpeakNotificationsIcon;
     CardView mButtonVoice;
     boolean mPrefSpeakNotifications = true;
+    String mPrefAppsDialer = "default";
 
     // Date
     CardView mDateContainer;
@@ -280,12 +281,10 @@ public class CarActivity extends Activity
                 startActivity(settingsIntent, ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getWidth()).toBundle());
                 break;
             case R.id.btn_navigation:
-                Intent navigationIntent = new Intent("android.intent.action.VIEW", Uri.parse("geo:"));
-                startActivity(navigationIntent, ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getWidth()).toBundle());
+                launchNavigation(v);
                 break;
             case R.id.btn_dialer:
-                Intent dialerIntent = new Intent("android.intent.action.DIAL");
-                startActivity(dialerIntent, ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getWidth()).toBundle());
+                launchDialer(v);
                 break;
             case R.id.btn_voice:
                 Intent voiceIntent = new Intent("android.intent.action.VOICE_ASSIST");
@@ -320,6 +319,24 @@ public class CarActivity extends Activity
         }
     }
 
+    private void launchNavigation(View source) {
+        Intent navigationIntent = new Intent("android.intent.action.VIEW", Uri.parse("geo:"));
+        startActivity(navigationIntent, ActivityOptions.makeScaleUpAnimation(source, 0, 0, source.getWidth(), source.getWidth()).toBundle());
+    }
+
+    private void launchDialer(View source) {
+        switch (mPrefAppsDialer) {
+            case "default":
+                Intent defaultIntent = new Intent("android.intent.action.DIAL");
+                startActivity(defaultIntent, ActivityOptions.makeScaleUpAnimation(source, 0, 0, source.getWidth(), source.getWidth()).toBundle());
+                break;
+            case "builtin":
+                Intent builtinIntent = new Intent(this, DialerActivity.class);
+                startActivity(builtinIntent, ActivityOptions.makeSceneTransitionAnimation(this, source, getString(R.string.transition_button_dialer)).toBundle());
+                break;
+        }
+    }
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -337,6 +354,7 @@ public class CarActivity extends Activity
         mPrefNightMode = mSharedPref.getString("pref_key_night_mode", "auto");
         mPrefSpeedUnit = Integer.parseInt(mSharedPref.getString("pref_key_unit_speed", "1"));
         mPrefBackground = mSharedPref.getString("pref_key_color_bg", "launcher");
+        mPrefAppsDialer = mSharedPref.getString("pref_key_dialer", "default");
 
         if (mPrefKeepScreenOn) {
             getWindow().addFlags(View.KEEP_SCREEN_ON);
@@ -414,6 +432,7 @@ public class CarActivity extends Activity
         mPrefNightMode = mSharedPref.getString("pref_key_night_mode", "auto");
         mPrefSpeedUnit = Integer.parseInt(mSharedPref.getString("pref_key_unit_speed", "1"));
         mPrefBackground = mSharedPref.getString("pref_key_color_bg", "launcher");
+        mPrefAppsDialer = mSharedPref.getString("pref_key_dialer", "default");
 
         toggleDate();
         toggleSpeed();
@@ -528,6 +547,9 @@ public class CarActivity extends Activity
             case "pref_key_night_mode":
                 mPrefNightMode = sharedPreferences.getString("pref_key_night_mode", "auto");
                 toggleNightMode();
+                break;
+            case "pref_key_dialer":
+                mPrefAppsDialer = sharedPreferences.getString("pref_key_dialer", "default");
                 break;
         }
     }
