@@ -87,6 +87,7 @@ public class CarActivity extends Activity
     CardView mButtonVoice;
     boolean mPrefSpeakNotifications = true;
     String mPrefAppsDialer = "default";
+    AlertDialog mNotificationListenerDialog;
 
     // Date
     CardView mDateContainer;
@@ -365,6 +366,24 @@ public class CarActivity extends Activity
 
         mUiModeManager.enableCarMode(mPrefKeepScreenOn ? 0 : UiModeManager.ENABLE_CAR_MODE_ALLOW_SLEEP);
 
+        mNotificationListenerDialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_notification_access_title)
+                .setMessage(R.string.dialog_notification_access_message)
+                .setPositiveButton(R.string.dialog_notification_access_positive, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton(R.string.dialog_notification_access_negative, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        mSharedPref.edit().putBoolean("pref_key_show_media", false).putBoolean("pref_key_speak_notifications", false).apply();
+                        dialog.dismiss();
+                    }
+                })
+                .setCancelable(false)
+                .create();
+
         toggleNightMode();
 
         resetLayout();
@@ -464,22 +483,9 @@ public class CarActivity extends Activity
         if (mPrefShowMedia || mPrefSpeakNotifications) {
             String enabledNotificationListeners = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
             if (enabledNotificationListeners == null || !enabledNotificationListeners.contains(getPackageName())) {
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.dialog_notification_access_title)
-                        .setMessage(R.string.dialog_notification_access_message)
-                        .setPositiveButton(R.string.dialog_notification_access_positive, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
-                                dialog.dismiss();
-                            }
-                        })
-                        .setNegativeButton(R.string.dialog_notification_access_negative, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                mSharedPref.edit().putBoolean("pref_key_show_media", false).putBoolean("pref_key_speak_notifications", false).apply();
-                                dialog.dismiss();
-                            }
-                        })
-                        .show();
+                if (!mNotificationListenerDialog.isShowing()) {
+                    mNotificationListenerDialog.show();
+                }
             }
         }
 
@@ -526,22 +532,9 @@ public class CarActivity extends Activity
                     String enabledNotificationListeners = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
                     if ((enabledNotificationListeners == null) || (!enabledNotificationListeners.contains(getPackageName()))) {
                         mLog.w("NotificationListener", "No Notification Access");
-                        new AlertDialog.Builder(this)
-                                .setTitle(R.string.dialog_notification_access_title)
-                                .setMessage(R.string.dialog_notification_access_message)
-                                .setPositiveButton(R.string.dialog_notification_access_positive, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
-                                        dialog.dismiss();
-                                    }
-                                })
-                                .setNegativeButton(R.string.dialog_notification_access_negative, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        mSharedPref.edit().putBoolean("pref_key_show_media", false).putBoolean("pref_key_speak_notifications", false).apply();
-                                        dialog.dismiss();
-                                    }
-                                })
-                                .show();
+                        if (!mNotificationListenerDialog.isShowing()) {
+                            mNotificationListenerDialog.show();
+                        }
                     }
                 }
 

@@ -23,6 +23,8 @@
 
 
 
+
+
 apply plugin: 'com.android.application'
 
 android {
@@ -48,9 +50,7 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-
             signingConfig signingConfigs.release
-
             buildConfigField "boolean", "LOG_D", "false"
             buildConfigField "boolean", "LOG_E", "true"
             buildConfigField "boolean", "LOG_I", "true"
@@ -60,13 +60,13 @@ android {
         }
         debug {
             minifyEnabled false
-
             buildConfigField "boolean", "LOG_D", "true"
             buildConfigField "boolean", "LOG_E", "true"
             buildConfigField "boolean", "LOG_I", "true"
             buildConfigField "boolean", "LOG_V", "true"
             buildConfigField "boolean", "LOG_W", "true"
             buildConfigField "boolean", "LOG_WTF", "true"
+            versionNameSuffix '-debug'
         }
     }
 }
