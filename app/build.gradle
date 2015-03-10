@@ -23,8 +23,6 @@
 
 
 
-
-
 apply plugin: 'com.android.application'
 
 android {
@@ -37,10 +35,22 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    signingConfigs {
+        release {
+            // Variables saved in ~/.gradle/gradle.properties
+            storeFile new File(NL_SVENDUBBELD_CAR_RELEASE_STORE_FILE)
+            storePassword NL_SVENDUBBELD_CAR_RELEASE_STORE_PASSWORD
+            keyAlias NL_SVENDUBBELD_CAR_RELEASE_KEY_ALIAS
+            keyPassword NL_SVENDUBBELD_CAR_RELEASE_KEY_PASSWORD
+        }
+    }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            signingConfig signingConfigs.release
+
             buildConfigField "boolean", "LOG_D", "false"
             buildConfigField "boolean", "LOG_E", "true"
             buildConfigField "boolean", "LOG_I", "true"
@@ -50,6 +60,7 @@ android {
         }
         debug {
             minifyEnabled false
+
             buildConfigField "boolean", "LOG_D", "true"
             buildConfigField "boolean", "LOG_E", "true"
             buildConfigField "boolean", "LOG_I", "true"
