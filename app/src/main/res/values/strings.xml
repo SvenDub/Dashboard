@@ -22,6 +22,7 @@
   -->
 
 <resources>
+    <string name="accessibility_service">Adds custom voice actions to Google Now</string>
     <string name="app_name">Dashboard</string>
     <string name="dialog_notification_access_message">Please enable Notification Access to use media controls or spoken notifications</string>
     <string name="dialog_notification_access_negative">No, thanks</string>
