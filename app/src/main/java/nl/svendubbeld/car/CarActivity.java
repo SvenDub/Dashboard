@@ -35,7 +35,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.location.GpsStatus;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaMetadata;
@@ -45,6 +44,8 @@ import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -59,19 +60,22 @@ import android.widget.ScrollView;
 import android.widget.TextClock;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+
 import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class CarActivity extends Activity
-        implements LocationListener, GpsStatus.Listener, SharedPreferences.OnSharedPreferenceChangeListener, MediaSessionManager.OnActiveSessionsChangedListener, View.OnClickListener {
+        implements LocationListener, GpsStatus.Listener, SharedPreferences.OnSharedPreferenceChangeListener, MediaSessionManager.OnActiveSessionsChangedListener, View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
 
     public static final int PREF_SPEED_UNIT_KMH = 1;
     public static final int PREF_SPEED_UNIT_MPH = 2;
     public static final int PREF_SPEED_UNIT_MS = 0;
-
-    public static final int PREF_TEMP_UNIT_C = 0;
-    public static final int PREF_TEMP_UNIT_F = 1;
 
     // Background
     ScrollView mBackground;
@@ -113,11 +117,11 @@ public class CarActivity extends Activity
 
     // Speed
     CardView mSpeedContainer;
+    TextView mSpeedAddress;
     TextView mSpeed;
     TextView mSpeedUnit;
     int mPrefSpeedUnit = 1;
     boolean mPrefShowSpeed = true;
-
 
     UiModeManager mUiModeManager;
 
@@ -132,7 +136,10 @@ public class CarActivity extends Activity
     LocationManager mLocationManager;
     private static final String LOCATION_PROVIDER = "gps";
     private static final int GPS_UPDATE_INTERVAL = 1000;
-    private static final int GPS_UPDATE_FIX_THRESHOLD = 2 * GPS_UPDATE_INTERVAL;
+    private static final int GEOFENCING_INTERVAL = 60000;
+    GoogleApiClient mGoogleApiClient;
+    LocationRequest mLocationRequest;
+    AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
 
     private void resetLayout() {
         setContentView(R.layout.activity_car);
@@ -144,6 +151,7 @@ public class CarActivity extends Activity
 
         // Get speed views
         mSpeedContainer = ((CardView) findViewById(R.id.speed_container));
+        mSpeedAddress = (TextView) findViewById(R.id.address);
         mSpeed = ((TextView) findViewById(R.id.speed));
         mSpeedUnit = ((TextView) findViewById(R.id.speed_unit));
 
@@ -350,6 +358,18 @@ public class CarActivity extends Activity
         getWindow().setStatusBarColor(Color.TRANSPARENT);
         getWindow().setNavigationBarColor(Color.TRANSPARENT);
 
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+        mGoogleApiClient.connect();
+
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(GPS_UPDATE_INTERVAL);
+        mLocationRequest.setSmallestDisplacement(0f);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         mPrefShowDate = mSharedPref.getBoolean("pref_key_show_date", true);
@@ -391,7 +411,8 @@ public class CarActivity extends Activity
 
     protected void onDestroy() {
         super.onDestroy();
-        mLocationManager.removeUpdates(this);
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                mGoogleApiClient, this);
         mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);
     }
 
@@ -399,6 +420,11 @@ public class CarActivity extends Activity
     }
 
     public void onLocationChanged(Location location) {
+        if (SystemClock.elapsedRealtime() - mLastLocationMillis > GEOFENCING_INTERVAL) {
+            startIntentService(location);
+
+            mLastLocationMillis = SystemClock.elapsedRealtime();
+        }
         float rawSpeed = location.getSpeed();
         String speed = "--";
         if (rawSpeed > 1.0f) {
@@ -420,8 +446,6 @@ public class CarActivity extends Activity
         }
 
         mSpeed.setText(speed);
-
-        mLastLocationMillis = SystemClock.elapsedRealtime();
     }
 
     protected void onPause() {
@@ -435,12 +459,6 @@ public class CarActivity extends Activity
             }
         }
         mSharedPref.unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-    public void onProviderDisabled(String provider) {
-    }
-
-    public void onProviderEnabled(String provider) {
     }
 
     protected void onResume() {
@@ -470,8 +488,6 @@ public class CarActivity extends Activity
         if (!mLocationManager.isProviderEnabled(LOCATION_PROVIDER)) {
             startActivity(new Intent("android.settings.LOCATION_SOURCE_SETTINGS"));
         }
-
-        mLocationManager.requestLocationUpdates(LOCATION_PROVIDER, GPS_UPDATE_INTERVAL, 0.0f, this);
 
         Location location = mLocationManager.getLastKnownLocation(LOCATION_PROVIDER);
 
@@ -547,9 +563,6 @@ public class CarActivity extends Activity
                 mPrefAppsDialer = sharedPreferences.getString("pref_key_dialer", "default");
                 break;
         }
-    }
-
-    public void onStatusChanged(String provider, int status, Bundle extras) {
     }
 
     MediaController.Callback mMediaCallback = new MediaController.Callback() {
@@ -645,4 +658,42 @@ public class CarActivity extends Activity
             }
         }
     };
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    void startIntentService(Location location) {
+        Intent intent = new Intent(this, FetchAddressIntentService.class);
+        intent.putExtra(FetchAddressIntentService.Constants.RECEIVER, mResultReceiver);
+        intent.putExtra(FetchAddressIntentService.Constants.LOCATION_DATA_EXTRA, location);
+        startService(intent);
+    }
+
+    class AddressResultReceiver extends ResultReceiver {
+        public AddressResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if (resultCode == FetchAddressIntentService.Constants.SUCCESS_RESULT) {
+                mSpeedAddress.setText(resultData.getString(FetchAddressIntentService.Constants.RESULT_DATA_KEY));
+            } else {
+                mSpeedAddress.setText("");
+            }
+
+        }
+    }
 }

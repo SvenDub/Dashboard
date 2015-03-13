@@ -98,5 +98,8 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service" />
         </service>
+        <service
+            android:name="nl.svendubbeld.car.FetchAddressIntentService"
+            android:exported="false" />
     </application>
 </manifest>
