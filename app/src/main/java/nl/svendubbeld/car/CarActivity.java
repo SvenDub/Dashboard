@@ -391,6 +391,7 @@ public class CarActivity extends Activity
 
     protected void onDestroy() {
         super.onDestroy();
+        mLocationManager.removeUpdates(this);
         mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);
     }
 
@@ -425,8 +426,6 @@ public class CarActivity extends Activity
 
     protected void onPause() {
         super.onPause();
-
-        mLocationManager.removeUpdates(this);
 
         if (mPrefShowMedia) {
             mMediaSessionManager.removeOnActiveSessionsChangedListener(this);
