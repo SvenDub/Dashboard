@@ -411,8 +411,10 @@ public class CarActivity extends Activity
 
     protected void onDestroy() {
         super.onDestroy();
-        LocationServices.FusedLocationApi.removeLocationUpdates(
-                mGoogleApiClient, this);
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(
+                    mGoogleApiClient, this);
+        }
         mGoogleApiClient.disconnect();
         mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);
     }
