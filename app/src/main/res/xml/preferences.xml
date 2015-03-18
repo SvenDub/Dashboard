@@ -33,6 +33,11 @@
             android:title="@string/pref_title_show_speed" />
         <CheckBoxPreference
             android:defaultValue="true"
+            android:key="pref_key_show_road"
+            android:title="@string/pref_title_show_road"
+            android:dependency="pref_key_show_speed" />
+        <CheckBoxPreference
+            android:defaultValue="true"
             android:key="pref_key_show_media"
             android:title="@string/pref_title_show_media" />
     </PreferenceCategory>

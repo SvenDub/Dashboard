@@ -35,7 +35,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.location.GpsStatus;
 import android.location.Location;
-import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaMetadata;
 import android.media.session.MediaController;
@@ -122,6 +121,7 @@ public class CarActivity extends Activity
     TextView mSpeedUnit;
     int mPrefSpeedUnit = 1;
     boolean mPrefShowSpeed = true;
+    boolean mPrefShowRoad = true;
 
     UiModeManager mUiModeManager;
 
@@ -131,8 +131,6 @@ public class CarActivity extends Activity
 
     // Location
     long mLastLocationMillis = 0l;
-    LocationManager mLocationManager;
-    private static final String LOCATION_PROVIDER = "gps";
     private static final int GPS_UPDATE_INTERVAL = 1000;
     private static final int GEOFENCING_INTERVAL = 60000;
     GoogleApiClient mGoogleApiClient;
@@ -245,6 +243,7 @@ public class CarActivity extends Activity
 
     private void toggleSpeed() {
         mSpeedContainer.setVisibility(mPrefShowSpeed ? View.VISIBLE : View.GONE);
+        mSpeedAddress.setVisibility(mPrefShowRoad ? View.VISIBLE : View.GONE);
         switch (mPrefSpeedUnit) {
             case PREF_SPEED_UNIT_MS:
                 mSpeedUnit.setText("m/s");
@@ -282,6 +281,7 @@ public class CarActivity extends Activity
         finish();
     }
 
+    @SuppressWarnings("unchecked")
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_settings:
@@ -372,6 +372,7 @@ public class CarActivity extends Activity
 
         mPrefShowDate = mSharedPref.getBoolean("pref_key_show_date", true);
         mPrefShowSpeed = mSharedPref.getBoolean("pref_key_show_speed", true);
+        mPrefShowRoad = mSharedPref.getBoolean("pref_key_show_road", true);
         mPrefShowMedia = mSharedPref.getBoolean("pref_key_show_media", true);
         mPrefSpeakNotifications = mSharedPref.getBoolean("pref_key_speak_notifications", true);
         mPrefKeepScreenOn = mSharedPref.getBoolean("pref_key_keep_screen_on", true);
@@ -421,7 +422,7 @@ public class CarActivity extends Activity
     }
 
     public void onLocationChanged(Location location) {
-        if (SystemClock.elapsedRealtime() - mLastLocationMillis > GEOFENCING_INTERVAL) {
+        if (mPrefShowSpeed && mPrefShowRoad && SystemClock.elapsedRealtime() - mLastLocationMillis > GEOFENCING_INTERVAL) {
             startIntentService(location);
 
             mLastLocationMillis = SystemClock.elapsedRealtime();
@@ -468,6 +469,7 @@ public class CarActivity extends Activity
         mSharedPref.registerOnSharedPreferenceChangeListener(this);
         mPrefShowDate = mSharedPref.getBoolean("pref_key_show_date", true);
         mPrefShowSpeed = mSharedPref.getBoolean("pref_key_show_speed", true);
+        mPrefShowRoad = mSharedPref.getBoolean("pref_key_show_road", true);
         mPrefShowMedia = mSharedPref.getBoolean("pref_key_show_media", true);
         mPrefSpeakNotifications = mSharedPref.getBoolean("pref_key_speak_notifications", true);
         mPrefKeepScreenOn = mSharedPref.getBoolean("pref_key_keep_screen_on", true);
@@ -483,18 +485,6 @@ public class CarActivity extends Activity
         toggleMedia();
         toggleNightMode();
         toggleSpeakNotificationsIcon();
-
-        mLocationManager = ((LocationManager) getSystemService(LOCATION_SERVICE));
-
-        if (!mLocationManager.isProviderEnabled(LOCATION_PROVIDER)) {
-            startActivity(new Intent("android.settings.LOCATION_SOURCE_SETTINGS"));
-        }
-
-        Location location = mLocationManager.getLastKnownLocation(LOCATION_PROVIDER);
-
-        if (location != null) {
-            onLocationChanged(location);
-        }
 
         if (mPrefShowMedia || mPrefSpeakNotifications) {
             String enabledNotificationListeners = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
@@ -531,6 +521,10 @@ public class CarActivity extends Activity
                 break;
             case "pref_key_show_speed":
                 mPrefShowSpeed = sharedPreferences.getBoolean("pref_key_show_speed", true);
+                toggleSpeed();
+                break;
+            case "pref_key_show_road":
+                mPrefShowRoad = sharedPreferences.getBoolean("pref_key_show_road", true);
                 toggleSpeed();
                 break;
             case "pref_key_keep_screen_on":
