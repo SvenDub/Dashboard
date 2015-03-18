@@ -55,7 +55,6 @@ import java.util.TimerTask;
 
 public class MediaActivity extends Activity
         implements MediaSessionManager.OnActiveSessionsChangedListener, SeekBar.OnSeekBarChangeListener {
-    Log mLog = new Log();
     TextView mMediaAlbum;
     ImageView mMediaArt;
     TextView mMediaArtist;
@@ -82,7 +81,7 @@ public class MediaActivity extends Activity
     public void onActiveSessionsChanged(List<MediaController> controllers) {
         if (mMediaController != null) {
             mMediaController.unregisterCallback(mMediaCallback);
-            mLog.d("MediaController", "MediaController removed");
+            Log.d("MediaController", "MediaController removed");
             mMediaController = null;
         }
         if (controllers.size() > 0) {
@@ -90,7 +89,7 @@ public class MediaActivity extends Activity
             mMediaController.registerCallback(mMediaCallback);
             mMediaCallback.onMetadataChanged(mMediaController.getMetadata());
             mMediaCallback.onPlaybackStateChanged(mMediaController.getPlaybackState());
-            mLog.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
+            Log.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
         }
     }
 
@@ -167,7 +166,7 @@ public class MediaActivity extends Activity
             mMediaSessionManager.removeOnActiveSessionsChangedListener(this);
             if (mMediaController != null) {
                 mMediaController.unregisterCallback(mMediaCallback);
-                mLog.d("MediaController", "MediaController removed");
+                Log.d("MediaController", "MediaController removed");
             }
         }
     }
@@ -199,11 +198,11 @@ public class MediaActivity extends Activity
                     mMediaController.registerCallback(mMediaCallback);
                     mMediaCallback.onMetadataChanged(mMediaController.getMetadata());
                     mMediaCallback.onPlaybackStateChanged(mMediaController.getPlaybackState());
-                    mLog.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
+                    Log.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
                 }
                 mMediaSessionManager.addOnActiveSessionsChangedListener(this, new ComponentName(this, NotificationListener.class));
             } catch (SecurityException localSecurityException) {
-                mLog.w("NotificationListener", "No Notification Access");
+                Log.w("NotificationListener", "No Notification Access");
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.dialog_notification_access_title)
                         .setMessage(R.string.dialog_notification_access_message)

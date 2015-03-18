@@ -39,8 +39,6 @@ public class FetchAddressIntentService extends IntentService {
 
     protected ResultReceiver mReceiver;
 
-    Log mLog = new Log();
-
     public FetchAddressIntentService() {
         super("FetchAddressIntentService");
     }
@@ -61,7 +59,7 @@ public class FetchAddressIntentService extends IntentService {
         mReceiver = intent.getParcelableExtra(Constants.RECEIVER);
 
         if (mReceiver == null) {
-            mLog.e("Geofencing", "No receiver received. There is nowhere to send the results.");
+            Log.e("Geofencing", "No receiver received. There is nowhere to send the results.");
             return;
         }
 
@@ -81,7 +79,7 @@ public class FetchAddressIntentService extends IntentService {
         } catch (IOException ioException) {
             ioException.printStackTrace();
         } catch (IllegalArgumentException illegalArgumentException) {
-            mLog.e("Geofencing", errorMessage + ". " +
+            Log.e("Geofencing", errorMessage + ". " +
                     "Latitude = " + location.getLatitude() +
                     ", Longitude = " + location.getLongitude(), illegalArgumentException);
         }

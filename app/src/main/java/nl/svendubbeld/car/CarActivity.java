@@ -125,8 +125,6 @@ public class CarActivity extends Activity
 
     UiModeManager mUiModeManager;
 
-    Log mLog = new Log();
-
     SharedPreferences mSharedPref;
     boolean mPrefKeepScreenOn = true;
     String mPrefNightMode = "auto";
@@ -266,7 +264,7 @@ public class CarActivity extends Activity
     public void onActiveSessionsChanged(List<MediaController> controllers) {
         if (mMediaController != null) {
             mMediaController.unregisterCallback(mMediaCallback);
-            mLog.d("MediaController", "MediaController removed");
+            Log.d("MediaController", "MediaController removed");
             mMediaController = null;
         }
         if (controllers.size() > 0) {
@@ -274,7 +272,7 @@ public class CarActivity extends Activity
             mMediaController.registerCallback(mMediaCallback);
             mMediaCallback.onMetadataChanged(mMediaController.getMetadata());
             mMediaCallback.onPlaybackStateChanged(mMediaController.getPlaybackState());
-            mLog.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
+            Log.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
         }
     }
 
@@ -458,7 +456,7 @@ public class CarActivity extends Activity
             mMediaSessionManager.removeOnActiveSessionsChangedListener(this);
             if (mMediaController != null) {
                 mMediaController.unregisterCallback(mMediaCallback);
-                mLog.d("MediaController", "MediaController removed");
+                Log.d("MediaController", "MediaController removed");
             }
         }
         mSharedPref.unregisterOnSharedPreferenceChangeListener(this);
@@ -516,11 +514,11 @@ public class CarActivity extends Activity
                     mMediaController.registerCallback(mMediaCallback);
                     mMediaCallback.onMetadataChanged(mMediaController.getMetadata());
                     mMediaCallback.onPlaybackStateChanged(mMediaController.getPlaybackState());
-                    mLog.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
+                    Log.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
                 }
                 mMediaSessionManager.addOnActiveSessionsChangedListener(this, new ComponentName(this, NotificationListener.class));
             } catch (SecurityException localSecurityException) {
-                mLog.w("NotificationListener", "No Notification Access");
+                Log.w("NotificationListener", "No Notification Access");
             }
         }
     }
@@ -549,7 +547,7 @@ public class CarActivity extends Activity
                 if (mPrefSpeakNotifications) {
                     String enabledNotificationListeners = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
                     if ((enabledNotificationListeners == null) || (!enabledNotificationListeners.contains(getPackageName()))) {
-                        mLog.w("NotificationListener", "No Notification Access");
+                        Log.w("NotificationListener", "No Notification Access");
                         if (!mNotificationListenerDialog.isShowing()) {
                             mNotificationListenerDialog.show();
                         }

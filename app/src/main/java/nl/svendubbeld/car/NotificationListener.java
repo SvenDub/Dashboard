@@ -36,7 +36,6 @@ import android.speech.tts.TextToSpeech;
 public class NotificationListener extends NotificationListenerService
         implements TextToSpeech.OnInitListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
-    Log mLog = new Log();
     boolean mPrefSpeakNotifications = true;
     SharedPreferences mSharedPref;
     TextToSpeech mTextToSpeech;
@@ -57,14 +56,14 @@ public class NotificationListener extends NotificationListenerService
         mSharedPref.registerOnSharedPreferenceChangeListener(this);
 
         mPrefSpeakNotifications = mSharedPref.getBoolean("pref_key_speak_notifications", true);
-        mLog.i("TextToSpeech", "Speak notifications: " + mPrefSpeakNotifications);
+        Log.i("TextToSpeech", "Speak notifications: " + mPrefSpeakNotifications);
     }
 
     public void onDestroy() {
         super.onDestroy();
 
         mTextToSpeech.shutdown();
-        mLog.i("TextToSpeech", "Stopped");
+        Log.i("TextToSpeech", "Stopped");
 
         mSharedPref.unregisterOnSharedPreferenceChangeListener(this);
     }
@@ -72,7 +71,7 @@ public class NotificationListener extends NotificationListenerService
     public void onInit(int status) {
         if (status == TextToSpeech.SUCCESS) {
             mTextToSpeechInitialized = true;
-            mLog.i("TextToSpeech", "Ready");
+            Log.i("TextToSpeech", "Ready");
         }
     }
 
@@ -84,7 +83,7 @@ public class NotificationListener extends NotificationListenerService
             if (notification.tickerText != null) {
                 mTextToSpeech.playSilentUtterance(1500l, TextToSpeech.QUEUE_ADD, sbn.getId() + "_delay");
                 mTextToSpeech.speak(notification.tickerText, TextToSpeech.QUEUE_ADD, mTextToSpeechOptions, sbn.getId() + "_content");
-                mLog.d("TextToSpeech", "Speak: " + notification.tickerText);
+                Log.d("TextToSpeech", "Speak: " + notification.tickerText);
             }
         }
     }
@@ -92,7 +91,7 @@ public class NotificationListener extends NotificationListenerService
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("pref_key_speak_notifications")) {
             mPrefSpeakNotifications = sharedPreferences.getBoolean("pref_key_speak_notifications", true);
-            mLog.i("TextToSpeech", "Spoken notifications: " + mPrefSpeakNotifications);
+            Log.i("TextToSpeech", "Spoken notifications: " + mPrefSpeakNotifications);
         }
     }
 }

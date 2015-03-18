@@ -30,8 +30,6 @@ import android.view.accessibility.AccessibilityEvent;
 
 public class VoiceAccessibilityService extends AccessibilityService {
 
-    Log mLog = new Log();
-
     static final long timeOut = 500;
     long lastCommand = 0;
 
