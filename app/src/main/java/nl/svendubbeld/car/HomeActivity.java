@@ -94,6 +94,5 @@ public class HomeActivity extends Activity {
             homeIntent.setComponent(componentName);
             startActivity(homeIntent);
         }
-        overridePendingTransition(0, 0);
     }
 }
