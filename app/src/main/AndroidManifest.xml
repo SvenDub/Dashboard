@@ -74,9 +74,7 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="nl.svendubbeld.car.HomeActivity"
-            android:launchMode="singleInstance">
+        <activity android:name="nl.svendubbeld.car.HomeActivity">
             <intent-filter>
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -86,15 +84,12 @@
         </activity>
         <activity
             android:name="nl.svendubbeld.car.MediaActivity"
-            android:launchMode="singleTask"
             android:parentActivityName="nl.svendubbeld.car.CarActivity" />
         <activity
             android:name="nl.svendubbeld.car.DialerActivity"
-            android:launchMode="singleTask"
             android:parentActivityName="nl.svendubbeld.car.CarActivity" />
         <activity
             android:name="nl.svendubbeld.car.navigation.NavigationActivity"
-            android:launchMode="singleTask"
             android:parentActivityName="nl.svendubbeld.car.CarActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity

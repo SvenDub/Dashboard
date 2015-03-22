@@ -549,10 +549,21 @@ public class CarActivity extends Activity
             }
         }
         mSharedPref.unregisterOnSharedPreferenceChangeListener(this);
+
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(
+                    mGoogleApiClient, this);
+        }
     }
 
     protected void onResume() {
         super.onResume();
+
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        } else if (!mGoogleApiClient.isConnecting()) {
+            mGoogleApiClient.connect();
+        }
 
         mSharedPref.registerOnSharedPreferenceChangeListener(this);
         mPrefShowDate = mSharedPref.getBoolean("pref_key_show_date", true);
