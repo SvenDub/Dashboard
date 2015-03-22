@@ -33,9 +33,10 @@
             android:title="@string/pref_title_show_speed" />
         <CheckBoxPreference
             android:defaultValue="true"
+            android:dependency="pref_key_show_speed"
             android:key="pref_key_show_road"
-            android:title="@string/pref_title_show_road"
-            android:dependency="pref_key_show_speed" />
+            android:summary="@string/pref_summary_show_road"
+            android:title="@string/pref_title_show_road" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_key_show_media"
@@ -63,6 +64,19 @@
             android:key="pref_key_dialer"
             android:summary="%s"
             android:title="@string/pref_title_dialer" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_title_navigation">
+        <nl.svendubbeld.car.EditTextPreference
+            android:key="pref_key_navigation_home"
+            android:title="@string/pref_title_navigation_home" />
+        <nl.svendubbeld.car.EditTextPreference
+            android:key="pref_key_navigation_work"
+            android:title="@string/pref_title_navigation_work" />
+        <Preference android:title="@string/pref_title_navigation_favorites">
+            <intent
+                android:targetClass="nl.svendubbeld.car.navigation.NavigationFavoritesPreferenceActivity"
+                android:targetPackage="nl.svendubbeld.car" />
+        </Preference>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_title_other">
         <CheckBoxPreference

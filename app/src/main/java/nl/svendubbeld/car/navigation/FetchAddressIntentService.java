@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.svendubbeld.car;
+package nl.svendubbeld.car.navigation;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -34,6 +34,8 @@ import android.os.ResultReceiver;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+
+import nl.svendubbeld.car.Log;
 
 public class FetchAddressIntentService extends IntentService {
 

@@ -41,7 +41,6 @@ import android.media.session.MediaController;
 import android.media.session.MediaSession;
 import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -64,9 +63,13 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
+
+import nl.svendubbeld.car.navigation.FetchAddressIntentService;
+import nl.svendubbeld.car.navigation.NavigationActivity;
 
 public class CarActivity extends Activity
         implements LocationListener, GpsStatus.Listener, SharedPreferences.OnSharedPreferenceChangeListener, MediaSessionManager.OnActiveSessionsChangedListener, View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -75,11 +78,11 @@ public class CarActivity extends Activity
     public static final int PREF_SPEED_UNIT_KMH = 1;
     public static final int PREF_SPEED_UNIT_MPH = 2;
     public static final int PREF_SPEED_UNIT_MS = 0;
-
+    private static final int GPS_UPDATE_INTERVAL = 1000;
+    private static final int GEOFENCING_INTERVAL = 60000;
     // Background
     ScrollView mBackground;
     String mPrefBackground = "launcher";
-
     // Buttons
     CardView mButtonDialer;
     CardView mButtonExit;
@@ -91,13 +94,11 @@ public class CarActivity extends Activity
     boolean mPrefSpeakNotifications = true;
     String mPrefAppsDialer = "default";
     AlertDialog mNotificationListenerDialog;
-
     // Date
     CardView mDateContainer;
     TextClock mDate;
     TextClock mTime;
     boolean mPrefShowDate = true;
-
     // Media
     CardView mMediaContainer;
     ImageView mMediaArt;
@@ -113,7 +114,6 @@ public class CarActivity extends Activity
     MediaSessionManager mMediaSessionManager;
     MediaController mMediaController = null;
     boolean mPrefShowMedia = true;
-
     // Speed
     CardView mSpeedContainer;
     TextView mSpeedAddress;
@@ -122,20 +122,107 @@ public class CarActivity extends Activity
     int mPrefSpeedUnit = 1;
     boolean mPrefShowSpeed = true;
     boolean mPrefShowRoad = true;
-
     UiModeManager mUiModeManager;
-
     SharedPreferences mSharedPref;
     boolean mPrefKeepScreenOn = true;
     String mPrefNightMode = "auto";
-
     // Location
     long mLastLocationMillis = 0l;
-    private static final int GPS_UPDATE_INTERVAL = 1000;
-    private static final int GEOFENCING_INTERVAL = 60000;
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
     AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
+    MediaController.Callback mMediaCallback = new MediaController.Callback() {
+        public void onAudioInfoChanged(MediaController.PlaybackInfo playbackInfo) {
+            super.onAudioInfoChanged(playbackInfo);
+        }
+
+        public void onMetadataChanged(MediaMetadata metadata) {
+            super.onMetadataChanged(metadata);
+            if ((mMediaArt != null) && (metadata != null)) {
+                mMediaArt.setImageBitmap(metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART));
+                mMediaTitle.setText(metadata.getText(MediaMetadata.METADATA_KEY_TITLE));
+                mMediaArtist.setText(metadata.getText(MediaMetadata.METADATA_KEY_ARTIST));
+                mMediaAlbum.setText(metadata.getText(MediaMetadata.METADATA_KEY_ALBUM));
+            }
+        }
+
+        public void onPlaybackStateChanged(PlaybackState state) {
+            super.onPlaybackStateChanged(state);
+
+            if ((mMediaPlay != null) && (state != null)) {
+                switch (state.getState()) {
+                    case PlaybackState.STATE_BUFFERING:
+                    case PlaybackState.STATE_CONNECTING:
+                        mMediaPlay.setVisibility(View.GONE);
+                        mMediaPlayProgress.setVisibility(View.VISIBLE);
+                        mMediaPlay.setImageResource(R.drawable.ic_av_pause);
+                        break;
+                    case PlaybackState.STATE_PLAYING:
+                        mMediaPlay.setVisibility(View.VISIBLE);
+                        mMediaPlayProgress.setVisibility(View.GONE);
+                        mMediaPlay.setImageResource(R.drawable.ic_av_pause);
+                        break;
+                    default:
+                        mMediaPlay.setVisibility(View.VISIBLE);
+                        mMediaPlayProgress.setVisibility(View.GONE);
+                        mMediaPlay.setImageResource(R.drawable.ic_av_play_arrow);
+                        break;
+                }
+            }
+        }
+
+        public void onQueueChanged(List<MediaSession.QueueItem> queue) {
+            super.onQueueChanged(queue);
+        }
+
+        public void onQueueTitleChanged(CharSequence title) {
+            super.onQueueTitleChanged(title);
+        }
+    };
+    View.OnClickListener mMediaControlsListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            if (mMediaController != null) {
+                switch (v.getId()) {
+                    case R.id.media_vol_down:
+                        mMediaController.adjustVolume(AudioManager.ADJUST_LOWER, 0);
+                        break;
+                    case R.id.media_prev:
+                        mMediaController.getTransportControls().skipToPrevious();
+                        break;
+                    case R.id.media_play:
+                        switch (mMediaController.getPlaybackState().getState()) {
+                            case PlaybackState.STATE_BUFFERING:
+                            case PlaybackState.STATE_CONNECTING:
+                                mMediaPlay.setVisibility(View.GONE);
+                                mMediaPlayProgress.setVisibility(View.VISIBLE);
+                            case PlaybackState.STATE_PLAYING:
+                                mMediaController.getTransportControls().pause();
+                                break;
+                            default:
+                                mMediaController.getTransportControls().play();
+                                break;
+                        }
+                        break;
+                    case R.id.media_next:
+                        mMediaController.getTransportControls().skipToNext();
+                        break;
+                    case R.id.media_vol_up:
+                        mMediaController.adjustVolume(AudioManager.ADJUST_RAISE, 0);
+                        break;
+                }
+            } else {
+                Intent mediaIntent = new Intent("android.intent.action.MEDIA_BUTTON");
+                mediaIntent.putExtra("android.intent.extra.KEY_EVENT", new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY));
+                sendOrderedBroadcast(mediaIntent, null);
+
+                mediaIntent.putExtra("android.intent.extra.KEY_EVENT", new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY));
+                sendOrderedBroadcast(mediaIntent, null);
+
+                mMediaPlay.setVisibility(View.GONE);
+                mMediaPlayProgress.setVisibility(View.VISIBLE);
+            }
+        }
+    };
 
     private void resetLayout() {
         setContentView(R.layout.activity_car);
@@ -328,7 +415,7 @@ public class CarActivity extends Activity
     }
 
     private void launchNavigation(View source) {
-        Intent navigationIntent = new Intent("android.intent.action.VIEW", Uri.parse("geo:"));
+        Intent navigationIntent = new Intent(this, NavigationActivity.class);
         startActivity(navigationIntent, ActivityOptions.makeScaleUpAnimation(source, 0, 0, source.getWidth(), source.getWidth()).toBundle());
     }
 
@@ -358,6 +445,7 @@ public class CarActivity extends Activity
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
+                .addApi(Places.GEO_DATA_API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
@@ -559,100 +647,6 @@ public class CarActivity extends Activity
                 break;
         }
     }
-
-    MediaController.Callback mMediaCallback = new MediaController.Callback() {
-        public void onAudioInfoChanged(MediaController.PlaybackInfo playbackInfo) {
-            super.onAudioInfoChanged(playbackInfo);
-        }
-
-        public void onMetadataChanged(MediaMetadata metadata) {
-            super.onMetadataChanged(metadata);
-            if ((mMediaArt != null) && (metadata != null)) {
-                mMediaArt.setImageBitmap(metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART));
-                mMediaTitle.setText(metadata.getText(MediaMetadata.METADATA_KEY_TITLE));
-                mMediaArtist.setText(metadata.getText(MediaMetadata.METADATA_KEY_ARTIST));
-                mMediaAlbum.setText(metadata.getText(MediaMetadata.METADATA_KEY_ALBUM));
-            }
-        }
-
-        public void onPlaybackStateChanged(PlaybackState state) {
-            super.onPlaybackStateChanged(state);
-
-            if ((mMediaPlay != null) && (state != null)) {
-                switch (state.getState()) {
-                    case PlaybackState.STATE_BUFFERING:
-                    case PlaybackState.STATE_CONNECTING:
-                        mMediaPlay.setVisibility(View.GONE);
-                        mMediaPlayProgress.setVisibility(View.VISIBLE);
-                        mMediaPlay.setImageResource(R.drawable.ic_av_pause);
-                        break;
-                    case PlaybackState.STATE_PLAYING:
-                        mMediaPlay.setVisibility(View.VISIBLE);
-                        mMediaPlayProgress.setVisibility(View.GONE);
-                        mMediaPlay.setImageResource(R.drawable.ic_av_pause);
-                        break;
-                    default:
-                        mMediaPlay.setVisibility(View.VISIBLE);
-                        mMediaPlayProgress.setVisibility(View.GONE);
-                        mMediaPlay.setImageResource(R.drawable.ic_av_play_arrow);
-                        break;
-                }
-            }
-        }
-
-        public void onQueueChanged(List<MediaSession.QueueItem> queue) {
-            super.onQueueChanged(queue);
-        }
-
-        public void onQueueTitleChanged(CharSequence title) {
-            super.onQueueTitleChanged(title);
-        }
-    };
-
-    View.OnClickListener mMediaControlsListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            if (mMediaController != null) {
-                switch (v.getId()) {
-                    case R.id.media_vol_down:
-                        mMediaController.adjustVolume(AudioManager.ADJUST_LOWER, 0);
-                        break;
-                    case R.id.media_prev:
-                        mMediaController.getTransportControls().skipToPrevious();
-                        break;
-                    case R.id.media_play:
-                        switch (mMediaController.getPlaybackState().getState()) {
-                            case PlaybackState.STATE_BUFFERING:
-                            case PlaybackState.STATE_CONNECTING:
-                                mMediaPlay.setVisibility(View.GONE);
-                                mMediaPlayProgress.setVisibility(View.VISIBLE);
-                            case PlaybackState.STATE_PLAYING:
-                                mMediaController.getTransportControls().pause();
-                                break;
-                            default:
-                                mMediaController.getTransportControls().play();
-                                break;
-                        }
-                        break;
-                    case R.id.media_next:
-                        mMediaController.getTransportControls().skipToNext();
-                        break;
-                    case R.id.media_vol_up:
-                        mMediaController.adjustVolume(AudioManager.ADJUST_RAISE, 0);
-                        break;
-                }
-            } else {
-                Intent mediaIntent = new Intent("android.intent.action.MEDIA_BUTTON");
-                mediaIntent.putExtra("android.intent.extra.KEY_EVENT", new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY));
-                sendOrderedBroadcast(mediaIntent, null);
-
-                mediaIntent.putExtra("android.intent.extra.KEY_EVENT", new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY));
-                sendOrderedBroadcast(mediaIntent, null);
-
-                mMediaPlay.setVisibility(View.GONE);
-                mMediaPlayProgress.setVisibility(View.VISIBLE);
-            }
-        }
-    };
 
     @Override
     public void onConnected(Bundle bundle) {

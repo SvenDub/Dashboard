@@ -44,6 +44,11 @@
         <item>°C</item>
         <item>°F</item>
     </string-array>
+    <string-array name="pref_navigation_long_click_items">
+        <item>@string/edit</item>
+        <item>@string/delete</item>
+        <item>@string/cancel</item>
+    </string-array>
     <string-array name="pref_values_bg">
         <item>launcher</item>
         <item>black</item>
