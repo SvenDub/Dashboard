@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.svendubbeld.car;
+package nl.svendubbeld.car.activity;
 
 import android.app.Activity;
 import android.app.UiModeManager;
@@ -69,7 +69,7 @@ public class HomeActivity extends Activity {
             if (launcher.isEmpty()) {
                 List<ResolveInfo> activities = getPackageManager().queryIntentActivities(findHomeIntent, PackageManager.MATCH_DEFAULT_ONLY);
                 for (ResolveInfo resolveInfo : activities) {
-                    if (!resolveInfo.activityInfo.name.equals("nl.svendubbeld.car.HomeActivity")) {
+                    if (!resolveInfo.activityInfo.name.equals("nl.svendubbeld.car.activity.HomeActivity")) {
                         componentName = new ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
                         break;
                     }
@@ -82,7 +82,7 @@ public class HomeActivity extends Activity {
                 if (getPackageManager().resolveActivity(homeIntent, PackageManager.MATCH_DEFAULT_ONLY) == null) {
                     List<ResolveInfo> activities = getPackageManager().queryIntentActivities(findHomeIntent, PackageManager.MATCH_DEFAULT_ONLY);
                     for (ResolveInfo resolveInfo : activities) {
-                        if (!resolveInfo.activityInfo.name.equals("nl.svendubbeld.car.HomeActivity")) {
+                        if (!resolveInfo.activityInfo.name.equals("nl.svendubbeld.car.activity.HomeActivity")) {
                             componentName = new ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
                             break;
                         }

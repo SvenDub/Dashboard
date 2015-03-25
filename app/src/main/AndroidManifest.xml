@@ -21,8 +21,8 @@
   ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="nl.svendubbeld.car">
+<manifest package="nl.svendubbeld.car"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
@@ -43,7 +43,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <service
-            android:name="nl.svendubbeld.car.NotificationListener"
+            android:name=".service.NotificationListener"
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
@@ -53,11 +53,11 @@
         </service>
 
         <activity
-            android:name="nl.svendubbeld.car.SettingsActivity"
+            android:name=".activity.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="nl.svendubbeld.car.CarActivity" />
+            android:parentActivityName=".activity.CarActivity" />
         <activity
-            android:name="nl.svendubbeld.car.CarActivity"
+            android:name=".activity.CarActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask">
             <meta-data
@@ -74,7 +74,7 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        <activity android:name="nl.svendubbeld.car.HomeActivity">
+        <activity android:name=".activity.HomeActivity">
             <intent-filter>
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -83,21 +83,21 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="nl.svendubbeld.car.MediaActivity"
-            android:parentActivityName="nl.svendubbeld.car.CarActivity" />
+            android:name=".activity.MediaActivity"
+            android:parentActivityName=".activity.CarActivity" />
         <activity
-            android:name="nl.svendubbeld.car.DialerActivity"
-            android:parentActivityName="nl.svendubbeld.car.CarActivity" />
+            android:name=".activity.DialerActivity"
+            android:parentActivityName=".activity.CarActivity" />
         <activity
-            android:name="nl.svendubbeld.car.navigation.NavigationActivity"
-            android:parentActivityName="nl.svendubbeld.car.CarActivity"
+            android:name=".activity.NavigationActivity"
+            android:parentActivityName=".activity.CarActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name="nl.svendubbeld.car.navigation.NavigationFavoritesPreferenceActivity"
-            android:parentActivityName="nl.svendubbeld.car.SettingsActivity" />
+            android:name=".activity.NavigationFavoritesPreferenceActivity"
+            android:parentActivityName=".activity.SettingsActivity" />
 
         <service
-            android:name="nl.svendubbeld.car.VoiceAccessibilityService"
+            android:name=".service.VoiceAccessibilityService"
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
@@ -110,7 +110,7 @@
                 android:resource="@xml/accessibility_service" />
         </service>
         <service
-            android:name="nl.svendubbeld.car.navigation.FetchAddressIntentService"
+            android:name=".service.FetchAddressIntentService"
             android:exported="false" />
 
         <meta-data

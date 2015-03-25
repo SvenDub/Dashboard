@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.svendubbeld.car;
+package nl.svendubbeld.car.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -32,7 +32,7 @@ import android.provider.BaseColumns;
 
 import java.util.ArrayList;
 
-import nl.svendubbeld.car.navigation.NavigationFavoritesAdapter;
+import nl.svendubbeld.car.adapter.NavigationFavoritesAdapter;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 

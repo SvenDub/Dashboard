@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.svendubbeld.car.navigation;
+package nl.svendubbeld.car.fragment;
 
 import android.app.Fragment;
 import android.content.Intent;

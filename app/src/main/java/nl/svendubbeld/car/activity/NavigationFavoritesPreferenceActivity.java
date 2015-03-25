@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.svendubbeld.car.navigation;
+package nl.svendubbeld.car.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -38,6 +38,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import nl.svendubbeld.car.R;
+import nl.svendubbeld.car.adapter.NavigationFavoritesAdapter;
 
 public class NavigationFavoritesPreferenceActivity extends Activity implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 

@@ -66,10 +66,10 @@
             android:title="@string/pref_title_dialer" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_title_navigation">
-        <nl.svendubbeld.car.EditTextPreference
+        <nl.svendubbeld.car.preference.EditTextPreference
             android:key="pref_key_navigation_home"
             android:title="@string/pref_title_navigation_home" />
-        <nl.svendubbeld.car.EditTextPreference
+        <nl.svendubbeld.car.preference.EditTextPreference
             android:key="pref_key_navigation_work"
             android:title="@string/pref_title_navigation_work" />
         <Preference android:title="@string/pref_title_navigation_favorites">

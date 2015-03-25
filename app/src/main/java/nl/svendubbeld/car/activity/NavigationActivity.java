@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.svendubbeld.car.navigation;
+package nl.svendubbeld.car.activity;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -55,6 +55,8 @@ import java.io.IOException;
 import java.util.List;
 
 import nl.svendubbeld.car.R;
+import nl.svendubbeld.car.fragment.NavigationFavoritesFragment;
+import nl.svendubbeld.car.fragment.NavigationInputFragment;
 
 public class NavigationActivity extends Activity implements OnMapReadyCallback, GoogleMap.OnMyLocationChangeListener {
 

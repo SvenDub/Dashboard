@@ -21,12 +21,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.svendubbeld.car;
+package nl.svendubbeld.car.service;
 
 import android.accessibilityservice.AccessibilityService;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.view.accessibility.AccessibilityEvent;
+
+import nl.svendubbeld.car.R;
 
 public class VoiceAccessibilityService extends AccessibilityService {
 

@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.svendubbeld.car;
+package nl.svendubbeld.car.activity;
 
 import android.app.Activity;
 import android.app.FragmentTransaction;
@@ -38,6 +38,8 @@ import android.widget.Toolbar;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import nl.svendubbeld.car.R;
 
 public class SettingsActivity extends Activity {
 
@@ -92,7 +94,7 @@ public class SettingsActivity extends Activity {
             List<ResolveInfo> homeActivitiesFiltered = new ArrayList<>();
             List<ResolveInfo> homeActivities = packageManager.queryIntentActivities(findHomeIntent, PackageManager.MATCH_DEFAULT_ONLY);
             for (ResolveInfo resolveInfo : homeActivities) {
-                if (!resolveInfo.activityInfo.name.equals("nl.svendubbeld.car.HomeActivity")) {
+                if (!resolveInfo.activityInfo.name.equals("nl.svendubbeld.car.activity.HomeActivity")) {
                     homeActivitiesFiltered.add(resolveInfo);
                     if (prefLauncher.getValue().isEmpty()) {
                         prefLauncher.setValue(resolveInfo.activityInfo.packageName + "/" + resolveInfo.activityInfo.name);

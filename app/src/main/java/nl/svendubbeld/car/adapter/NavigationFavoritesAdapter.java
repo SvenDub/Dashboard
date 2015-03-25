@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.svendubbeld.car.navigation;
+package nl.svendubbeld.car.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -32,8 +32,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import nl.svendubbeld.car.DatabaseHandler;
 import nl.svendubbeld.car.R;
+import nl.svendubbeld.car.database.DatabaseHandler;
 
 public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavoritesAdapter.NavigationFavorite> {
 

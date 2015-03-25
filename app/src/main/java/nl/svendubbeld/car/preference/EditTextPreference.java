@@ -21,42 +21,26 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.svendubbeld.car.navigation;
+package nl.svendubbeld.car.preference;
 
-import android.app.ListFragment;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListView;
+import android.content.Context;
+import android.util.AttributeSet;
 
-import nl.svendubbeld.car.R;
+public class EditTextPreference extends android.preference.EditTextPreference {
 
-public class NavigationFavoritesFragment extends ListFragment {
-
-    NavigationFavoritesAdapter mAdapter;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mAdapter = new NavigationFavoritesAdapter(getActivity(), R.layout.list_item_navigation_favorite);
-
-        setListAdapter(mAdapter);
+    public EditTextPreference(Context context, AttributeSet attrs) {
+        super(context, attrs);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_navigation_favorites, container, false);
+    protected void onDialogClosed(boolean positiveResult) {
+        super.onDialogClosed(positiveResult);
+
+        setSummary(getSummary());
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        NavigationFavoritesAdapter.NavigationFavorite favorite = mAdapter.getItem(position);
-
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=" + favorite.getAddress()));
-        startActivity(intent);
+    public CharSequence getSummary() {
+        return this.getText();
     }
 }

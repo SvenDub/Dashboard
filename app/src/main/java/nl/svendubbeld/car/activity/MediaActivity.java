@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.svendubbeld.car;
+package nl.svendubbeld.car.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -53,6 +53,10 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import nl.svendubbeld.car.Log;
+import nl.svendubbeld.car.R;
+import nl.svendubbeld.car.service.NotificationListener;
+
 public class MediaActivity extends Activity
         implements MediaSessionManager.OnActiveSessionsChangedListener, SeekBar.OnSeekBarChangeListener {
     TextView mMediaAlbum;
@@ -77,6 +81,146 @@ public class MediaActivity extends Activity
     SharedPreferences mSharedPref;
     Timer mTimer;
     TimerTask mUpdatePositionTask;
+    MediaController.Callback mMediaCallback = new MediaController.Callback() {
+        public void onAudioInfoChanged(MediaController.PlaybackInfo playbackInfo) {
+            super.onAudioInfoChanged(playbackInfo);
+        }
+
+        public void onMetadataChanged(MediaMetadata metadata) {
+            super.onMetadataChanged(metadata);
+
+            if ((mMediaArt != null) && (metadata != null)) {
+                mMediaArt.setImageBitmap(metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART));
+                mMediaTitle.setText(metadata.getText(MediaMetadata.METADATA_KEY_TITLE));
+                mMediaArtist.setText(metadata.getText(MediaMetadata.METADATA_KEY_ARTIST));
+                mMediaAlbum.setText(metadata.getText(MediaMetadata.METADATA_KEY_ALBUM));
+
+                PlaybackState state = mMediaController.getPlaybackState();
+                if (state != null) {
+                    long queueId = state.getActiveQueueItemId();
+
+                    if (queueId != MediaSession.QueueItem.UNKNOWN_ID) {
+                        List<MediaSession.QueueItem> queue = mMediaController.getQueue();
+
+                        int i;
+                        for (i = 0; queue.get(i).getQueueId() != queueId; i++) ;
+                        MediaSession.QueueItem nextItem = queue.get(i + 1);
+
+                        mMediaUpNextTitle.setText(nextItem.getDescription().getTitle());
+                        mMediaUpNextArtist.setText(nextItem.getDescription().getSubtitle());
+                    }
+
+                    mUpdatePositionTask.run();
+                }
+            }
+        }
+
+        public void onPlaybackStateChanged(PlaybackState state) {
+            super.onPlaybackStateChanged(state);
+            if ((mMediaPlay != null) && (state != null)) {
+                switch (state.getState()) {
+                    case PlaybackState.STATE_BUFFERING:
+                    case PlaybackState.STATE_CONNECTING:
+                        mMediaPlay.setVisibility(View.GONE);
+                        mMediaPlayProgress.setVisibility(View.VISIBLE);
+                        mMediaPlay.setImageResource(R.drawable.ic_av_pause);
+                        break;
+                    case PlaybackState.STATE_PLAYING:
+                        mMediaPlay.setVisibility(View.VISIBLE);
+                        mMediaPlayProgress.setVisibility(View.GONE);
+                        mMediaPlay.setImageResource(R.drawable.ic_av_pause);
+                        break;
+                    default:
+                        mMediaPlay.setVisibility(View.VISIBLE);
+                        mMediaPlayProgress.setVisibility(View.GONE);
+                        mMediaPlay.setImageResource(R.drawable.ic_av_play_arrow);
+                        break;
+                }
+
+                long queueId = state.getActiveQueueItemId();
+
+                if (queueId != MediaSession.QueueItem.UNKNOWN_ID) {
+                    List<MediaSession.QueueItem> queue = mMediaController.getQueue();
+
+                    int i;
+                    for (i = 0; queue.get(i).getQueueId() != queueId; i++) ;
+                    MediaSession.QueueItem nextItem = queue.get(i + 1);
+
+                    mMediaUpNextTitle.setText(nextItem.getDescription().getTitle());
+                    mMediaUpNextArtist.setText(nextItem.getDescription().getSubtitle());
+                }
+
+                mUpdatePositionTask.run();
+            }
+        }
+
+        public void onQueueChanged(List<MediaSession.QueueItem> queue) {
+            super.onQueueChanged(queue);
+
+            PlaybackState state = mMediaController.getPlaybackState();
+            if (state != null) {
+                long queueId = state.getActiveQueueItemId();
+
+                if (queueId != MediaSession.QueueItem.UNKNOWN_ID) {
+
+                    int i;
+                    for (i = 0; queue.get(i).getQueueId() != queueId; i++) ;
+                    MediaSession.QueueItem nextItem = queue.get(i + 1);
+
+                    mMediaUpNextTitle.setText(nextItem.getDescription().getTitle());
+                    mMediaUpNextArtist.setText(nextItem.getDescription().getSubtitle());
+                }
+            }
+        }
+
+        public void onQueueTitleChanged(CharSequence title) {
+            super.onQueueTitleChanged(title);
+        }
+    };
+    View.OnClickListener mMediaControlsListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            if (mMediaController != null) {
+                switch (v.getId()) {
+                    case R.id.media_vol_down:
+                        mMediaController.adjustVolume(AudioManager.ADJUST_LOWER, 0);
+                        break;
+                    case R.id.media_prev:
+                        mMediaController.getTransportControls().skipToPrevious();
+                        break;
+                    case R.id.media_play:
+                        switch (mMediaController.getPlaybackState().getState()) {
+                            case PlaybackState.STATE_BUFFERING:
+                            case PlaybackState.STATE_CONNECTING:
+                                mMediaPlay.setVisibility(View.GONE);
+                                mMediaPlayProgress.setVisibility(View.VISIBLE);
+                            case PlaybackState.STATE_PLAYING:
+                                mMediaController.getTransportControls().pause();
+                                break;
+                            default:
+                                mMediaController.getTransportControls().play();
+                                break;
+                        }
+                        break;
+                    case R.id.media_next:
+                        mMediaController.getTransportControls().skipToNext();
+                        break;
+                    case R.id.media_vol_up:
+                        mMediaController.adjustVolume(AudioManager.ADJUST_RAISE, 0);
+                        break;
+                }
+            } else {
+                Intent mediaIntent = new Intent("android.intent.action.MEDIA_BUTTON");
+                mediaIntent.putExtra("android.intent.extra.KEY_EVENT", new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY));
+                sendOrderedBroadcast(mediaIntent, null);
+
+                mediaIntent.putExtra("android.intent.extra.KEY_EVENT", new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY));
+                sendOrderedBroadcast(mediaIntent, null);
+
+                mMediaPlay.setVisibility(View.GONE);
+                mMediaPlayProgress.setVisibility(View.VISIBLE);
+            }
+        }
+    };
 
     public void onActiveSessionsChanged(List<MediaController> controllers) {
         if (mMediaController != null) {
@@ -246,146 +390,4 @@ public class MediaActivity extends Activity
             mEnd = end;
         }
     }
-
-    MediaController.Callback mMediaCallback = new MediaController.Callback() {
-        public void onAudioInfoChanged(MediaController.PlaybackInfo playbackInfo) {
-            super.onAudioInfoChanged(playbackInfo);
-        }
-
-        public void onMetadataChanged(MediaMetadata metadata) {
-            super.onMetadataChanged(metadata);
-
-            if ((mMediaArt != null) && (metadata != null)) {
-                mMediaArt.setImageBitmap(metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART));
-                mMediaTitle.setText(metadata.getText(MediaMetadata.METADATA_KEY_TITLE));
-                mMediaArtist.setText(metadata.getText(MediaMetadata.METADATA_KEY_ARTIST));
-                mMediaAlbum.setText(metadata.getText(MediaMetadata.METADATA_KEY_ALBUM));
-
-                PlaybackState state = mMediaController.getPlaybackState();
-                if (state != null) {
-                    long queueId = state.getActiveQueueItemId();
-
-                    if (queueId != MediaSession.QueueItem.UNKNOWN_ID) {
-                        List<MediaSession.QueueItem> queue = mMediaController.getQueue();
-
-                        int i;
-                        for (i = 0; queue.get(i).getQueueId() != queueId; i++) ;
-                        MediaSession.QueueItem nextItem = queue.get(i + 1);
-
-                        mMediaUpNextTitle.setText(nextItem.getDescription().getTitle());
-                        mMediaUpNextArtist.setText(nextItem.getDescription().getSubtitle());
-                    }
-
-                    mUpdatePositionTask.run();
-                }
-            }
-        }
-
-        public void onPlaybackStateChanged(PlaybackState state) {
-            super.onPlaybackStateChanged(state);
-            if ((mMediaPlay != null) && (state != null)) {
-                switch (state.getState()) {
-                    case PlaybackState.STATE_BUFFERING:
-                    case PlaybackState.STATE_CONNECTING:
-                        mMediaPlay.setVisibility(View.GONE);
-                        mMediaPlayProgress.setVisibility(View.VISIBLE);
-                        mMediaPlay.setImageResource(R.drawable.ic_av_pause);
-                        break;
-                    case PlaybackState.STATE_PLAYING:
-                        mMediaPlay.setVisibility(View.VISIBLE);
-                        mMediaPlayProgress.setVisibility(View.GONE);
-                        mMediaPlay.setImageResource(R.drawable.ic_av_pause);
-                        break;
-                    default:
-                        mMediaPlay.setVisibility(View.VISIBLE);
-                        mMediaPlayProgress.setVisibility(View.GONE);
-                        mMediaPlay.setImageResource(R.drawable.ic_av_play_arrow);
-                        break;
-                }
-
-                long queueId = state.getActiveQueueItemId();
-
-                if (queueId != MediaSession.QueueItem.UNKNOWN_ID) {
-                    List<MediaSession.QueueItem> queue = mMediaController.getQueue();
-
-                    int i;
-                    for (i = 0; queue.get(i).getQueueId() != queueId; i++) ;
-                    MediaSession.QueueItem nextItem = queue.get(i + 1);
-
-                    mMediaUpNextTitle.setText(nextItem.getDescription().getTitle());
-                    mMediaUpNextArtist.setText(nextItem.getDescription().getSubtitle());
-                }
-
-                mUpdatePositionTask.run();
-            }
-        }
-
-        public void onQueueChanged(List<MediaSession.QueueItem> queue) {
-            super.onQueueChanged(queue);
-
-            PlaybackState state = mMediaController.getPlaybackState();
-            if (state != null) {
-                long queueId = state.getActiveQueueItemId();
-
-                if (queueId != MediaSession.QueueItem.UNKNOWN_ID) {
-
-                    int i;
-                    for (i = 0; queue.get(i).getQueueId() != queueId; i++) ;
-                    MediaSession.QueueItem nextItem = queue.get(i + 1);
-
-                    mMediaUpNextTitle.setText(nextItem.getDescription().getTitle());
-                    mMediaUpNextArtist.setText(nextItem.getDescription().getSubtitle());
-                }
-            }
-        }
-
-        public void onQueueTitleChanged(CharSequence title) {
-            super.onQueueTitleChanged(title);
-        }
-    };
-
-    View.OnClickListener mMediaControlsListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            if (mMediaController != null) {
-                switch (v.getId()) {
-                    case R.id.media_vol_down:
-                        mMediaController.adjustVolume(AudioManager.ADJUST_LOWER, 0);
-                        break;
-                    case R.id.media_prev:
-                        mMediaController.getTransportControls().skipToPrevious();
-                        break;
-                    case R.id.media_play:
-                        switch (mMediaController.getPlaybackState().getState()) {
-                            case PlaybackState.STATE_BUFFERING:
-                            case PlaybackState.STATE_CONNECTING:
-                                mMediaPlay.setVisibility(View.GONE);
-                                mMediaPlayProgress.setVisibility(View.VISIBLE);
-                            case PlaybackState.STATE_PLAYING:
-                                mMediaController.getTransportControls().pause();
-                                break;
-                            default:
-                                mMediaController.getTransportControls().play();
-                                break;
-                        }
-                        break;
-                    case R.id.media_next:
-                        mMediaController.getTransportControls().skipToNext();
-                        break;
-                    case R.id.media_vol_up:
-                        mMediaController.adjustVolume(AudioManager.ADJUST_RAISE, 0);
-                        break;
-                }
-            } else {
-                Intent mediaIntent = new Intent("android.intent.action.MEDIA_BUTTON");
-                mediaIntent.putExtra("android.intent.extra.KEY_EVENT", new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY));
-                sendOrderedBroadcast(mediaIntent, null);
-
-                mediaIntent.putExtra("android.intent.extra.KEY_EVENT", new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY));
-                sendOrderedBroadcast(mediaIntent, null);
-
-                mMediaPlay.setVisibility(View.GONE);
-                mMediaPlayProgress.setVisibility(View.VISIBLE);
-            }
-        }
-    };
 }

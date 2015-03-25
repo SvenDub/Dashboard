@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.svendubbeld.car;
+package nl.svendubbeld.car.service;
 
 import android.app.Notification;
 import android.app.UiModeManager;
@@ -32,6 +32,8 @@ import android.preference.PreferenceManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.speech.tts.TextToSpeech;
+
+import nl.svendubbeld.car.Log;
 
 public class NotificationListener extends NotificationListenerService
         implements TextToSpeech.OnInitListener, SharedPreferences.OnSharedPreferenceChangeListener {
@@ -75,7 +77,7 @@ public class NotificationListener extends NotificationListenerService
         }
     }
 
-    public void onNotificationPosted(StatusBarNotification sbn, NotificationListenerService.RankingMap rankingMap) {
+    public void onNotificationPosted(StatusBarNotification sbn, android.service.notification.NotificationListenerService.RankingMap rankingMap) {
         super.onNotificationPosted(sbn, rankingMap);
 
         if (mTextToSpeechInitialized && mPrefSpeakNotifications && (((UiModeManager) getSystemService(UI_MODE_SERVICE)).getCurrentModeType() == 3)) {

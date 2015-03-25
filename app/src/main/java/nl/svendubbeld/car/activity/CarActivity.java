@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.svendubbeld.car;
+package nl.svendubbeld.car.activity;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
@@ -68,8 +68,10 @@ import com.google.android.gms.location.places.Places;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import nl.svendubbeld.car.navigation.FetchAddressIntentService;
-import nl.svendubbeld.car.navigation.NavigationActivity;
+import nl.svendubbeld.car.Log;
+import nl.svendubbeld.car.R;
+import nl.svendubbeld.car.service.FetchAddressIntentService;
+import nl.svendubbeld.car.service.NotificationListener;
 
 public class CarActivity extends Activity
         implements LocationListener, GpsStatus.Listener, SharedPreferences.OnSharedPreferenceChangeListener, MediaSessionManager.OnActiveSessionsChangedListener, View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {

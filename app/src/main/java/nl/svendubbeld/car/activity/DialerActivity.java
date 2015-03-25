@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.svendubbeld.car;
+package nl.svendubbeld.car.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -32,6 +32,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import nl.svendubbeld.car.R;
 
 public class DialerActivity extends Activity {
 
