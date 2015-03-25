@@ -25,19 +25,12 @@ package nl.svendubbeld.car.activity;
 
 import android.app.Activity;
 import android.app.FragmentTransaction;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.view.View;
 import android.widget.Toolbar;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import nl.svendubbeld.car.R;
 
@@ -71,8 +64,6 @@ public class SettingsActivity extends Activity {
 
     public static class SettingsFragment extends PreferenceFragment {
 
-        Intent findHomeIntent;
-
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
@@ -84,34 +75,6 @@ public class SettingsActivity extends Activity {
             if (getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                 view.findViewById(android.R.id.list).setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.nav_bar_height));
             }
-
-            ListPreference prefLauncher = (ListPreference) findPreference("pref_key_launcher");
-
-            PackageManager packageManager = getActivity().getPackageManager();
-            findHomeIntent = new Intent(Intent.ACTION_MAIN);
-            findHomeIntent.addCategory(Intent.CATEGORY_HOME);
-
-            List<ResolveInfo> homeActivitiesFiltered = new ArrayList<>();
-            List<ResolveInfo> homeActivities = packageManager.queryIntentActivities(findHomeIntent, PackageManager.MATCH_DEFAULT_ONLY);
-            for (ResolveInfo resolveInfo : homeActivities) {
-                if (!resolveInfo.activityInfo.name.equals("nl.svendubbeld.car.activity.HomeActivity")) {
-                    homeActivitiesFiltered.add(resolveInfo);
-                    if (prefLauncher.getValue().isEmpty()) {
-                        prefLauncher.setValue(resolveInfo.activityInfo.packageName + "/" + resolveInfo.activityInfo.name);
-                    }
-                }
-            }
-
-            CharSequence[] prefLauncherEntries = new CharSequence[homeActivitiesFiltered.size()];
-            CharSequence[] prefLauncherValues = new CharSequence[homeActivitiesFiltered.size()];
-            for (int i = 0; i < homeActivitiesFiltered.size(); i++) {
-                ResolveInfo resolveInfo = homeActivitiesFiltered.get(i);
-                prefLauncherEntries[i] = resolveInfo.activityInfo.loadLabel(packageManager);
-                prefLauncherValues[i] = resolveInfo.activityInfo.packageName + "/" + resolveInfo.activityInfo.name;
-            }
-
-            prefLauncher.setEntries(prefLauncherEntries);
-            prefLauncher.setEntryValues(prefLauncherValues);
         }
     }
 }

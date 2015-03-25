@@ -365,8 +365,7 @@ public class CarActivity extends Activity
     }
 
     public void onBackPressed() {
-        mUiModeManager.disableCarMode(0);
-        startActivity(new Intent(this, HomeActivity.class));
+        mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);
         finish();
     }
 
@@ -391,8 +390,7 @@ public class CarActivity extends Activity
                 mSharedPref.edit().putBoolean("pref_key_speak_notifications", !mPrefSpeakNotifications).apply();
                 break;
             case R.id.btn_exit:
-                mUiModeManager.disableCarMode(0);
-                startActivity(new Intent(this, HomeActivity.class));
+                mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);
                 finish();
                 break;
             case R.id.media_container:
@@ -472,8 +470,6 @@ public class CarActivity extends Activity
         mPrefAppsDialer = mSharedPref.getString("pref_key_dialer", "default");
 
         mUiModeManager = ((UiModeManager) getSystemService(UI_MODE_SERVICE));
-
-        mUiModeManager.enableCarMode(mPrefKeepScreenOn ? 0 : UiModeManager.ENABLE_CAR_MODE_ALLOW_SLEEP);
 
         mNotificationListenerDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_notification_access_title)
@@ -630,7 +626,7 @@ public class CarActivity extends Activity
                 break;
             case "pref_key_keep_screen_on":
                 mPrefKeepScreenOn = sharedPreferences.getBoolean("pref_key_keep_screen_on", true);
-                mUiModeManager.enableCarMode(mPrefKeepScreenOn ? 0 : UiModeManager.ENABLE_CAR_MODE_ALLOW_SLEEP);
+                mUiModeManager.enableCarMode(UiModeManager.ENABLE_CAR_MODE_GO_CAR_HOME | (mPrefKeepScreenOn ? 0 : UiModeManager.ENABLE_CAR_MODE_ALLOW_SLEEP));
                 break;
             case "pref_key_show_media":
                 mPrefShowMedia = sharedPreferences.getBoolean("pref_key_show_media", true);
