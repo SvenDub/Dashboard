@@ -50,8 +50,8 @@ public class HomeActivity extends Activity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onPostResume() {
+        super.onPostResume();
 
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
