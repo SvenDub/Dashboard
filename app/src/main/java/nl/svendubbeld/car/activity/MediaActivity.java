@@ -39,7 +39,6 @@ import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.widget.CardView;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -57,67 +56,84 @@ import nl.svendubbeld.car.Log;
 import nl.svendubbeld.car.R;
 import nl.svendubbeld.car.service.NotificationListener;
 
+/**
+ * Activity that shows media controls.
+ */
 public class MediaActivity extends Activity
         implements MediaSessionManager.OnActiveSessionsChangedListener, SeekBar.OnSeekBarChangeListener {
-    TextView mMediaAlbum;
-    ImageView mMediaArt;
-    TextView mMediaArtist;
-    CardView mMediaContainer;
-    MediaController mMediaController = null;
-    ImageView mMediaNext;
-    ImageView mMediaPlay;
-    ProgressBar mMediaPlayProgress;
-    ImageView mMediaPrev;
-    MediaSessionManager mMediaSessionManager;
-    TextView mMediaTimeEnd;
-    TextView mMediaTimePosition;
-    SeekBar mMediaTimeSeekBar;
-    TextView mMediaTitle;
-    TextView mMediaUpNextArtist;
-    TextView mMediaUpNextTitle;
-    ImageView mMediaVolDown;
-    ImageView mMediaVolUp;
-    boolean mPrefShowMedia = true;
-    SharedPreferences mSharedPref;
-    Timer mTimer;
-    TimerTask mUpdatePositionTask;
-    MediaController.Callback mMediaCallback = new MediaController.Callback() {
+
+    /**
+     * "pref_key_show_media"
+     */
+    private boolean mPrefShowMedia = true;
+
+    // Current track
+    private TextView mMediaAlbum;
+    private ImageView mMediaArt;
+    private TextView mMediaArtist;
+    private TextView mMediaTitle;
+
+    // Next track
+    private TextView mMediaUpNextArtist;
+    private TextView mMediaUpNextTitle;
+
+    // Controls
+    private ImageView mMediaNext;
+    private ImageView mMediaPlay;
+    private ProgressBar mMediaPlayProgress;
+    private ImageView mMediaPrev;
+    private ImageView mMediaVolDown;
+    private ImageView mMediaVolUp;
+
+    // Seek bar
+    private TextView mMediaTimeEnd;
+    private TextView mMediaTimePosition;
+    private SeekBar mMediaTimeSeekBar;
+
+    private MediaController mMediaController = null;
+    private MediaSessionManager mMediaSessionManager;
+
+    private SharedPreferences mSharedPref;
+    private Timer mTimer;
+    private TimerTask mUpdatePositionTask;
+    private UpdatePositionRunnable mUpdatePositionRunnable = new UpdatePositionRunnable();
+
+    /**
+     * Callback for the MediaController.
+     */
+    private MediaController.Callback mMediaCallback = new MediaController.Callback() {
+
+        @Override
         public void onAudioInfoChanged(MediaController.PlaybackInfo playbackInfo) {
             super.onAudioInfoChanged(playbackInfo);
         }
 
+        @Override
         public void onMetadataChanged(MediaMetadata metadata) {
             super.onMetadataChanged(metadata);
 
             if ((mMediaArt != null) && (metadata != null)) {
+
+                // Update media container
                 mMediaArt.setImageBitmap(metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART));
                 mMediaTitle.setText(metadata.getText(MediaMetadata.METADATA_KEY_TITLE));
                 mMediaArtist.setText(metadata.getText(MediaMetadata.METADATA_KEY_ARTIST));
                 mMediaAlbum.setText(metadata.getText(MediaMetadata.METADATA_KEY_ALBUM));
 
-                PlaybackState state = mMediaController.getPlaybackState();
-                if (state != null) {
-                    long queueId = state.getActiveQueueItemId();
+                updateQueue(mMediaController.getQueue(), mMediaController.getPlaybackState());
 
-                    if (queueId != MediaSession.QueueItem.UNKNOWN_ID) {
-                        List<MediaSession.QueueItem> queue = mMediaController.getQueue();
-
-                        int i;
-                        for (i = 0; queue.get(i).getQueueId() != queueId; i++) ;
-                        MediaSession.QueueItem nextItem = queue.get(i + 1);
-
-                        mMediaUpNextTitle.setText(nextItem.getDescription().getTitle());
-                        mMediaUpNextArtist.setText(nextItem.getDescription().getSubtitle());
-                    }
-
-                    mUpdatePositionTask.run();
-                }
+                // Update position
+                mUpdatePositionTask.run();
             }
         }
 
+        @Override
         public void onPlaybackStateChanged(PlaybackState state) {
             super.onPlaybackStateChanged(state);
+
             if ((mMediaPlay != null) && (state != null)) {
+
+                // Update play/pause button
                 switch (state.getState()) {
                     case PlaybackState.STATE_BUFFERING:
                     case PlaybackState.STATE_CONNECTING:
@@ -137,49 +153,33 @@ public class MediaActivity extends Activity
                         break;
                 }
 
-                long queueId = state.getActiveQueueItemId();
+                updateQueue(mMediaController.getQueue(), state);
 
-                if (queueId != MediaSession.QueueItem.UNKNOWN_ID) {
-                    List<MediaSession.QueueItem> queue = mMediaController.getQueue();
-
-                    int i;
-                    for (i = 0; queue.get(i).getQueueId() != queueId; i++) ;
-                    MediaSession.QueueItem nextItem = queue.get(i + 1);
-
-                    mMediaUpNextTitle.setText(nextItem.getDescription().getTitle());
-                    mMediaUpNextArtist.setText(nextItem.getDescription().getSubtitle());
-                }
-
+                // Update position
                 mUpdatePositionTask.run();
             }
         }
 
+        @Override
         public void onQueueChanged(List<MediaSession.QueueItem> queue) {
             super.onQueueChanged(queue);
 
-            PlaybackState state = mMediaController.getPlaybackState();
-            if (state != null) {
-                long queueId = state.getActiveQueueItemId();
-
-                if (queueId != MediaSession.QueueItem.UNKNOWN_ID) {
-
-                    int i;
-                    for (i = 0; queue.get(i).getQueueId() != queueId; i++) ;
-                    MediaSession.QueueItem nextItem = queue.get(i + 1);
-
-                    mMediaUpNextTitle.setText(nextItem.getDescription().getTitle());
-                    mMediaUpNextArtist.setText(nextItem.getDescription().getSubtitle());
-                }
-            }
+            updateQueue(queue, mMediaController.getPlaybackState());
         }
 
+        @Override
         public void onQueueTitleChanged(CharSequence title) {
             super.onQueueTitleChanged(title);
         }
     };
-    View.OnClickListener mMediaControlsListener = new View.OnClickListener() {
+    /**
+     * OnClickListener for the media controls.
+     */
+    private View.OnClickListener mMediaControlsListener = new View.OnClickListener() {
         public void onClick(View v) {
             if (mMediaController != null) {
+
+                // Handle media controls
                 switch (v.getId()) {
                     case R.id.media_vol_down:
                         mMediaController.adjustVolume(AudioManager.ADJUST_LOWER, 0);
@@ -209,6 +209,8 @@ public class MediaActivity extends Activity
                         break;
                 }
             } else {
+
+                // Simulate media button event to start media playback
                 Intent mediaIntent = new Intent("android.intent.action.MEDIA_BUTTON");
                 mediaIntent.putExtra("android.intent.extra.KEY_EVENT", new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY));
                 sendOrderedBroadcast(mediaIntent, null);
@@ -222,24 +224,74 @@ public class MediaActivity extends Activity
         }
     };
 
-    public void onActiveSessionsChanged(List<MediaController> controllers) {
-        if (mMediaController != null) {
-            mMediaController.unregisterCallback(mMediaCallback);
-            Log.d("MediaController", "MediaController removed");
-            mMediaController = null;
-        }
-        if (controllers.size() > 0) {
-            mMediaController = controllers.get(0);
-            mMediaController.registerCallback(mMediaCallback);
-            mMediaCallback.onMetadataChanged(mMediaController.getMetadata());
-            mMediaCallback.onPlaybackStateChanged(mMediaController.getPlaybackState());
-            Log.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
+    /**
+     * Updates the display of the queue.
+     *
+     * @param queue The queue.
+     * @param state The playback state.
+     */
+    private void updateQueue(List<MediaSession.QueueItem> queue, PlaybackState state) {
+        if (state != null) {
+            long queueId = state.getActiveQueueItemId();
+
+            if (queueId != MediaSession.QueueItem.UNKNOWN_ID) {
+
+                int i;
+                for (i = 0; queue.get(i).getQueueId() != queueId; i++) ;
+                MediaSession.QueueItem nextItem = queue.get(i + 1);
+
+                mMediaUpNextTitle.setText(nextItem.getDescription().getTitle());
+                mMediaUpNextArtist.setText(nextItem.getDescription().getSubtitle());
+            }
         }
     }
 
+    /**
+     * Called when the list of active {@link MediaController MediaControllers} changes.
+     *
+     * @param controllers List of active MediaControllers
+     */
+    @Override
+    public void onActiveSessionsChanged(List<MediaController> controllers) {
+        if (controllers.size() > 0) {
+
+            if (mMediaController != null) {
+                if (!controllers.get(0).getSessionToken().equals(mMediaController.getSessionToken())) {
+                    // Detach current controller
+                    mMediaController.unregisterCallback(mMediaCallback);
+                    Log.d("MediaController", "MediaController removed");
+                    mMediaController = null;
+
+                    // Attach new controller
+                    mMediaController = controllers.get(0);
+                    mMediaController.registerCallback(mMediaCallback);
+                    mMediaCallback.onMetadataChanged(mMediaController.getMetadata());
+                    mMediaCallback.onPlaybackStateChanged(mMediaController.getPlaybackState());
+                    Log.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
+                }
+            } else {
+                // Attach new controller
+                mMediaController = controllers.get(0);
+                mMediaController.registerCallback(mMediaCallback);
+                mMediaCallback.onMetadataChanged(mMediaController.getMetadata());
+                mMediaCallback.onPlaybackStateChanged(mMediaController.getPlaybackState());
+                Log.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
+            }
+        }
+    }
+
+    /**
+     * Sets the layout and starts task for updating the seek bar.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut
+     *                           down then this Bundle contains the data it most recently supplied
+     *                           in {@link #onSaveInstanceState(Bundle)}.
+     */
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Make all system bars transparent and draw behind them
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -248,10 +300,10 @@ public class MediaActivity extends Activity
         getWindow().setStatusBarColor(Color.TRANSPARENT);
         getWindow().setNavigationBarColor(Color.TRANSPARENT);
 
+        // Set layout
         setContentView(R.layout.activity_media);
 
         // Get views
-        mMediaContainer = ((CardView) findViewById(R.id.media_container));
         mMediaArt = ((ImageView) findViewById(R.id.media_art));
         mMediaTimePosition = ((TextView) findViewById(R.id.media_time_position));
         mMediaTimeSeekBar = ((SeekBar) findViewById(R.id.media_time_seek_bar));
@@ -279,8 +331,8 @@ public class MediaActivity extends Activity
 
         mMediaTitle.setSelected(true);
 
+        // Timer for seek bar
         mTimer = new Timer();
-        final UpdatePositionRunnable updatePositionRunnable = new UpdatePositionRunnable();
         mUpdatePositionTask = new TimerTask() {
             public void run() {
                 if (mMediaController != null) {
@@ -294,8 +346,8 @@ public class MediaActivity extends Activity
                         long rawEnd = metadata.getLong(MediaMetadata.METADATA_KEY_DURATION);
                         String end = "-" + dateFormat.format(new Date(rawEnd - rawPosition));
                         int progress = (int) (100.0f * ((float) rawPosition / (float) rawEnd));
-                        updatePositionRunnable.setParams(position, progress, end);
-                        runOnUiThread(updatePositionRunnable);
+                        mUpdatePositionRunnable.setParams(position, progress, end);
+                        runOnUiThread(mUpdatePositionRunnable);
                     }
                 }
             }
@@ -304,8 +356,13 @@ public class MediaActivity extends Activity
         mTimer.scheduleAtFixedRate(mUpdatePositionTask, 100l, 1000l);
     }
 
+    /**
+     * Detaches listeners.
+     */
+    @Override
     protected void onPause() {
         super.onPause();
+
         if (mPrefShowMedia) {
             mMediaSessionManager.removeOnActiveSessionsChangedListener(this);
             if (mMediaController != null) {
@@ -315,10 +372,20 @@ public class MediaActivity extends Activity
         }
     }
 
+    /**
+     * Notification that the progress level has changed.
+     *
+     * @param seekBar  The SeekBar whose progress has changed
+     * @param progress The current progress level. This will be in the range 0..max where max was
+     *                 set by {@link SeekBar#setMax(int)}. (The default value for max is 100.)
+     * @param fromUser True if the progress change was initiated by the user.
+     */
+    @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         switch (seekBar.getId()) {
             case R.id.media_time_seek_bar:
                 if (fromUser && mMediaController != null) {
+                    // Seek track to position
                     long duration = mMediaController.getMetadata().getLong(MediaMetadata.METADATA_KEY_DURATION);
                     long position = (long) (progress / 100.0f * (float) duration);
                     mMediaController.getTransportControls().seekTo(position);
@@ -327,25 +394,25 @@ public class MediaActivity extends Activity
         }
     }
 
+    /**
+     * Attaches listeners and gets preferences.
+     */
+    @Override
     protected void onResume() {
         super.onResume();
 
+        // Get preferences
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         mPrefShowMedia = mSharedPref.getBoolean("pref_key_show_media", true);
 
+        // Check media access and connect to session
         if (mPrefShowMedia) {
             try {
                 mMediaSessionManager = (MediaSessionManager) getSystemService(MEDIA_SESSION_SERVICE);
                 List<MediaController> controllers = mMediaSessionManager.getActiveSessions(new ComponentName(this, NotificationListener.class));
-                if (controllers.size() > 0) {
-                    mMediaController = controllers.get(0);
-                    mMediaController.registerCallback(mMediaCallback);
-                    mMediaCallback.onMetadataChanged(mMediaController.getMetadata());
-                    mMediaCallback.onPlaybackStateChanged(mMediaController.getPlaybackState());
-                    Log.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
-                }
+                onActiveSessionsChanged(controllers);
                 mMediaSessionManager.addOnActiveSessionsChangedListener(this, new ComponentName(this, NotificationListener.class));
-            } catch (SecurityException localSecurityException) {
+            } catch (SecurityException e) {
                 Log.w("NotificationListener", "No Notification Access");
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.dialog_notification_access_title)
@@ -367,24 +434,46 @@ public class MediaActivity extends Activity
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
     }
 
-    class UpdatePositionRunnable implements Runnable {
+    /**
+     * Runnable that updates the position of the seek bar.
+     */
+    private class UpdatePositionRunnable implements Runnable {
         String mEnd = "-0:00";
         String mPosition = "0:00";
         int mProgress = 0;
 
+        /**
+         * Updates the position of the seek bar.
+         */
+        @Override
         public void run() {
             mMediaTimePosition.setText(mPosition);
             mMediaTimeSeekBar.setProgress(mProgress);
             mMediaTimeEnd.setText(mEnd);
         }
 
-        void setParams(String position, int progress, String end) {
+        /**
+         * Sets the variables used to display the position.
+         *
+         * @param position The position of the seek bar.
+         * @param progress The text to show to the left of the seek bar
+         * @param end      The text to show to the right of the seek bar
+         */
+        public void setParams(String position, int progress, String end) {
             mPosition = position;
             mProgress = progress;
             mEnd = end;

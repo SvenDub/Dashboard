@@ -33,7 +33,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.location.GpsStatus;
 import android.location.Location;
 import android.media.AudioManager;
 import android.media.MediaMetadata;
@@ -54,7 +53,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.TextClock;
 import android.widget.TextView;
 
@@ -73,74 +71,131 @@ import nl.svendubbeld.car.R;
 import nl.svendubbeld.car.service.FetchAddressIntentService;
 import nl.svendubbeld.car.service.NotificationListener;
 
+/**
+ * Activity to show when the systems runs in Car Mode.
+ */
 public class CarActivity extends Activity
-        implements LocationListener, GpsStatus.Listener, SharedPreferences.OnSharedPreferenceChangeListener, MediaSessionManager.OnActiveSessionsChangedListener, View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        implements LocationListener, SharedPreferences.OnSharedPreferenceChangeListener, MediaSessionManager.OnActiveSessionsChangedListener, View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-
+    /**
+     * Constant for speed in km/h.
+     */
     public static final int PREF_SPEED_UNIT_KMH = 1;
+    /**
+     * Constant for speed in mph.
+     */
     public static final int PREF_SPEED_UNIT_MPH = 2;
+    /**
+     * Constant for speed in m/s.
+     */
     public static final int PREF_SPEED_UNIT_MS = 0;
+    /**
+     * Minimum interval between GPS updates.
+     */
     private static final int GPS_UPDATE_INTERVAL = 1000;
+    /**
+     * Minimum interval between geofencing.
+     */
     private static final int GEOFENCING_INTERVAL = 60000;
-    // Background
-    ScrollView mBackground;
-    String mPrefBackground = "launcher";
+
+    /**
+     * "pref_key_speak_notifications"
+     */
+    private boolean mPrefSpeakNotifications = true;
+    /**
+     * "pref_key_apps_dialer"
+     */
+    private String mPrefAppsDialer = "default";
+    /**
+     * "pref_key_show_date"
+     */
+    private boolean mPrefShowDate = true;
+    /**
+     * "pref_key_show_media"
+     */
+    private boolean mPrefShowMedia = true;
+    /**
+     * "pref_key_show_speed"
+     */
+    private boolean mPrefShowSpeed = true;
+    /**
+     * "pref_key_show_road"
+     */
+    private boolean mPrefShowRoad = true;
+    /**
+     * "pref_key_unit_speed"
+     */
+    private int mPrefSpeedUnit = 1;
+    /**
+     * "pref_key_keep_screen_on"
+     */
+    private boolean mPrefKeepScreenOn = true;
+    /**
+     * "pref_key_night_mode"
+     */
+    private String mPrefNightMode = "auto";
+
     // Buttons
-    CardView mButtonDialer;
-    CardView mButtonExit;
-    CardView mButtonNavigation;
-    CardView mButtonSettings;
-    CardView mButtonSpeakNotifications;
-    ImageView mButtonSpeakNotificationsIcon;
-    CardView mButtonVoice;
-    boolean mPrefSpeakNotifications = true;
-    String mPrefAppsDialer = "default";
-    AlertDialog mNotificationListenerDialog;
+    private CardView mButtonDialer;
+    private CardView mButtonExit;
+    private CardView mButtonNavigation;
+    private CardView mButtonSettings;
+    private CardView mButtonSpeakNotifications;
+    private ImageView mButtonSpeakNotificationsIcon;
+    private CardView mButtonVoice;
+    private AlertDialog mNotificationListenerDialog;
+
     // Date
-    CardView mDateContainer;
-    TextClock mDate;
-    TextClock mTime;
-    boolean mPrefShowDate = true;
+    private CardView mDateContainer;
+    private TextClock mDate;
+    private TextClock mTime;
+
     // Media
-    CardView mMediaContainer;
-    ImageView mMediaArt;
-    TextView mMediaTitle;
-    TextView mMediaArtist;
-    TextView mMediaAlbum;
-    ImageView mMediaVolDown;
-    ImageView mMediaPrev;
-    ImageView mMediaPlay;
-    ProgressBar mMediaPlayProgress;
-    ImageView mMediaNext;
-    ImageView mMediaVolUp;
-    MediaSessionManager mMediaSessionManager;
-    MediaController mMediaController = null;
-    boolean mPrefShowMedia = true;
+    private CardView mMediaContainer;
+    private ImageView mMediaArt;
+    private TextView mMediaTitle;
+    private TextView mMediaArtist;
+    private TextView mMediaAlbum;
+    private ImageView mMediaVolDown;
+    private ImageView mMediaPrev;
+    private ImageView mMediaPlay;
+    private ProgressBar mMediaPlayProgress;
+    private ImageView mMediaNext;
+    private ImageView mMediaVolUp;
+    private MediaSessionManager mMediaSessionManager;
+    private MediaController mMediaController = null;
+
     // Speed
-    CardView mSpeedContainer;
-    TextView mSpeedAddress;
-    TextView mSpeed;
-    TextView mSpeedUnit;
-    int mPrefSpeedUnit = 1;
-    boolean mPrefShowSpeed = true;
-    boolean mPrefShowRoad = true;
-    UiModeManager mUiModeManager;
-    SharedPreferences mSharedPref;
-    boolean mPrefKeepScreenOn = true;
-    String mPrefNightMode = "auto";
+    private CardView mSpeedContainer;
+    private TextView mSpeedAddress;
+    private TextView mSpeed;
+    private TextView mSpeedUnit;
+
+    private UiModeManager mUiModeManager;
+    private SharedPreferences mSharedPref;
+
     // Location
-    long mLastLocationMillis = 0l;
-    GoogleApiClient mGoogleApiClient;
-    LocationRequest mLocationRequest;
-    AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
-    MediaController.Callback mMediaCallback = new MediaController.Callback() {
+    private long mLastLocationMillis = 0l;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    private AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
+
+    /**
+     * Callback for the MediaController.
+     */
+    private MediaController.Callback mMediaCallback = new MediaController.Callback() {
+
+        @Override
         public void onAudioInfoChanged(MediaController.PlaybackInfo playbackInfo) {
             super.onAudioInfoChanged(playbackInfo);
         }
 
+        @Override
         public void onMetadataChanged(MediaMetadata metadata) {
             super.onMetadataChanged(metadata);
             if ((mMediaArt != null) && (metadata != null)) {
+
+                // Update media container
                 mMediaArt.setImageBitmap(metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART));
                 mMediaTitle.setText(metadata.getText(MediaMetadata.METADATA_KEY_TITLE));
                 mMediaArtist.setText(metadata.getText(MediaMetadata.METADATA_KEY_ARTIST));
@@ -148,10 +203,13 @@ public class CarActivity extends Activity
             }
         }
 
+        @Override
         public void onPlaybackStateChanged(PlaybackState state) {
             super.onPlaybackStateChanged(state);
 
             if ((mMediaPlay != null) && (state != null)) {
+
+                // Update play/pause button
                 switch (state.getState()) {
                     case PlaybackState.STATE_BUFFERING:
                     case PlaybackState.STATE_CONNECTING:
@@ -173,17 +231,27 @@ public class CarActivity extends Activity
             }
         }
 
+        @Override
         public void onQueueChanged(List<MediaSession.QueueItem> queue) {
             super.onQueueChanged(queue);
         }
 
+        @Override
         public void onQueueTitleChanged(CharSequence title) {
             super.onQueueTitleChanged(title);
         }
     };
-    View.OnClickListener mMediaControlsListener = new View.OnClickListener() {
+
+    /**
+     * OnClickListener for the media controls.
+     */
+    private View.OnClickListener mMediaControlsListener = new View.OnClickListener() {
+
+        @Override
         public void onClick(View v) {
             if (mMediaController != null) {
+
+                // Handle media controls
                 switch (v.getId()) {
                     case R.id.media_vol_down:
                         mMediaController.adjustVolume(AudioManager.ADJUST_LOWER, 0);
@@ -213,6 +281,8 @@ public class CarActivity extends Activity
                         break;
                 }
             } else {
+
+                // Simulate media button event to start media playback
                 Intent mediaIntent = new Intent("android.intent.action.MEDIA_BUTTON");
                 mediaIntent.putExtra("android.intent.extra.KEY_EVENT", new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY));
                 sendOrderedBroadcast(mediaIntent, null);
@@ -226,6 +296,9 @@ public class CarActivity extends Activity
         }
     };
 
+    /**
+     * Resets the layout according to the
+     */
     private void resetLayout() {
         setContentView(R.layout.activity_car);
 
@@ -262,9 +335,6 @@ public class CarActivity extends Activity
         mButtonSpeakNotificationsIcon = ((ImageView) findViewById(R.id.btn_speak_notifications_icon));
         mButtonExit = ((CardView) findViewById(R.id.btn_exit));
 
-        // Get background
-        mBackground = ((ScrollView) findViewById(R.id.bg));
-
         toggleDate();
         toggleSpeed();
         toggleMedia();
@@ -297,14 +367,23 @@ public class CarActivity extends Activity
         toggleSpeakNotificationsIcon();
     }
 
+    /**
+     * Shows or hides the date depending on {@link #mPrefShowDate}.
+     */
     private void toggleDate() {
         mDateContainer.setVisibility(mPrefShowDate ? View.VISIBLE : View.GONE);
     }
 
+    /**
+     * Shows or hides the media player depending on {@link #mPrefShowMedia}.
+     */
     private void toggleMedia() {
         mMediaContainer.setVisibility(mPrefShowMedia ? View.VISIBLE : View.GONE);
     }
 
+    /**
+     * Sets the night mode according to {@link #mPrefNightMode}.
+     */
     private void toggleNightMode() {
         switch (mPrefNightMode) {
             default:
@@ -320,16 +399,25 @@ public class CarActivity extends Activity
         }
     }
 
+    /**
+     * Sets the speak notifications toggle to reflect {@link #mPrefSpeakNotifications}.
+     */
     private void toggleSpeakNotificationsIcon() {
         if (!mPrefSpeakNotifications) {
+            // Show background and make foreground image semi-transparent
             mButtonSpeakNotificationsIcon.setBackgroundResource(R.drawable.ic_notification_do_not_disturb);
             mButtonSpeakNotificationsIcon.setImageAlpha(64);
         } else {
-            this.mButtonSpeakNotificationsIcon.setBackground(null);
-            this.mButtonSpeakNotificationsIcon.setImageAlpha(255);
+            // Remove background and make foreground image fully visible
+            mButtonSpeakNotificationsIcon.setBackground(null);
+            mButtonSpeakNotificationsIcon.setImageAlpha(255);
         }
     }
 
+    /**
+     * Shows or hides the speed and road depending on {@link #mPrefShowSpeed} and {@link
+     * #mPrefShowRoad}.
+     */
     private void toggleSpeed() {
         mSpeedContainer.setVisibility(mPrefShowSpeed ? View.VISIBLE : View.GONE);
         mSpeedAddress.setVisibility(mPrefShowRoad ? View.VISIBLE : View.GONE);
@@ -349,27 +437,57 @@ public class CarActivity extends Activity
         }
     }
 
+    /**
+     * Called when the list of active {@link MediaController MediaControllers} changes.
+     *
+     * @param controllers List of active MediaControllers
+     */
+    @Override
     public void onActiveSessionsChanged(List<MediaController> controllers) {
-        if (mMediaController != null) {
-            mMediaController.unregisterCallback(mMediaCallback);
-            Log.d("MediaController", "MediaController removed");
-            mMediaController = null;
-        }
         if (controllers.size() > 0) {
-            mMediaController = controllers.get(0);
-            mMediaController.registerCallback(mMediaCallback);
-            mMediaCallback.onMetadataChanged(mMediaController.getMetadata());
-            mMediaCallback.onPlaybackStateChanged(mMediaController.getPlaybackState());
-            Log.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
+
+            if (mMediaController != null) {
+                if (!controllers.get(0).getSessionToken().equals(mMediaController.getSessionToken())) {
+                    // Detach current controller
+                    mMediaController.unregisterCallback(mMediaCallback);
+                    Log.d("MediaController", "MediaController removed");
+                    mMediaController = null;
+
+                    // Attach new controller
+                    mMediaController = controllers.get(0);
+                    mMediaController.registerCallback(mMediaCallback);
+                    mMediaCallback.onMetadataChanged(mMediaController.getMetadata());
+                    mMediaCallback.onPlaybackStateChanged(mMediaController.getPlaybackState());
+                    Log.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
+                }
+            } else {
+                // Attach new controller
+                mMediaController = controllers.get(0);
+                mMediaController.registerCallback(mMediaCallback);
+                mMediaCallback.onMetadataChanged(mMediaController.getMetadata());
+                mMediaCallback.onPlaybackStateChanged(mMediaController.getPlaybackState());
+                Log.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
+            }
         }
     }
 
+    /**
+     * Called when the activity has detected the user's press of the back key. Disables Car Mode and
+     * closes the activity.
+     */
+    @Override
     public void onBackPressed() {
         mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);
         finish();
     }
 
+    /**
+     * OnClickListener for the buttons/cards.
+     *
+     * @param v The button/card that received the click.
+     */
     @SuppressWarnings("unchecked")
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_settings:
@@ -383,18 +501,25 @@ public class CarActivity extends Activity
                 launchDialer(v);
                 break;
             case R.id.btn_voice:
+                // Launch voice assistance. It launches Google Now over the current activity instead
+                // of switching to it, in contrast to Intent.ACTION_VOICE_COMMAND.
                 Intent voiceIntent = new Intent("android.intent.action.VOICE_ASSIST");
                 startActivity(voiceIntent);
                 break;
             case R.id.btn_speak_notifications:
+                // Toggle spoken notifications
                 mSharedPref.edit().putBoolean("pref_key_speak_notifications", !mPrefSpeakNotifications).apply();
                 break;
             case R.id.btn_exit:
+                // Disable Car Mode and exit the activity
                 mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);
                 finish();
                 break;
             case R.id.media_container:
+                // Launch MediaActivity with a scene transition
                 Intent mediaIntent = new Intent(this, MediaActivity.class);
+
+                // Views to use in the transition
                 Pair[] elements = new Pair[9];
                 elements[0] = Pair.create((View) mMediaArt, getString(R.string.transition_media_art));
                 elements[1] = Pair.create((View) mMediaTitle, getString(R.string.transition_media_title));
@@ -409,32 +534,53 @@ public class CarActivity extends Activity
                 }
                 elements[7] = Pair.create((View) mMediaNext, getString(R.string.transition_media_next));
                 elements[8] = Pair.create((View) mMediaVolUp, getString(R.string.transition_media_vol_up));
+
                 startActivity(mediaIntent, ActivityOptions.makeSceneTransitionAnimation(this, elements).toBundle());
                 break;
         }
     }
 
-    private void launchNavigation(View source) {
+    /**
+     * Launches {@link NavigationActivity} with a ScaleUpAnimation.
+     *
+     * @param v The view to originate the animation from.
+     */
+    private void launchNavigation(View v) {
         Intent navigationIntent = new Intent(this, NavigationActivity.class);
-        startActivity(navigationIntent, ActivityOptions.makeScaleUpAnimation(source, 0, 0, source.getWidth(), source.getWidth()).toBundle());
+        startActivity(navigationIntent, ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getWidth()).toBundle());
     }
 
-    private void launchDialer(View source) {
+    /**
+     * Launches either {@link DialerActivity} or the default Dialer application with an Animation.
+     * What gets launched depends on {@link #mPrefAppsDialer}.
+     *
+     * @param v The view to originate the animation from.
+     */
+    private void launchDialer(View v) {
         switch (mPrefAppsDialer) {
             case "default":
-                Intent defaultIntent = new Intent("android.intent.action.DIAL");
-                startActivity(defaultIntent, ActivityOptions.makeScaleUpAnimation(source, 0, 0, source.getWidth(), source.getWidth()).toBundle());
+                Intent defaultIntent = new Intent(Intent.ACTION_DIAL);
+                startActivity(defaultIntent, ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getWidth()).toBundle());
                 break;
             case "builtin":
                 Intent builtinIntent = new Intent(this, DialerActivity.class);
-                startActivity(builtinIntent, ActivityOptions.makeSceneTransitionAnimation(this, source, getString(R.string.transition_button_dialer)).toBundle());
+                startActivity(builtinIntent, ActivityOptions.makeSceneTransitionAnimation(this, v, getString(R.string.transition_button_dialer)).toBundle());
                 break;
         }
     }
 
+    /**
+     * Gets all preferences, initializes {@link #mGoogleApiClient}, and sets the layout.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut
+     *                           down then this Bundle contains the data it most recently supplied
+     *                           in {@link #onSaveInstanceState(Bundle)}.
+     */
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Make all system bars transparent and draw behind them
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -443,6 +589,7 @@ public class CarActivity extends Activity
         getWindow().setStatusBarColor(Color.TRANSPARENT);
         getWindow().setNavigationBarColor(Color.TRANSPARENT);
 
+        // Initialize the GoogleApiClient
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addApi(Places.GEO_DATA_API)
@@ -451,11 +598,13 @@ public class CarActivity extends Activity
                 .build();
         mGoogleApiClient.connect();
 
+        // Create location request
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(GPS_UPDATE_INTERVAL);
         mLocationRequest.setSmallestDisplacement(0f);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
+        // Get all preferences
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         mPrefShowDate = mSharedPref.getBoolean("pref_key_show_date", true);
@@ -466,21 +615,24 @@ public class CarActivity extends Activity
         mPrefKeepScreenOn = mSharedPref.getBoolean("pref_key_keep_screen_on", true);
         mPrefNightMode = mSharedPref.getString("pref_key_night_mode", "auto");
         mPrefSpeedUnit = Integer.parseInt(mSharedPref.getString("pref_key_unit_speed", "1"));
-        mPrefBackground = mSharedPref.getString("pref_key_color_bg", "launcher");
         mPrefAppsDialer = mSharedPref.getString("pref_key_dialer", "default");
 
+        // Get UiModeManager
         mUiModeManager = ((UiModeManager) getSystemService(UI_MODE_SERVICE));
 
+        // Create dialog for when no notification access is granted
         mNotificationListenerDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_notification_access_title)
                 .setMessage(R.string.dialog_notification_access_message)
                 .setPositiveButton(R.string.dialog_notification_access_positive, new DialogInterface.OnClickListener() {
+                    @Override
                     public void onClick(DialogInterface dialog, int which) {
                         startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
                         dialog.dismiss();
                     }
                 })
                 .setNegativeButton(R.string.dialog_notification_access_negative, new DialogInterface.OnClickListener() {
+                    @Override
                     public void onClick(DialogInterface dialog, int which) {
                         mSharedPref.edit().putBoolean("pref_key_show_media", false).putBoolean("pref_key_speak_notifications", false).apply();
                         dialog.dismiss();
@@ -494,25 +646,32 @@ public class CarActivity extends Activity
         resetLayout();
     }
 
+    /**
+     * Disconnects {@link #mGoogleApiClient} and disables Car Mode.
+     */
+    @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mGoogleApiClient.isConnected()) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(
-                    mGoogleApiClient, this);
-        }
         mGoogleApiClient.disconnect();
         mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);
     }
 
-    public void onGpsStatusChanged(int event) {
-    }
-
+    /**
+     * Called when the current location is updated. Updates the current speed and road.
+     *
+     * @param location The new location
+     */
+    @Override
     public void onLocationChanged(Location location) {
+
+        // Only fetch the road if it is visible and the minimum interval has elapsed
         if (mPrefShowSpeed && mPrefShowRoad && SystemClock.elapsedRealtime() - mLastLocationMillis > GEOFENCING_INTERVAL) {
             startIntentService(location);
 
             mLastLocationMillis = SystemClock.elapsedRealtime();
         }
+
+        // Get the speed and convert it to the unit specified
         float rawSpeed = location.getSpeed();
         String speed = "--";
         if (rawSpeed > 1.0f) {
@@ -536,6 +695,10 @@ public class CarActivity extends Activity
         mSpeed.setText(speed);
     }
 
+    /**
+     * Detaches al listeners.
+     */
+    @Override
     protected void onPause() {
         super.onPause();
 
@@ -546,6 +709,7 @@ public class CarActivity extends Activity
                 Log.d("MediaController", "MediaController removed");
             }
         }
+
         mSharedPref.unregisterOnSharedPreferenceChangeListener(this);
 
         if (mGoogleApiClient.isConnected()) {
@@ -554,15 +718,21 @@ public class CarActivity extends Activity
         }
     }
 
+    /**
+     * Attaches all listeners and updates all preferences.
+     */
+    @Override
     protected void onResume() {
         super.onResume();
 
+        // Reconnect GoogleApiClient
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         } else if (!mGoogleApiClient.isConnecting()) {
             mGoogleApiClient.connect();
         }
 
+        // Get all preferences
         mSharedPref.registerOnSharedPreferenceChangeListener(this);
         mPrefShowDate = mSharedPref.getBoolean("pref_key_show_date", true);
         mPrefShowSpeed = mSharedPref.getBoolean("pref_key_show_speed", true);
@@ -572,9 +742,9 @@ public class CarActivity extends Activity
         mPrefKeepScreenOn = mSharedPref.getBoolean("pref_key_keep_screen_on", true);
         mPrefNightMode = mSharedPref.getString("pref_key_night_mode", "auto");
         mPrefSpeedUnit = Integer.parseInt(mSharedPref.getString("pref_key_unit_speed", "1"));
-        mPrefBackground = mSharedPref.getString("pref_key_color_bg", "launcher");
         mPrefAppsDialer = mSharedPref.getString("pref_key_dialer", "default");
 
+        // Set Car Mode to either keep screen on or not
         mUiModeManager.enableCarMode(mPrefKeepScreenOn ? 0 : UiModeManager.ENABLE_CAR_MODE_ALLOW_SLEEP);
 
         toggleDate();
@@ -583,6 +753,7 @@ public class CarActivity extends Activity
         toggleNightMode();
         toggleSpeakNotificationsIcon();
 
+        // Check notification access
         if (mPrefShowMedia || mPrefSpeakNotifications) {
             String enabledNotificationListeners = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
             if (enabledNotificationListeners == null || !enabledNotificationListeners.contains(getPackageName())) {
@@ -592,24 +763,23 @@ public class CarActivity extends Activity
             }
         }
 
+        // Check media access and connect to session
         if (mPrefShowMedia) {
             try {
                 mMediaSessionManager = (MediaSessionManager) getSystemService(MEDIA_SESSION_SERVICE);
                 List<MediaController> controllers = mMediaSessionManager.getActiveSessions(new ComponentName(this, NotificationListener.class));
-                if (controllers.size() > 0) {
-                    mMediaController = controllers.get(0);
-                    mMediaController.registerCallback(mMediaCallback);
-                    mMediaCallback.onMetadataChanged(mMediaController.getMetadata());
-                    mMediaCallback.onPlaybackStateChanged(mMediaController.getPlaybackState());
-                    Log.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
-                }
+                onActiveSessionsChanged(controllers);
                 mMediaSessionManager.addOnActiveSessionsChangedListener(this, new ComponentName(this, NotificationListener.class));
-            } catch (SecurityException localSecurityException) {
+            } catch (SecurityException e) {
                 Log.w("NotificationListener", "No Notification Access");
             }
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
             case "pref_key_show_date":
@@ -635,6 +805,7 @@ public class CarActivity extends Activity
             case "pref_key_speak_notifications":
                 mPrefSpeakNotifications = sharedPreferences.getBoolean("pref_key_speak_notifications", true);
 
+                // Check notification access
                 if (mPrefSpeakNotifications) {
                     String enabledNotificationListeners = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
                     if ((enabledNotificationListeners == null) || (!enabledNotificationListeners.contains(getPackageName()))) {
@@ -657,33 +828,91 @@ public class CarActivity extends Activity
         }
     }
 
+    /**
+     * <p> After calling {@link GoogleApiClient#connect()}, this method will be invoked
+     * asynchronously when the connect request has successfully completed. After this callback, the
+     * application can make requests on other methods provided by the client and expect that no user
+     * intervention is required to call methods that use account and scopes provided to the client
+     * constructor.</p>
+     *
+     * <p> Note that the contents of the {@code connectionHint} Bundle are defined by the specific
+     * services. Please see the documentation of the specific implementation of {@link
+     * GoogleApiClient} you are using for more information.</p>
+     *
+     * @param connectionHint Bundle of data provided to clients by Google Play services. May be null
+     *                       if no content is provided by the service.
+     */
     @Override
-    public void onConnected(Bundle bundle) {
+    public void onConnected(Bundle connectionHint) {
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
+    /**
+     * <p> Called when the client is temporarily in a disconnected state. This can happen if there
+     * is a problem with the remote service (e.g. a crash or resource problem causes it to be killed
+     * by the system). When called, all requests have been canceled and no outstanding listeners
+     * will be executed. GoogleApiClient will automatically attempt to restore the connection.
+     * Applications should disable UI components that require the service, and wait for a call to
+     * {@link #onConnected(Bundle)} to re-enable them.</p>
+     *
+     * @param cause The reason for the disconnection. Defined by constants {@code \CAUSE_*}.
+     */
     @Override
-    public void onConnectionSuspended(int i) {
+    public void onConnectionSuspended(int cause) {
 
     }
 
+    /**
+     * Called when there was an error connecting the client to the service.
+     *
+     * @param result A {@link ConnectionResult} that can be used for resolving the error, and
+     *               deciding what sort of error occurred. To resolve the error, the resolution must
+     *               be started from an activity with a non-negative {@code requestCode} passed to
+     *               {@link ConnectionResult#startResolutionForResult(Activity, int)}. Applications
+     *               should implement onActivityResult in their Activity to call {@link
+     *               GoogleApiClient#connect()} again if the user has resolved the issue (resultCode
+     *               is {@link #RESULT_OK}).
+     */
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(ConnectionResult result) {
 
     }
 
-    void startIntentService(Location location) {
+    /**
+     * Starts {@link FetchAddressIntentService} to resolve the current road and sends it results to
+     * {@link #mResultReceiver}.
+     *
+     * @param location The location to resolve.
+     */
+    private void startIntentService(Location location) {
         Intent intent = new Intent(this, FetchAddressIntentService.class);
         intent.putExtra(FetchAddressIntentService.Constants.RECEIVER, mResultReceiver);
         intent.putExtra(FetchAddressIntentService.Constants.LOCATION_DATA_EXTRA, location);
         startService(intent);
     }
 
-    class AddressResultReceiver extends ResultReceiver {
+    /**
+     * ResultReceiver for the current address.
+     */
+    private class AddressResultReceiver extends ResultReceiver {
+        /**
+         * Create a new ResultReceive to receive results.  Your {@link #onReceiveResult} method will
+         * be called from the thread running <var>handler</var> if given, or from an arbitrary
+         * thread if null.
+         *
+         * @param handler The thread to run {@code onReceiveResult}
+         */
         public AddressResultReceiver(Handler handler) {
             super(handler);
         }
 
+        /**
+         * Updates the current road.
+         *
+         * @param resultCode Arbitrary result code delivered by the sender, as defined by the
+         *                   sender.
+         * @param resultData Any additional data provided by the sender.
+         */
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             if (resultCode == FetchAddressIntentService.Constants.SUCCESS_RESULT) {

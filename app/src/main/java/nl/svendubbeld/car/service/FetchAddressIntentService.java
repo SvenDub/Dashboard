@@ -37,6 +37,9 @@ import java.util.Locale;
 
 import nl.svendubbeld.car.Log;
 
+/**
+ * IntentService for fetching the address for a given location.
+ */
 public class FetchAddressIntentService extends IntentService {
 
     protected ResultReceiver mReceiver;
@@ -54,10 +57,16 @@ public class FetchAddressIntentService extends IntentService {
         super("FetchAddressIntentService");
     }
 
+    /**
+     * Fetches the address for a given location.
+     *
+     * @param intent The value passed to {@link #startService(Intent)}.
+     */
     @Override
     protected void onHandleIntent(Intent intent) {
         String errorMessage = "";
 
+        // Get receiver to send the results to
         mReceiver = intent.getParcelableExtra(Constants.RECEIVER);
 
         if (mReceiver == null) {
@@ -65,51 +74,94 @@ public class FetchAddressIntentService extends IntentService {
             return;
         }
 
+        // Get location
         Location location = intent.getParcelableExtra(Constants.LOCATION_DATA_EXTRA);
 
         if (location == null) {
+            errorMessage = "No location specified.";
             deliverResultToReceiver(Constants.FAILURE_RESULT, errorMessage);
             return;
         }
 
+        // Get geocoder
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
-        List<Address> addresses = null;
+        if (geocoder.isPresent()) {
 
-        try {
-            addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        } catch (IllegalArgumentException illegalArgumentException) {
-            Log.e("Geofencing", errorMessage + ". " +
-                    "Latitude = " + location.getLatitude() +
-                    ", Longitude = " + location.getLongitude(), illegalArgumentException);
-        }
+            List<Address> addresses = null;
 
-        if (addresses == null || addresses.size() == 0) {
-            deliverResultToReceiver(Constants.FAILURE_RESULT, errorMessage);
+            // Fetch address
+            try {
+                addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            } catch (IllegalArgumentException illegalArgumentException) {
+                Log.e("Geofencing", errorMessage + ". " +
+                        "Latitude = " + location.getLatitude() +
+                        ", Longitude = " + location.getLongitude(), illegalArgumentException);
+            }
+
+            if (addresses == null || addresses.size() == 0) {
+                errorMessage = "No address found at location.";
+                deliverResultToReceiver(Constants.FAILURE_RESULT, errorMessage);
+            } else {
+                Address address = addresses.get(0);
+
+                if (address.getThoroughfare() != null) {
+                    deliverResultToReceiver(Constants.SUCCESS_RESULT, address.getThoroughfare());
+                } else {
+                    deliverResultToReceiver(Constants.SUCCESS_RESULT, address.getFeatureName());
+                }
+            }
+
         } else {
-            Address address = addresses.get(0);
-
-            deliverResultToReceiver(Constants.SUCCESS_RESULT, address.getThoroughfare());
+            errorMessage = "No geocoder present.";
+            deliverResultToReceiver(Constants.FAILURE_RESULT, errorMessage);
         }
 
     }
 
+    /**
+     * Send the results back to the receiver.
+     *
+     * @param resultCode The result code to send back to the receiver.
+     * @param message    The message to send back to the receiver.
+     */
     private void deliverResultToReceiver(int resultCode, String message) {
         Bundle bundle = new Bundle();
         bundle.putString(Constants.RESULT_DATA_KEY, message);
         mReceiver.send(resultCode, bundle);
     }
 
+    /**
+     * Constants for {@link FetchAddressIntentService}.
+     */
     public final class Constants {
+        /**
+         * Constant to indicate a success.
+         */
         public static final int SUCCESS_RESULT = 0;
+        /**
+         * Constant to indicate a failure.
+         */
         public static final int FAILURE_RESULT = 1;
+        /**
+         * Constant for the package name.
+         */
         public static final String PACKAGE_NAME =
                 "nl.svendubbeld.car";
+        /**
+         * Constant for the receiver extra of the Intent.
+         */
         public static final String RECEIVER = PACKAGE_NAME + ".RECEIVER";
+        /**
+         * Constant for the result data.
+         */
         public static final String RESULT_DATA_KEY = PACKAGE_NAME +
                 ".RESULT_DATA_KEY";
+        /**
+         * Constant for the location extra of the Intent.
+         */
         public static final String LOCATION_DATA_EXTRA = PACKAGE_NAME +
                 ".LOCATION_DATA_EXTRA";
     }

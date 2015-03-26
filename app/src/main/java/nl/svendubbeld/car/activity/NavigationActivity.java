@@ -24,19 +24,14 @@
 package nl.svendubbeld.car.activity;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
@@ -44,31 +39,37 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import java.io.IOException;
-import java.util.List;
 
 import nl.svendubbeld.car.R;
-import nl.svendubbeld.car.fragment.NavigationFavoritesFragment;
-import nl.svendubbeld.car.fragment.NavigationInputFragment;
+import nl.svendubbeld.car.adapter.PlacesFragmentPagerAdapter;
 
+/**
+ * Activity for starting navigation.
+ */
 public class NavigationActivity extends Activity implements OnMapReadyCallback, GoogleMap.OnMyLocationChangeListener {
 
-    GoogleMap mMap;
-    Location mLocation;
+    private GoogleMap mMap;
+    private Location mLocation;
 
-    ViewPager mViewPager;
+    private ViewPager mViewPager;
 
+    /**
+     * Sets the layout and initializes the map.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut
+     *                           down then this Bundle contains the data it most recently supplied
+     *                           in {@link #onSaveInstanceState(Bundle)}.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Make all system bars transparent and draw behind them
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -77,16 +78,20 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
         getWindow().setStatusBarColor(Color.TRANSPARENT);
         getWindow().setNavigationBarColor(Color.TRANSPARENT);
 
+        // Set layout
         setContentView(R.layout.activity_navigation);
 
+        // Get last know location
         mLocation = ((LocationManager) getSystemService(LOCATION_SERVICE)).getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
+        // Set map options
         GoogleMapOptions mapOptions = new GoogleMapOptions();
 
         if (mLocation != null) {
             mapOptions.camera(new CameraPosition(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()), 17, 60, mLocation.getBearing()));
         }
 
+        // Create map fragment
         MapFragment mapFragment = MapFragment.newInstance(mapOptions);
         FragmentTransaction fragmentTransaction =
                 getFragmentManager().beginTransaction();
@@ -94,11 +99,18 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
         fragmentTransaction.commit();
         mapFragment.getMapAsync(this);
 
+        // Create view pager
         mViewPager = (ViewPager) findViewById(R.id.places_pager);
-        mViewPager.setAdapter(new PlacesFragmentAdapter(getFragmentManager()));
+        mViewPager.setAdapter(new PlacesFragmentPagerAdapter(getFragmentManager(), this));
 
     }
 
+    /**
+     * Called when the map is ready to be used. Sets various map settings.
+     *
+     * @param googleMap A non-null instance of a GoogleMap associated with the {@link MapFragment}
+     *                  or {@link MapView} that defines the callback.
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -111,39 +123,13 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
         googleMap.setMyLocationEnabled(true);
         googleMap.setTrafficEnabled(true);
         googleMap.setOnMyLocationChangeListener(this);
-
-        Geocoder geocoder = new Geocoder(this);
-
-        if (Geocoder.isPresent()) {
-            try {
-                String home = PreferenceManager.getDefaultSharedPreferences(this).getString("pref_key_navigation_home", "");
-                String work = PreferenceManager.getDefaultSharedPreferences(this).getString("pref_key_navigation_work", "");
-
-                if (!home.isEmpty()) {
-                    List<Address> addresses = geocoder.getFromLocationName(home, 1);
-                    if (!addresses.isEmpty()) {
-                        Address address = addresses.get(0);
-                        googleMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(address.getLatitude(), address.getLongitude()))
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_home)));
-                    }
-                }
-
-                if (!work.isEmpty()) {
-                    List<Address> addresses = geocoder.getFromLocationName(work, 1);
-                    if (!addresses.isEmpty()) {
-                        Address address = addresses.get(0);
-                        googleMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(address.getLatitude(), address.getLongitude()))
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_work)));
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
+    /**
+     * Called when the current location is updated. Updates the position of the map.
+     *
+     * @param location The new location
+     */
     @Override
     public void onMyLocationChange(Location location) {
         CameraPosition cameraPosition = mMap.getCameraPosition();
@@ -157,6 +143,11 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
         }
     }
 
+    /**
+     * Called when the home or work button gets clicked. Launches navigation to said location.
+     *
+     * @param v The button that got clicked.
+     */
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_home:
@@ -169,63 +160,6 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
                 Intent intentWork = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=" + work));
                 startActivity(intentWork);
                 break;
-        }
-    }
-
-    private class PlacesFragmentAdapter extends FragmentPagerAdapter {
-
-        private Fragment mFavorites;
-        private Fragment mInput;
-
-        public PlacesFragmentAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
-                    return getFavorites();
-                case 1:
-                    return getInput();
-            }
-
-            return null;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return getString(R.string.navigation_favorites);
-                case 1:
-                    return getString(R.string.navigation_input);
-            }
-
-            return super.getPageTitle(position);
-        }
-
-        @Override
-        public int getCount() {
-            return 2;
-        }
-
-        private Fragment getFavorites() {
-            if (mFavorites != null) {
-                return mFavorites;
-            } else {
-                mFavorites = new NavigationFavoritesFragment();
-                return mFavorites;
-            }
-        }
-
-        private Fragment getInput() {
-            if (mInput != null) {
-                return mInput;
-            } else {
-                mInput = new NavigationInputFragment();
-                return mInput;
-            }
         }
     }
 }

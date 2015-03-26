@@ -30,11 +30,19 @@ import android.view.accessibility.AccessibilityEvent;
 
 import nl.svendubbeld.car.R;
 
+/**
+ * AccessibilityService for Google Now that listens for specific commands.
+ */
 public class VoiceAccessibilityService extends AccessibilityService {
 
-    static final long timeOut = 500;
-    long lastCommand = 0;
+    private static final long timeOut = 500;
+    private long lastCommand = 0;
 
+    /**
+     * Called when a command is entered.
+     *
+     * @param event An event.
+     */
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         if (event.getText().size() > 0) {
@@ -45,12 +53,21 @@ public class VoiceAccessibilityService extends AccessibilityService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onInterrupt() {
 
     }
 
-    boolean interpretCommand(String command) {
+    /**
+     * Checks a String to see if it matches a command and executes it.
+     *
+     * @param command The String to check
+     * @return true if a command was executed, false otherwise
+     */
+    private boolean interpretCommand(String command) {
         if (command.toLowerCase().equals(getString(R.string.command_enable_spoken_notifications))) {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             preferences.edit().putBoolean("pref_key_speak_notifications", true).apply();

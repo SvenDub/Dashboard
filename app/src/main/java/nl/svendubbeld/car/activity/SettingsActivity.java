@@ -29,16 +29,30 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toolbar;
 
 import nl.svendubbeld.car.R;
 
+/**
+ * Activity for modifying preferences.
+ */
 public class SettingsActivity extends Activity {
 
+    /**
+     * Sets the layout and loads {@link nl.svendubbeld.car.activity.SettingsActivity.SettingsFragment}.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut
+     *                           down then this Bundle contains the data it most recently supplied
+     *                           in {@link #onSaveInstanceState(Bundle)}.
+     */
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Make all system bars transparent and draw behind them
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -47,14 +61,17 @@ public class SettingsActivity extends Activity {
         getWindow().setStatusBarColor(Color.TRANSPARENT);
         getWindow().setNavigationBarColor(Color.TRANSPARENT);
 
+        // Set layout
         setContentView(R.layout.activity_settings);
 
+        // Set action bar
         setActionBar((Toolbar) findViewById(R.id.toolbar));
 
         if (getActionBar() != null) {
             getActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
+        // Load SettingsFragment
         if (savedInstanceState == null) {
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
             SettingsFragment fragment = new SettingsFragment();
@@ -62,16 +79,37 @@ public class SettingsActivity extends Activity {
         }
     }
 
+    /**
+     * Fragment for modifying preferences.
+     */
     public static class SettingsFragment extends PreferenceFragment {
 
+        /**
+         * Adds all preferences.
+         *
+         * @param savedInstanceState If the activity is being re-initialized after previously being
+         *                           shut down then this Bundle contains the data it most recently
+         *                           supplied in {@link #onSaveInstanceState(Bundle)}.
+         */
+        @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
         }
 
+        /**
+         * Adds some padding to compensate for the nav bar.
+         *
+         * @param view               The View returned by {@link #onCreateView(LayoutInflater,
+         *                           ViewGroup, Bundle)}.
+         * @param savedInstanceState If non-null, this fragment is being re-constructed from a
+         *                           previous saved state as given here.
+         */
+        @Override
         public void onViewCreated(View view, Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
 
+            // Add padding to compensate for the nav bar.
             if (getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                 view.findViewById(android.R.id.list).setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.nav_bar_height));
             }

@@ -35,31 +35,44 @@ import android.widget.TextView;
 
 import nl.svendubbeld.car.R;
 
+/**
+ * Activity that shows a dialer.
+ */
 public class DialerActivity extends Activity {
 
+    // Suggestions
+    private ListView mSuggestions;
 
-    ListView mSuggestions;
+    // Input
+    private TextView mInput;
+    private ImageView mInputDelete;
 
-    TextView mInput;
-    ImageView mInputDelete;
+    // Dialpad
+    private TextView mDialpad0;
+    private TextView mDialpad1;
+    private TextView mDialpad2;
+    private TextView mDialpad3;
+    private TextView mDialpad4;
+    private TextView mDialpad5;
+    private TextView mDialpad6;
+    private TextView mDialpad7;
+    private TextView mDialpad8;
+    private TextView mDialpad9;
+    private TextView mDialpadStar;
+    private TextView mDialpadPound;
 
-    TextView mDialpad0;
-    TextView mDialpad1;
-    TextView mDialpad2;
-    TextView mDialpad3;
-    TextView mDialpad4;
-    TextView mDialpad5;
-    TextView mDialpad6;
-    TextView mDialpad7;
-    TextView mDialpad8;
-    TextView mDialpad9;
-    TextView mDialpadStar;
-    TextView mDialpadPound;
-
+    /**
+     * Sets the layout.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut
+     *                           down then this Bundle contains the data it most recently supplied
+     *                           in {@link #onSaveInstanceState(Bundle)}.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Make all system bars transparent and draw behind them
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -68,13 +81,17 @@ public class DialerActivity extends Activity {
         getWindow().setStatusBarColor(Color.TRANSPARENT);
         getWindow().setNavigationBarColor(Color.TRANSPARENT);
 
+        // Set layout
         setContentView(R.layout.activity_dialer);
 
+        // Get suggestions view
         mSuggestions = (ListView) findViewById(R.id.suggestions);
 
+        // Get input views
         mInput = (TextView) findViewById(R.id.input);
         mInputDelete = (ImageView) findViewById(R.id.input_delete);
 
+        // Get dialpad views
         mDialpad0 = (TextView) findViewById(R.id.dialpad_0);
         mDialpad1 = (TextView) findViewById(R.id.dialpad_1);
         mDialpad2 = (TextView) findViewById(R.id.dialpad_2);
@@ -88,7 +105,6 @@ public class DialerActivity extends Activity {
         mDialpadStar = (TextView) findViewById(R.id.dialpad_star);
         mDialpadPound = (TextView) findViewById(R.id.dialpad_pound);
 
-
         mInputDelete.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -101,7 +117,8 @@ public class DialerActivity extends Activity {
     /**
      * Initiates a call to the specified number.
      *
-     * @param number The phone number as a string, without the "tel:" URI scheme. E.g.: "+31 6 12345678"
+     * @param number The phone number as a string, without the "tel:" URI scheme. E.g.: "+31 6
+     *               12345678"
      */
     private void call(CharSequence number) {
         call(Uri.parse("tel:" + number));
@@ -110,7 +127,8 @@ public class DialerActivity extends Activity {
     /**
      * Initiates a call to the specified number.
      *
-     * @param number The phone number as a string, without the "tel:" URI scheme. E.g.: "+31 6 12345678"
+     * @param number The phone number as a string, without the "tel:" URI scheme. E.g.: {@code "+31
+     *               6 12345678"}
      */
     private void call(String number) {
         call(Uri.parse("tel:" + number));
@@ -119,23 +137,34 @@ public class DialerActivity extends Activity {
     /**
      * Initiates a call to the specified number.
      *
-     * @param number The phone number as URI. E.g.: "tel:+31 6 12345678"
+     * @param number The phone number as URI. E.g.: {@code "tel:+31 6 12345678"}
      */
     private void call(Uri number) {
         Intent dial = new Intent(Intent.ACTION_CALL, number);
         startActivity(dial);
     }
 
+    /**
+     * Called when a dialpad button has been touched.
+     *
+     * @param v The button that has ben touched.
+     */
     public void dialpadButton(View v) {
         mInput.append(((TextView) v).getText().toString());
     }
 
+    /**
+     * Called when an input button has been touched.
+     *
+     * @param v The button that has ben touched.
+     */
     public void inputButton(View v) {
         CharSequence number = mInput.getText();
 
         switch (v.getId()) {
             case R.id.input_delete:
                 if (number.length() > 0) {
+                    // Remove one character from the end
                     mInput.setText(number.subSequence(0, number.length() - 1));
                 }
                 break;

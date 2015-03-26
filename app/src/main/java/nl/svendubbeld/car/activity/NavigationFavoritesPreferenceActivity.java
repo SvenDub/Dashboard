@@ -42,18 +42,29 @@ import nl.svendubbeld.car.adapter.NavigationFavoritesAdapter;
 
 public class NavigationFavoritesPreferenceActivity extends Activity implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
-    ListView mListView;
-    NavigationFavoritesAdapter mAdapter;
-    EditText mName;
-    EditText mAddress;
-    Button mAdd;
+    private ListView mListView;
+    private NavigationFavoritesAdapter mAdapter;
+    private EditText mName;
+    private EditText mAddress;
+    private Button mAdd;
 
-    int mEdit = -1;
+    /**
+     * Indicates the item that is currently being edited, or -1 if none.
+     */
+    private int mEdit = -1;
 
+    /**
+     * Sets the layout and loads the list.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut
+     *                           down then this Bundle contains the data it most recently supplied
+     *                           in {@link #onSaveInstanceState(Bundle)}.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Make all system bars transparent and draw behind them
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -62,15 +73,17 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
         getWindow().setStatusBarColor(Color.TRANSPARENT);
         getWindow().setNavigationBarColor(Color.TRANSPARENT);
 
+        // Set layout
         setContentView(R.layout.activity_navigation_favorites_preference);
 
-        mAdapter = new NavigationFavoritesAdapter(this, R.layout.list_item_navigation_favorite);
-
+        // Get views
         mListView = (ListView) findViewById(android.R.id.list);
         mName = (EditText) findViewById(R.id.name);
         mAddress = (EditText) findViewById(R.id.address);
         mAdd = (Button) findViewById(R.id.btn_add);
 
+        // Load the list
+        mAdapter = new NavigationFavoritesAdapter(this, R.layout.list_item_navigation_favorite);
         mListView.setAdapter(mAdapter);
         mListView.setEmptyView(findViewById(android.R.id.empty));
         mListView.setOnItemClickListener(this);
@@ -89,11 +102,17 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
         });
     }
 
-    void save() {
+    /**
+     * Requests the adapter to save the current list to the database.
+     */
+    private void save() {
         mAdapter.saveToDatabase();
     }
 
-    void add() {
+    /**
+     * Adds a new item to the adapter.
+     */
+    private void add() {
         String name = mName.getText().toString();
         String address = mAddress.getText().toString();
 
@@ -108,7 +127,10 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
         }
     }
 
-    void edit() {
+    /**
+     * Modifies an item in the adapter.
+     */
+    private void edit() {
         String name = mName.getText().toString();
         String address = mAddress.getText().toString();
 
@@ -126,7 +148,12 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
         }
     }
 
-    void startEditMode(int position) {
+    /**
+     * Starts edit mode.
+     *
+     * @param position The position of the item to edit.
+     */
+    private void startEditMode(int position) {
         mEdit = position;
 
         mName.setText(mAdapter.getItem(position).getName());
@@ -135,12 +162,22 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
         mAdd.setText(R.string.edit);
     }
 
-    void delete(int position) {
+    /**
+     * Removes an item from the adapter.
+     *
+     * @param position The position of the item to remove.
+     */
+    private void delete(int position) {
         mAdapter.remove(position);
         mAdapter.notifyDataSetChanged();
 
     }
 
+    /**
+     * Called when the add button gets clicked. Adds or edits an item.
+     *
+     * @param v The button that got clicked.
+     */
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_add:
@@ -153,6 +190,9 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
         }
     }
 
+    /**
+     * Saves the list.
+     */
     @Override
     protected void onPause() {
         super.onPause();
@@ -160,6 +200,9 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
         save();
     }
 
+    /**
+     * Reload the list.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -167,11 +210,25 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
         mAdapter.loadFromDatabase();
     }
 
+    /**
+     * <p>Callback method to be invoked when an item in this AdapterView has been clicked.</p>
+     *
+     * <p>Puts the activity in edit mode.</p>
+     *
+     * @param parent   The AdapterView where the click happened.
+     * @param view     The view within the AdapterView that was clicked (this will be a view
+     *                 provided by the adapter)
+     * @param position The position of the view in the adapter.
+     * @param id       The row id of the item that was clicked.
+     */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         startEditMode(position);
     }
 
+    /**
+     * Disables edit mode if enabled.
+     */
     @Override
     public void onBackPressed() {
         if (mEdit > -1) {
@@ -187,6 +244,17 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
         }
     }
 
+    /**
+     * <p>Callback method to be invoked when an item in this view has been clicked and held.</p>
+     *
+     * <p>Shows a popup menu with additional options.</p>
+     *
+     * @param parent   The AbsListView where the click happened
+     * @param view     The view within the AbsListView that was clicked
+     * @param position The position of the view in the list
+     * @param id       The row id of the item that was clicked
+     * @return true if the callback consumed the long click, false otherwise
+     */
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
         new AlertDialog.Builder(this)

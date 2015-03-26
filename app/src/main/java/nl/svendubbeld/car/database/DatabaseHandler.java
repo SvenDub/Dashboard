@@ -34,44 +34,82 @@ import java.util.ArrayList;
 
 import nl.svendubbeld.car.adapter.NavigationFavoritesAdapter;
 
+/**
+ * API for interacting with the database.
+ */
 public class DatabaseHandler extends SQLiteOpenHelper {
 
+    /**
+     * The name of the database.
+     */
     public static final String DATABASE_NAME = "Dashboard.db";
+    /**
+     * The version of the database.
+     */
     public static final int DATABASE_VERSION = 1;
 
+    /**
+     * Constant for text column type.
+     */
     private static final String TYPE_TEXT = " TEXT";
+    /**
+     * Constant for integer column type.
+     */
     private static final String TYPE_INT = " INTEGER";
+    /**
+     * Constant for comma separator.
+     */
     private static final String COMMA_SEP = ",";
 
+    /**
+     * SQL query for creating {@link nl.svendubbeld.car.database.DatabaseHandler.Contract.NavigationFavoriteEntry}.
+     */
     private static final String SQL_CREATE_NAVIGATION_FAVORITES =
             "CREATE TABLE " + Contract.NavigationFavoriteEntry.TABLE_NAME + " (" +
                     Contract.NavigationFavoriteEntry._ID + TYPE_INT + " PRIMARY KEY" + COMMA_SEP +
                     Contract.NavigationFavoriteEntry.COLUMN_NAME_NAME + TYPE_TEXT + COMMA_SEP +
                     Contract.NavigationFavoriteEntry.COLUMN_NAME_ADDRESS + TYPE_TEXT;
 
+    /**
+     * Create a new DatabaseHandler.
+     *
+     * @param context The current context.
+     */
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_NAVIGATION_FAVORITES);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
     }
 
+    /**
+     * Gets all favorites currently saved in the database.
+     *
+     * @return An {@link ArrayList} containing all {@link nl.svendubbeld.car.adapter.NavigationFavoritesAdapter.NavigationFavorite}.
+     */
     public ArrayList<NavigationFavoritesAdapter.NavigationFavorite> getNavigationFavorites() {
         SQLiteDatabase db = getReadableDatabase();
 
+        // Columns to fetch
         String[] projection = {
-                Contract.NavigationFavoriteEntry._ID,
                 Contract.NavigationFavoriteEntry.COLUMN_NAME_NAME,
                 Contract.NavigationFavoriteEntry.COLUMN_NAME_ADDRESS
         };
 
+        // Execute query
         Cursor cursor = db.query(
                 Contract.NavigationFavoriteEntry.TABLE_NAME,
                 projection,
@@ -84,6 +122,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         ArrayList<NavigationFavoritesAdapter.NavigationFavorite> navigationFavorites = new ArrayList<>(cursor.getCount());
 
+        // Add all favorites to the list
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             String name = cursor.getString(cursor.getColumnIndexOrThrow(Contract.NavigationFavoriteEntry.COLUMN_NAME_NAME));
@@ -97,11 +136,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return navigationFavorites;
     }
 
+    /**
+     * Replaces all old favorites with the supplied list.
+     *
+     * @param favorites The new list of {@link nl.svendubbeld.car.adapter.NavigationFavoritesAdapter.NavigationFavorite}.
+     */
     public void setNavigationFavorites(ArrayList<NavigationFavoritesAdapter.NavigationFavorite> favorites) {
         SQLiteDatabase db = getWritableDatabase();
 
+        // Remove old favorites
         db.delete(Contract.NavigationFavoriteEntry.TABLE_NAME, null, null);
 
+        // Insert each new favorite
         for (NavigationFavoritesAdapter.NavigationFavorite favorite : favorites) {
             ContentValues values = new ContentValues();
             values.put(Contract.NavigationFavoriteEntry.COLUMN_NAME_NAME, favorite.getName());
@@ -113,15 +159,30 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    /**
+     * Contract containing constants for all tables and columns.
+     */
     public static final class Contract {
 
         public Contract() {
 
         }
 
+        /**
+         * The table containing {@link nl.svendubbeld.car.adapter.NavigationFavoritesAdapter.NavigationFavorite}.
+         */
         public static abstract class NavigationFavoriteEntry implements BaseColumns {
+            /**
+             * Constant for the table name.
+             */
             public static final String TABLE_NAME = "navigation_favorites";
+            /**
+             * Constant for the name column.
+             */
             public static final String COLUMN_NAME_NAME = "name";
+            /**
+             * Constant for the address column.
+             */
             public static final String COLUMN_NAME_ADDRESS = "address";
         }
 

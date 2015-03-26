@@ -27,7 +27,6 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -41,12 +40,17 @@ import android.widget.TextView;
 
 import nl.svendubbeld.car.R;
 
+/**
+ * Fragment containing text field for manually inputting an address for navigation.
+ */
 public class NavigationInputFragment extends Fragment implements View.OnClickListener {
 
-    EditText mAddress;
-    Button mNavigate;
+    private EditText mAddress;
+    private Button mNavigate;
 
-    @Nullable
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_navigation_input, container, false);
@@ -88,6 +92,11 @@ public class NavigationInputFragment extends Fragment implements View.OnClickLis
         return root;
     }
 
+    /**
+     * Called when the navigate button gets clicked.
+     *
+     * @param v The button that got clicked.
+     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
