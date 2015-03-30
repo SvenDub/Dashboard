@@ -30,7 +30,6 @@ import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.speech.tts.TextToSpeech;
 
@@ -39,7 +38,7 @@ import nl.svendubbeld.car.Log;
 /**
  * NotificationListener that speaks notifications as they come in.
  */
-public class NotificationListener extends NotificationListenerService
+public class NotificationListenerService extends android.service.notification.NotificationListenerService
         implements TextToSpeech.OnInitListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     /**

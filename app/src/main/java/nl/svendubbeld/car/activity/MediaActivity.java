@@ -54,7 +54,7 @@ import java.util.TimerTask;
 
 import nl.svendubbeld.car.Log;
 import nl.svendubbeld.car.R;
-import nl.svendubbeld.car.service.NotificationListener;
+import nl.svendubbeld.car.service.NotificationListenerService;
 
 /**
  * Activity that shows media controls.
@@ -409,9 +409,9 @@ public class MediaActivity extends Activity
         if (mPrefShowMedia) {
             try {
                 mMediaSessionManager = (MediaSessionManager) getSystemService(MEDIA_SESSION_SERVICE);
-                List<MediaController> controllers = mMediaSessionManager.getActiveSessions(new ComponentName(this, NotificationListener.class));
+                List<MediaController> controllers = mMediaSessionManager.getActiveSessions(new ComponentName(this, NotificationListenerService.class));
                 onActiveSessionsChanged(controllers);
-                mMediaSessionManager.addOnActiveSessionsChangedListener(this, new ComponentName(this, NotificationListener.class));
+                mMediaSessionManager.addOnActiveSessionsChangedListener(this, new ComponentName(this, NotificationListenerService.class));
             } catch (SecurityException e) {
                 Log.w("NotificationListener", "No Notification Access");
                 new AlertDialog.Builder(this)

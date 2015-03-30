@@ -69,7 +69,7 @@ import java.util.List;
 import nl.svendubbeld.car.Log;
 import nl.svendubbeld.car.R;
 import nl.svendubbeld.car.service.FetchAddressIntentService;
-import nl.svendubbeld.car.service.NotificationListener;
+import nl.svendubbeld.car.service.NotificationListenerService;
 
 /**
  * Activity to show when the systems runs in Car Mode.
@@ -764,9 +764,9 @@ public class CarActivity extends Activity
         if (mPrefShowMedia) {
             try {
                 mMediaSessionManager = (MediaSessionManager) getSystemService(MEDIA_SESSION_SERVICE);
-                List<MediaController> controllers = mMediaSessionManager.getActiveSessions(new ComponentName(this, NotificationListener.class));
+                List<MediaController> controllers = mMediaSessionManager.getActiveSessions(new ComponentName(this, NotificationListenerService.class));
                 onActiveSessionsChanged(controllers);
-                mMediaSessionManager.addOnActiveSessionsChangedListener(this, new ComponentName(this, NotificationListener.class));
+                mMediaSessionManager.addOnActiveSessionsChangedListener(this, new ComponentName(this, NotificationListenerService.class));
             } catch (SecurityException e) {
                 Log.w("NotificationListener", "No Notification Access");
             }
