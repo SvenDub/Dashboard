@@ -478,7 +478,6 @@ public class CarActivity extends Activity
     @Override
     public void onBackPressed() {
         mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);
-        finish();
     }
 
     /**
@@ -513,7 +512,6 @@ public class CarActivity extends Activity
             case R.id.btn_exit:
                 // Disable Car Mode and exit the activity
                 mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);
-                finish();
                 break;
             case R.id.media_container:
                 // Launch MediaActivity with a scene transition
@@ -653,7 +651,6 @@ public class CarActivity extends Activity
     protected void onDestroy() {
         super.onDestroy();
         mGoogleApiClient.disconnect();
-        mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);
     }
 
     /**
