@@ -500,8 +500,13 @@ public class CarActivity extends Activity
                 startActivity(settingsIntent, ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getWidth()).toBundle());
                 break;
             case R.id.btn_navigation:
-                Intent navigationIntent = new Intent(NotificationListenerService.NotificationListenerServiceReceiver.ACTION_GET_MAPS);
-                sendBroadcast(navigationIntent);
+                String enabledNotificationListeners = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
+                if (enabledNotificationListeners == null || !enabledNotificationListeners.contains(getPackageName())) {
+                    launchNavigation(v);
+                } else {
+                    Intent navigationIntent = new Intent(NotificationListenerService.NotificationListenerServiceReceiver.ACTION_GET_MAPS);
+                    sendBroadcast(navigationIntent);
+                }
                 break;
             case R.id.btn_dialer:
                 launchDialer(v);
