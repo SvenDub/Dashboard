@@ -68,7 +68,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             "CREATE TABLE " + Contract.NavigationFavoriteEntry.TABLE_NAME + " (" +
                     Contract.NavigationFavoriteEntry._ID + TYPE_INT + " PRIMARY KEY" + COMMA_SEP +
                     Contract.NavigationFavoriteEntry.COLUMN_NAME_NAME + TYPE_TEXT + COMMA_SEP +
-                    Contract.NavigationFavoriteEntry.COLUMN_NAME_ADDRESS + TYPE_TEXT;
+                    Contract.NavigationFavoriteEntry.COLUMN_NAME_ADDRESS + TYPE_TEXT + ")";
 
     /**
      * Create a new DatabaseHandler.
