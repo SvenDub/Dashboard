@@ -6,7 +6,7 @@ Dashboard is a car home replacement for Android 5.0.
        src="https://developer.android.com/images/brand/en_generic_rgb_wo_45.png" />
 </a>
 
-<img src="screen-1_framed.png" width="250px" />
+<img src="screen-1_framed.png" width="250px" /> <img src="screen-5_framed.png" width="500px" />
 
 Dashboard provides easy access to the most common actions while driving. This list includes, but is not limited to:
 
