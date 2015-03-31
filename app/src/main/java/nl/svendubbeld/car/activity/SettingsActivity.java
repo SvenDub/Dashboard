@@ -110,7 +110,7 @@ public class SettingsActivity extends Activity {
             super.onViewCreated(view, savedInstanceState);
 
             // Add padding to compensate for the nav bar.
-            if (getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            if ((getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) || (getActivity().getResources().getConfiguration().smallestScreenWidthDp >= 600)) {
                 view.findViewById(android.R.id.list).setPadding(0, 0, 0, getResources().getDimensionPixelSize(R.dimen.nav_bar_height));
             }
         }
