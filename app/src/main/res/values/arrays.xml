@@ -22,18 +22,14 @@
   -->
 
 <resources>
-    <string-array name="pref_entries_bg">
-        <item>Launcher</item>
-        <item>Black</item>
-    </string-array>
     <string-array name="pref_entries_dialer">
-        <item>Default</item>
-        <item>Built-in</item>
+        <item>@string/default_app</item>
+        <item>@string/built_in</item>
     </string-array>
     <string-array name="pref_entries_night_mode">
-        <item>Auto</item>
-        <item>Always</item>
-        <item>Never</item>
+        <item>@string/automatic</item>
+        <item>@string/always</item>
+        <item>@string/never</item>
     </string-array>
     <string-array name="pref_entries_unit_speed">
         <item>m/s</item>
@@ -48,10 +44,6 @@
         <item>@string/edit</item>
         <item>@string/delete</item>
         <item>@string/cancel</item>
-    </string-array>
-    <string-array name="pref_values_bg">
-        <item>launcher</item>
-        <item>black</item>
     </string-array>
     <string-array name="pref_values_dialer">
         <item>default</item>
