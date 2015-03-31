@@ -21,7 +21,7 @@
   ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string-array name="pref_entries_dialer">
         <item>@string/default_app</item>
         <item>@string/built_in</item>
