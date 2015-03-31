@@ -22,31 +22,31 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
 
     <ImageView
         android:id="@+id/status_bar_background"
         android:layout_width="match_parent"
         android:layout_height="@dimen/status_bar_height"
-        android:src="@drawable/status_bar_background" />
+        android:src="@drawable/status_bar_background"/>
 
     <Toolbar
-        android:layout_below="@id/status_bar_background"
         android:id="@+id/toolbar"
         android:layout_width="fill_parent"
-        android:layout_height="?android:actionBarSize" />
+        android:layout_height="?android:actionBarSize"
+        android:layout_below="@id/status_bar_background"/>
 
     <FrameLayout
-        android:layout_below="@id/toolbar"
         android:id="@+id/container"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        android:layout_height="fill_parent"
+        android:layout_below="@id/toolbar"/>
 
     <ImageView
-        android:layout_alignParentBottom="true"
         android:id="@+id/navigation_bar_background"
         android:layout_width="match_parent"
         android:layout_height="@dimen/nav_bar_height"
-        android:src="@drawable/navigation_bar_background" />
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/navigation_bar_background"/>
 </RelativeLayout>

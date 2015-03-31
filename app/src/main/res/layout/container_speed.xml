@@ -21,9 +21,10 @@
   ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   -->
 
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView
     android:id="@+id/speed_container"
     style="@style/Card"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content">
 
@@ -35,11 +36,11 @@
         <TextView
             android:id="@+id/address"
             android:layout_width="match_parent"
-            android:singleLine="true"
-            android:ellipsize="marquee"
             android:layout_height="wrap_content"
+            android:ellipsize="marquee"
             android:gravity="center_horizontal"
-            android:textSize="25sp" />
+            android:singleLine="true"
+            android:textSize="25sp"/>
 
         <TextView
             android:id="@+id/speed"
@@ -47,7 +48,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:text="--"
-            android:textSize="100.0sp" />
+            android:textSize="100.0sp"/>
 
         <TextView
             android:id="@+id/speed_unit"
@@ -55,6 +56,6 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:text="km/h"
-            android:textSize="25.0sp" />
+            android:textSize="25.0sp"/>
     </LinearLayout>
 </android.support.v7.widget.CardView>

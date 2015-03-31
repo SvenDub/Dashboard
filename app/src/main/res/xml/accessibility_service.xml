@@ -22,9 +22,9 @@
   -->
 
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accessibilityEventTypes="typeViewTextSelectionChanged"
-    android:accessibilityFeedbackType="feedbackGeneric"
-    android:description="@string/accessibility_service"
-    android:notificationTimeout="100"
-    android:packageNames="com.google.android.googlequicksearchbox"
-    android:settingsActivity="nl.svenubbeld.car.SettingsActivity" />
+                       android:accessibilityEventTypes="typeViewTextSelectionChanged"
+                       android:accessibilityFeedbackType="feedbackGeneric"
+                       android:description="@string/accessibility_service"
+                       android:notificationTimeout="100"
+                       android:packageNames="com.google.android.googlequicksearchbox"
+                       android:settingsActivity="nl.svenubbeld.car.SettingsActivity"/>

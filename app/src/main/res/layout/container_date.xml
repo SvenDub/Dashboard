@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:textColor="?android:textColorSecondary"
-            android:textSize="50.0sp" />
+            android:textSize="50.0sp"/>
 
         <TextClock
             android:id="@+id/date"
@@ -50,6 +50,6 @@
             android:format24Hour="EEEE dd MM"
             android:gravity="center_horizontal"
             android:textColor="?android:textColorSecondary"
-            android:textSize="25.0sp" />
+            android:textSize="25.0sp"/>
     </LinearLayout>
 </android.support.v7.widget.CardView>

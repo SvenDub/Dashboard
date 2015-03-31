@@ -22,8 +22,8 @@
   -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -46,14 +46,14 @@
                 android:layout_weight="1"
                 android:hint="@string/name"
                 android:nextFocusDown="@+id/address"
-                android:singleLine="true" />
+                android:singleLine="true"/>
 
             <Button
                 android:id="@+id/btn_add"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="onClick"
-                android:text="@string/add" />
+                android:text="@string/add"/>
         </LinearLayout>
 
         <EditText
@@ -65,13 +65,13 @@
             android:hint="@string/address"
             android:imeOptions="actionDone"
             android:nextFocusUp="@+id/name"
-            android:singleLine="true" />
+            android:singleLine="true"/>
 
         <ListView
             android:id="@android:id/list"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"/>
 
         <TextView
             android:id="@android:id/empty"
@@ -81,7 +81,7 @@
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_weight="1"
             android:padding="8dp"
-            android:text="@string/navigation_favorites_empty" />
+            android:text="@string/navigation_favorites_empty"/>
 
     </LinearLayout>
 
@@ -89,12 +89,12 @@
         android:id="@+id/status_bar_background"
         android:layout_width="match_parent"
         android:layout_height="@dimen/status_bar_height"
-        android:src="@drawable/status_bar_background" />
+        android:src="@drawable/status_bar_background"/>
 
     <ImageView
         android:id="@+id/navigation_bar_background"
         android:layout_width="match_parent"
         android:layout_height="@dimen/nav_bar_height"
         android:layout_gravity="bottom"
-        android:src="@drawable/navigation_bar_background" />
+        android:src="@drawable/navigation_bar_background"/>
 </FrameLayout>

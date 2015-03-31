@@ -22,22 +22,22 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
     <ImageView
         android:id="@+id/status_bar_background"
         android:layout_width="match_parent"
         android:layout_height="@dimen/status_bar_height"
-        android:src="@drawable/status_bar_background" />
+        android:src="@drawable/status_bar_background"/>
 
     <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_horizontal_margin">
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_weight="1">
 
         <android.support.v7.widget.CardView
             android:id="@+id/media_container"
@@ -60,7 +60,7 @@
                     android:adjustViewBounds="true"
                     android:padding="8.0dip"
                     android:src="@drawable/bg_default_album_art"
-                    android:transitionName="@string/transition_media_art" />
+                    android:transitionName="@string/transition_media_art"/>
 
                 <LinearLayout
                     android:layout_width="fill_parent"
@@ -72,20 +72,20 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="0:00" />
+                        android:text="0:00"/>
 
                     <SeekBar
                         android:id="@+id/media_time_seek_bar"
                         android:layout_width="0.0dip"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1.0" />
+                        android:layout_weight="1.0"/>
 
                     <TextView
                         android:id="@+id/media_time_end"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="-0:00" />
+                        android:text="-0:00"/>
                 </LinearLayout>
 
                 <TextView
@@ -98,7 +98,7 @@
                     android:singleLine="true"
                     android:text="@string/media_idle"
                     android:textSize="30.0sp"
-                    android:transitionName="@string/transition_media_title" />
+                    android:transitionName="@string/transition_media_title"/>
 
                 <TextView
                     android:id="@+id/media_artist"
@@ -107,7 +107,7 @@
                     android:ellipsize="end"
                     android:singleLine="true"
                     android:textSize="20.0sp"
-                    android:transitionName="@string/transition_media_artist" />
+                    android:transitionName="@string/transition_media_artist"/>
 
                 <TextView
                     android:id="@+id/media_album"
@@ -116,7 +116,7 @@
                     android:ellipsize="end"
                     android:singleLine="true"
                     android:textSize="20.0sp"
-                    android:transitionName="@string/transition_media_album" />
+                    android:transitionName="@string/transition_media_album"/>
 
                 <LinearLayout
                     android:layout_width="fill_parent"
@@ -133,7 +133,7 @@
                         android:background="?android:selectableItemBackgroundBorderless"
                         android:src="@drawable/ic_av_volume_down"
                         android:tint="?android:textColorSecondary"
-                        android:transitionName="@string/transition_media_vol_down" />
+                        android:transitionName="@string/transition_media_vol_down"/>
 
                     <ImageView
                         android:id="@+id/media_prev"
@@ -144,7 +144,7 @@
                         android:background="?android:selectableItemBackgroundBorderless"
                         android:src="@drawable/ic_av_skip_previous"
                         android:tint="?android:textColorSecondary"
-                        android:transitionName="@string/transition_media_prev" />
+                        android:transitionName="@string/transition_media_prev"/>
 
                     <ImageView
                         android:id="@+id/media_play"
@@ -155,7 +155,7 @@
                         android:background="@drawable/round_ripple"
                         android:src="@drawable/ic_av_play_arrow"
                         android:tint="?cardBackgroundColor"
-                        android:transitionName="@string/transition_media_play" />
+                        android:transitionName="@string/transition_media_play"/>
 
                     <ProgressBar
                         android:id="@+id/media_play_progress"
@@ -163,7 +163,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1.0"
                         android:indeterminate="true"
-                        android:visibility="gone" />
+                        android:visibility="gone"/>
 
                     <ImageView
                         android:id="@+id/media_next"
@@ -174,7 +174,7 @@
                         android:background="?android:selectableItemBackgroundBorderless"
                         android:src="@drawable/ic_av_skip_next"
                         android:tint="?android:textColorSecondary"
-                        android:transitionName="@string/transition_media_next" />
+                        android:transitionName="@string/transition_media_next"/>
 
                     <ImageView
                         android:id="@+id/media_vol_up"
@@ -185,7 +185,7 @@
                         android:background="?android:selectableItemBackgroundBorderless"
                         android:src="@drawable/ic_av_volume_up"
                         android:tint="?android:textColorSecondary"
-                        android:transitionName="@string/transition_media_vol_up" />
+                        android:transitionName="@string/transition_media_vol_up"/>
                 </LinearLayout>
 
                 <TextView
@@ -195,7 +195,7 @@
                     android:text="@string/media_up_next"
                     android:textColor="?android:textColorTertiary"
                     android:textSize="16.0sp"
-                    android:textStyle="italic" />
+                    android:textStyle="italic"/>
 
                 <TextView
                     android:id="@+id/media_up_next_title"
@@ -204,7 +204,7 @@
                     android:ellipsize="end"
                     android:singleLine="true"
                     android:textColor="?android:textColorTertiary"
-                    android:textSize="20.0sp" />
+                    android:textSize="20.0sp"/>
 
                 <TextView
                     android:id="@+id/media_up_next_artist"
@@ -213,7 +213,7 @@
                     android:ellipsize="end"
                     android:singleLine="true"
                     android:textColor="?android:textColorTertiary"
-                    android:textSize="16.0sp" />
+                    android:textSize="16.0sp"/>
             </LinearLayout>
         </android.support.v7.widget.CardView>
     </FrameLayout>
@@ -222,6 +222,6 @@
         android:id="@+id/navigation_bar_background"
         android:layout_width="match_parent"
         android:layout_height="@dimen/nav_bar_height"
-        android:src="@drawable/navigation_bar_background"
-        android:layout_gravity="bottom" />
+        android:layout_gravity="bottom"
+        android:src="@drawable/navigation_bar_background"/>
 </LinearLayout>

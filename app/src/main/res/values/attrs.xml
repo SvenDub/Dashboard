@@ -22,7 +22,7 @@
   -->
 
 <resources>
-    <attr name="colorDialer" format="color" />
-    <attr name="colorNavigation" format="color" />
-    <attr name="colorVoice" format="color" />
+  <attr name="colorDialer" format="color"/>
+  <attr name="colorNavigation" format="color"/>
+  <attr name="colorVoice" format="color"/>
 </resources>

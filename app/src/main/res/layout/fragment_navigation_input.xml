@@ -22,10 +22,10 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="@dimen/activity_horizontal_margin">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:padding="@dimen/activity_horizontal_margin">
 
     <EditText
         android:id="@+id/input"
@@ -33,13 +33,13 @@
         android:layout_height="wrap_content"
         android:hint="@string/address"
         android:imeOptions="actionSearch"
-        android:singleLine="true" />
+        android:singleLine="true"/>
 
     <Button
         android:id="@+id/btn_navigate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:enabled="false"
-        android:hint="@string/navigate" />
+        android:hint="@string/navigate"/>
 
 </LinearLayout>
