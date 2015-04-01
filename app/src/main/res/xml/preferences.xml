@@ -91,5 +91,11 @@
             android:summaryOff="@string/pref_summary_speak_notifications_off"
             android:summaryOn="@string/pref_summary_speak_notifications_on"
             android:title="@string/pref_title_speak_notifications"/>
+        <net.jayschwa.android.preference.SliderPreference
+            android:defaultValue="0.5f"
+            android:dependency="pref_key_speak_notifications"
+            android:key="pref_key_speak_notifications_volume"
+            android:summary="@array/pref_summary_speak_notifications_volume"
+            android:title="@string/pref_title_speak_notifications_volume"/>
     </PreferenceCategory>
 </PreferenceScreen>

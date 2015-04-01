@@ -37,8 +37,11 @@
     <string name="dialog_notification_access_positive">Make it so!</string>
     <string name="dialog_notification_access_title">No Notification Access</string>
     <string name="edit">Edit</string>
+    <string name="high">High</string>
+    <string name="low">Low</string>
     <string name="media_idle">No media playing</string>
     <string name="media_up_next">Up next:</string>
+    <string name="medium">Medium</string>
     <string name="name">Name</string>
     <string name="navigate">Navigate</string>
     <string name="navigation_favorites">Favorites</string>
@@ -66,6 +69,7 @@
     <string name="pref_title_show_speed">Speed</string>
     <string name="pref_title_show_road">Current road</string>
     <string name="pref_title_speak_notifications">Spoken notifications</string>
+    <string name="pref_title_speak_notifications_volume">Spoken notifications volume</string>
     <string name="pref_title_unit_speed">Speed</string>
     <string name="pref_title_unit_temp">Temperature</string>
     <string name="pref_title_units">Units</string>

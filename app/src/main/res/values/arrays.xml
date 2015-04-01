@@ -63,4 +63,9 @@
         <item>0</item>
         <item>1</item>
     </string-array>
+    <string-array name="pref_summary_speak_notifications_volume">
+        <item>@string/low</item>
+        <item>@string/medium</item>
+        <item>@string/high</item>
+    </string-array>
 </resources>

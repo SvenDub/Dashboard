@@ -94,5 +94,6 @@
     <orderEntry type="library" exported="" name="play-services-location-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-22.0.0" level="project" />
     <orderEntry type="library" exported="" name="support-v13-22.0.0" level="project" />
+    <orderEntry type="module" module-name="AndroidSliderPreference" exported="" />
   </component>
 </module>

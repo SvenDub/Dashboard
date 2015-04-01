@@ -80,4 +80,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.0.+'
     compile 'com.google.android.gms:play-services-location:7.0.0'
     compile 'com.android.support:support-v13:22.0.0'
+    compile project(':AndroidSliderPreference')
 }

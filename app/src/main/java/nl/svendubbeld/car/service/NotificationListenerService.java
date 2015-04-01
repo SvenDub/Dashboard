@@ -50,6 +50,11 @@ public class NotificationListenerService extends android.service.notification.No
      */
     private boolean mPrefSpeakNotifications = true;
 
+    /**
+     * "pref_key_speak_notifications_volume"
+     */
+    private float mPrefSpeakNotificationsVolume = 0.5f;
+
     private SharedPreferences mSharedPref;
     private TextToSpeech mTextToSpeech;
     private boolean mTextToSpeechInitialized = false;
@@ -76,13 +81,14 @@ public class NotificationListenerService extends android.service.notification.No
         // Create TTS options
         mTextToSpeechOptions = new Bundle();
         mTextToSpeechOptions.putInt(TextToSpeech.Engine.KEY_PARAM_STREAM, AudioManager.STREAM_NOTIFICATION);
-        mTextToSpeechOptions.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 0.2f);
+        mTextToSpeechOptions.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, mPrefSpeakNotificationsVolume);
 
         // Get preferences
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         mSharedPref.registerOnSharedPreferenceChangeListener(this);
 
         mPrefSpeakNotifications = mSharedPref.getBoolean("pref_key_speak_notifications", true);
+        mPrefSpeakNotificationsVolume = mSharedPref.getFloat("pref_key_speak_notifications_volume", 0.5f);
 
         Log.i("TextToSpeech", "Speak notifications: " + mPrefSpeakNotifications);
     }
@@ -141,6 +147,9 @@ public class NotificationListenerService extends android.service.notification.No
         if (key.equals("pref_key_speak_notifications")) {
             mPrefSpeakNotifications = sharedPreferences.getBoolean("pref_key_speak_notifications", true);
             Log.i("TextToSpeech", "Spoken notifications: " + mPrefSpeakNotifications);
+        } else if (key.equals("pref_key_speak_notifications_volume")) {
+            mPrefSpeakNotificationsVolume = sharedPreferences.getFloat("pref_key_speak_notifications_volume", 0.5f);
+            mTextToSpeechOptions.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, mPrefSpeakNotificationsVolume);
         }
     }
 

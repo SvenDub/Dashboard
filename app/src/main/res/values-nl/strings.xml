@@ -62,6 +62,7 @@
     <string name="pref_title_show_road">Huidige weg</string>
     <string name="pref_title_show_speed">Snelheid</string>
     <string name="pref_title_speak_notifications">Gesproken notificaties</string>
+    <string name="pref_title_speak_notifications_volume">Geproken notificaties volume</string>
     <string name="pref_title_unit_speed">Snelheid</string>
     <string name="pref_title_unit_temp">Temperatuur</string>
     <string name="pref_title_units">Eenheden</string>
@@ -72,4 +73,7 @@
     <string name="built_in">Ingebouwd</string>
     <string name="default_app">Standaard</string>
     <string name="never">Nooit</string>
+    <string name="high">Hoog</string>
+    <string name="low">Laag</string>
+    <string name="medium">Normaal</string>
 </resources>
