@@ -32,8 +32,12 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.view.ViewPager;
+import android.speech.RecognizerIntent;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -45,18 +49,23 @@ import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.List;
+
+import nl.svendubbeld.car.OnTargetChangeListener;
 import nl.svendubbeld.car.R;
-import nl.svendubbeld.car.adapter.PlacesFragmentPagerAdapter;
+import nl.svendubbeld.car.fragment.NavigationFavoritesFragment;
 
 /**
  * Activity for starting navigation.
  */
-public class NavigationActivity extends Activity implements OnMapReadyCallback, GoogleMap.OnMyLocationChangeListener {
+public class NavigationActivity extends Activity implements OnMapReadyCallback, GoogleMap.OnMyLocationChangeListener, OnTargetChangeListener {
+
+    private static final int SPEECH_REQUEST_CODE = 0;
 
     private GoogleMap mMap;
     private Location mLocation;
 
-    private ViewPager mViewPager;
+    private EditText mTxtTarget;
 
     /**
      * Sets the layout and initializes the map.
@@ -91,18 +100,37 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
             mapOptions.camera(new CameraPosition(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()), 17, 60, mLocation.getBearing()));
         }
 
-        // Create map fragment
+        // Create fragments
         MapFragment mapFragment = MapFragment.newInstance(mapOptions);
+        String mapTag = "map_fragment";
+        NavigationFavoritesFragment favoritesFragment = new NavigationFavoritesFragment();
+        String favoritesTag = "favorites_fragment";
+
         FragmentTransaction fragmentTransaction =
                 getFragmentManager().beginTransaction();
-        fragmentTransaction.add(R.id.map, mapFragment);
+
+        if (getFragmentManager().findFragmentByTag(mapTag) == null) {
+            fragmentTransaction.add(R.id.map, mapFragment, mapTag);
+        }
+        if (getFragmentManager().findFragmentByTag(favoritesTag) == null) {
+            fragmentTransaction.add(R.id.fragment_favorites, favoritesFragment, favoritesTag);
+        }
+
         fragmentTransaction.commit();
         mapFragment.getMapAsync(this);
 
-        // Create view pager
-        mViewPager = (ViewPager) findViewById(R.id.places_pager);
-        mViewPager.setAdapter(new PlacesFragmentPagerAdapter(getFragmentManager(), this));
+        mTxtTarget = (EditText) findViewById(R.id.target);
+        mTxtTarget.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_GO) {
+                    startNavigation();
+                    return true;
+                }
 
+                return false;
+            }
+        });
     }
 
     /**
@@ -152,14 +180,45 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
         switch (v.getId()) {
             case R.id.btn_home:
                 String home = PreferenceManager.getDefaultSharedPreferences(this).getString("pref_key_navigation_home", "");
-                Intent intentHome = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=" + home));
-                startActivity(intentHome);
+                onTargetChanged(home);
                 break;
             case R.id.btn_work:
                 String work = PreferenceManager.getDefaultSharedPreferences(this).getString("pref_key_navigation_work", "");
-                Intent intentWork = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=" + work));
-                startActivity(intentWork);
+                onTargetChanged(work);
+                break;
+            case R.id.btn_navigation:
+                startNavigation();
+                break;
+            case R.id.target_voice:
+                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+                startActivityForResult(intent, SPEECH_REQUEST_CODE);
                 break;
         }
+    }
+
+    private void startNavigation() {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=" + mTxtTarget.getText().toString()));
+        startActivity(intent);
+    }
+
+    @Override
+    public void onTargetChanged(String target) {
+        mTxtTarget.setText(target);
+        mTxtTarget.setSelection(target.length());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode,
+                                    Intent data) {
+        if (requestCode == SPEECH_REQUEST_CODE && resultCode == RESULT_OK) {
+            List<String> results = data.getStringArrayListExtra(
+                    RecognizerIntent.EXTRA_RESULTS);
+            String spokenText = results.get(0);
+            onTargetChanged(spokenText);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

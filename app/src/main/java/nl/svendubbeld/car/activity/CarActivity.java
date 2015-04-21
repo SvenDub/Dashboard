@@ -557,7 +557,7 @@ public class CarActivity extends Activity
      */
     private void launchNavigation(View v) {
         Intent navigationIntent = new Intent(this, NavigationActivity.class);
-        startActivity(navigationIntent, ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getWidth()).toBundle());
+        startActivity(navigationIntent, ActivityOptions.makeSceneTransitionAnimation(this, findViewById(R.id.btn_navigation_image), getString(R.string.transition_button_navigation)).toBundle());
     }
 
     /**

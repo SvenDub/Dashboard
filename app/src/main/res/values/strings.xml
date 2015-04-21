@@ -46,7 +46,7 @@
     <string name="navigate">Navigate</string>
     <string name="navigation_favorites">Favorites</string>
     <string name="navigation_favorites_empty">No favorites set</string>
-    <string name="navigation_input">Enter destination</string>
+    <string name="navigation_input">Destination</string>
     <string name="never">Never</string>
     <string name="pref_summary_show_road">Requires an active data connection</string>
     <string name="pref_summary_speak_notifications_off">"Don't read notifications out loud when car mode is on"</string>
@@ -87,4 +87,5 @@
     <string name="transition_media_vol_down" translatable="false">transition_media_vol_down</string>
     <string name="transition_media_vol_up" translatable="false">transition_media_vol_up</string>
     <string name="transition_button_dialer" translatable="false">transition_button_dialer</string>
+    <string name="transition_button_navigation" translatable="false">transition_button_navigation</string>
 </resources>
