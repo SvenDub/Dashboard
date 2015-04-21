@@ -118,6 +118,7 @@
                 android:layout_height="fill_parent"
                 android:adjustViewBounds="true"
                 android:background="@drawable/round_ripple"
+                android:backgroundTint="?android:colorAccent"
                 android:src="@drawable/ic_av_play_arrow"
                 android:tint="?cardBackgroundColor"
                 android:transitionName="@string/transition_media_play"/>

@@ -167,6 +167,7 @@
                         android:layout_weight="1.0"
                         android:adjustViewBounds="true"
                         android:background="@drawable/round_ripple"
+                        android:backgroundTint="?android:colorAccent"
                         android:scaleType="fitCenter"
                         android:src="@drawable/ic_av_play_arrow"
                         android:tint="?cardBackgroundColor"
