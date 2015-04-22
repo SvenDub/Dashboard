@@ -27,12 +27,9 @@ import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.UiModeManager;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -202,8 +199,6 @@ public class CarActivity extends Activity
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
-
-    private NotificationReceiver mReceiver;
 
     /**
      * Callback for the MediaController.
@@ -562,12 +557,16 @@ public class CarActivity extends Activity
                 startActivity(settingsIntent, ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getWidth()).toBundle());
                 break;
             case R.id.btn_navigation:
-                String enabledNotificationListeners = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
-                if (enabledNotificationListeners == null || !enabledNotificationListeners.contains(getPackageName())) {
+                try {
+                    if (NotificationListenerService.getService().isMapsRunning()) {
+                        Intent navigationIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:"));
+                        startActivity(navigationIntent);
+                    } else {
+                        launchNavigation(v);
+                    }
+                } catch (Exception e) {
+                    Log.e("NotificationListenerService", "Service not available.");
                     launchNavigation(v);
-                } else {
-                    Intent navigationIntent = new Intent(NotificationListenerService.NotificationListenerServiceReceiver.ACTION_GET_MAPS);
-                    sendBroadcast(navigationIntent);
                 }
                 break;
             case R.id.btn_dialer:
@@ -716,11 +715,6 @@ public class CarActivity extends Activity
 
         toggleNightMode();
 
-        // Register notification receiver
-        mReceiver = new NotificationReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(NotificationListenerService.NotificationListenerServiceReceiver.ACTION_GET_MAPS);
-        registerReceiver(mReceiver, filter);
         resetLayout();
     }
 
@@ -731,7 +725,6 @@ public class CarActivity extends Activity
     protected void onDestroy() {
         super.onDestroy();
         mGoogleApiClient.disconnect();
-        unregisterReceiver(mReceiver);
     }
 
     /**
@@ -1030,23 +1023,6 @@ public class CarActivity extends Activity
                 mSpeedAddress.setText("");
             }
 
-        }
-    }
-
-    private class NotificationReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(NotificationListenerService.NotificationListenerServiceReceiver.ACTION_GET_MAPS)) {
-                if (intent.hasExtra(NotificationListenerService.NotificationListenerServiceReceiver.EXTRA_MAPS_ACTIVE)) {
-                    if (intent.getBooleanExtra(NotificationListenerService.NotificationListenerServiceReceiver.EXTRA_MAPS_ACTIVE, false)) {
-                        Intent navigationIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:"));
-                        startActivity(navigationIntent);
-                    } else {
-                        launchNavigation(mButtonNavigation);
-                    }
-                }
-            }
         }
     }
 }

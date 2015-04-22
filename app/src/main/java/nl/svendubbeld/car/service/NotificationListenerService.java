@@ -25,11 +25,9 @@ package nl.svendubbeld.car.service;
 
 import android.app.Notification;
 import android.app.UiModeManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -44,6 +42,8 @@ import nl.svendubbeld.car.Log;
  */
 public class NotificationListenerService extends android.service.notification.NotificationListenerService
         implements TextToSpeech.OnInitListener, SharedPreferences.OnSharedPreferenceChangeListener {
+
+    private static NotificationListenerService mService = null;
 
     /**
      * "pref_key_speak_notifications"
@@ -60,7 +60,9 @@ public class NotificationListenerService extends android.service.notification.No
     private boolean mTextToSpeechInitialized = false;
     private Bundle mTextToSpeechOptions;
 
-    private NotificationListenerServiceReceiver mReceiver;
+    public static NotificationListenerService getService() {
+        return mService;
+    }
 
     /**
      * Initializes the TTS engine and gets the preferences.
@@ -69,11 +71,7 @@ public class NotificationListenerService extends android.service.notification.No
     public void onCreate() {
         super.onCreate();
 
-        // Attach broadcast receiver
-        mReceiver = new NotificationListenerServiceReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(NotificationListenerServiceReceiver.ACTION_GET_MAPS);
-        registerReceiver(mReceiver, filter);
+        mService = this;
 
         // Initialize TTS engine
         mTextToSpeech = new TextToSpeech(this, this);
@@ -99,8 +97,6 @@ public class NotificationListenerService extends android.service.notification.No
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        unregisterReceiver(mReceiver);
 
         mTextToSpeech.shutdown();
         Log.i("TextToSpeech", "Stopped");
@@ -137,9 +133,19 @@ public class NotificationListenerService extends android.service.notification.No
                 ) {
             Notification notification = sbn.getNotification();
             if (notification.tickerText != null) {
+                CharSequence text = notification.tickerText;
+
+                try {
+                    PackageManager pm = getPackageManager();
+                    ApplicationInfo applicationInfo = pm.getApplicationInfo(sbn.getPackageName(), 0);
+                    text = pm.getApplicationLabel(applicationInfo) + ": " + text;
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+
                 mTextToSpeech.playSilentUtterance(1500l, TextToSpeech.QUEUE_ADD, sbn.getId() + "_delay");
-                mTextToSpeech.speak(notification.tickerText, TextToSpeech.QUEUE_ADD, mTextToSpeechOptions, sbn.getId() + "_content");
-                Log.d("TextToSpeech", "Speak: " + notification.tickerText);
+                mTextToSpeech.speak(text, TextToSpeech.QUEUE_ADD, mTextToSpeechOptions, sbn.getId() + "_content");
+                Log.d("TextToSpeech", "Speak: " + text);
             }
         }
     }
@@ -157,24 +163,13 @@ public class NotificationListenerService extends android.service.notification.No
         }
     }
 
-    public class NotificationListenerServiceReceiver extends BroadcastReceiver {
-
-
-        public static final String ACTION_GET_MAPS = "nl.svendubbeld.car.service.NotificationListenerService.ACTION_GET_MAPS";
-        public static final String EXTRA_MAPS_ACTIVE = "maps_active";
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (!intent.hasExtra(EXTRA_MAPS_ACTIVE)) {
-                Intent listBroadcast = new Intent(ACTION_GET_MAPS);
-                listBroadcast.putExtra(EXTRA_MAPS_ACTIVE, false);
-                for (StatusBarNotification notification : getActiveNotifications()) {
-                    if (notification.getPackageName().equals("com.google.android.apps.maps")) {
-                        listBroadcast.putExtra(EXTRA_MAPS_ACTIVE, true);
-                    }
-                }
-                sendBroadcast(listBroadcast);
+    public boolean isMapsRunning() {
+        for (StatusBarNotification notification : getActiveNotifications()) {
+            if (notification.getPackageName().equals("com.google.android.apps.maps")) {
+                return true;
             }
         }
+
+        return false;
     }
 }
