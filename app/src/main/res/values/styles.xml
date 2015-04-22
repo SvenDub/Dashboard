@@ -44,7 +44,10 @@
     <style name="Card" parent="@style/CardView">
         <item name="android:background">?cardBackgroundColor</item>
         <item name="android:layout_height">96.0dip</item>
-        <item name="android:layout_margin">0.0dip</item>
+        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:layout_marginBottom">0dp</item>
+        <item name="android:layout_marginStart">0dp</item>
+        <item name="android:layout_marginEnd">0dp</item>
         <item name="android:minHeight">96.0dip</item>
         <item name="cardBackgroundColor">?cardBackgroundColor</item>
         <item name="cardElevation">?cardElevation</item>

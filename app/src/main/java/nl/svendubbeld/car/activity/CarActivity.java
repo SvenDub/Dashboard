@@ -55,6 +55,8 @@ import android.text.format.DateFormat;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextClock;
@@ -72,6 +74,7 @@ import java.util.List;
 
 import nl.svendubbeld.car.Log;
 import nl.svendubbeld.car.R;
+import nl.svendubbeld.car.animation.SpeakNotificationsIconAnimation;
 import nl.svendubbeld.car.service.FetchAddressIntentService;
 import nl.svendubbeld.car.service.NotificationListenerService;
 
@@ -368,9 +371,7 @@ public class CarActivity extends Activity
         mButtonSpeakNotifications.setOnClickListener(this);
         mButtonExit.setOnClickListener(this);
 
-        mButtonSpeakNotificationsIcon.setBackgroundTintList(ColorStateList.valueOf(getTheme().obtainStyledAttributes(new int[]{android.R.attr.textColorSecondary}).getColor(0, getResources().getColor(android.R.color.secondary_text_light))));
-
-        toggleSpeakNotificationsIcon();
+        toggleSpeakNotificationsIcon(false);
     }
 
     /**
@@ -406,17 +407,29 @@ public class CarActivity extends Activity
     }
 
     /**
-     * Sets the speak notifications toggle to reflect {@link #mPrefSpeakNotifications}.
+     * Sets the speak notifications toggle to reflect {@link #mPrefSpeakNotifications}. Animation is
+     * enabled.
      */
     private void toggleSpeakNotificationsIcon() {
-        if (!mPrefSpeakNotifications) {
-            // Show background and make foreground image semi-transparent
-            mButtonSpeakNotificationsIcon.setBackgroundResource(R.drawable.ic_notification_do_not_disturb);
-            mButtonSpeakNotificationsIcon.setImageAlpha(64);
+        toggleSpeakNotificationsIcon(true);
+    }
+
+    /**
+     * Sets the speak notifications toggle to reflect {@link #mPrefSpeakNotifications}.
+     *
+     * @param animate Whether to use an animation for the change.
+     */
+    private void toggleSpeakNotificationsIcon(boolean animate) {
+        int alphaEnabled = 255;
+        int alphaDisabled = 64;
+
+        if (animate) {
+            Animation animation = new SpeakNotificationsIconAnimation(mButtonSpeakNotificationsIcon, mPrefSpeakNotifications, alphaEnabled, alphaDisabled);
+            animation.setInterpolator(new LinearInterpolator());
+            animation.setDuration(250l);
+            mButtonSpeakNotificationsIcon.startAnimation(animation);
         } else {
-            // Remove background and make foreground image fully visible
-            mButtonSpeakNotificationsIcon.setBackground(null);
-            mButtonSpeakNotificationsIcon.setImageAlpha(255);
+            mButtonSpeakNotificationsIcon.setImageAlpha(mPrefSpeakNotifications ? alphaEnabled : alphaDisabled);
         }
     }
 
@@ -557,7 +570,7 @@ public class CarActivity extends Activity
      */
     private void launchNavigation(View v) {
         Intent navigationIntent = new Intent(this, NavigationActivity.class);
-        startActivity(navigationIntent, ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getWidth()).toBundle());
+        startActivity(navigationIntent, ActivityOptions.makeSceneTransitionAnimation(this, findViewById(R.id.btn_navigation_image), getString(R.string.transition_button_navigation)).toBundle());
     }
 
     /**
@@ -766,7 +779,7 @@ public class CarActivity extends Activity
         toggleSpeed();
         toggleMedia();
         toggleNightMode();
-        toggleSpeakNotificationsIcon();
+        toggleSpeakNotificationsIcon(false);
 
         // Check notification access
         if (mPrefShowMedia || mPrefSpeakNotifications) {
