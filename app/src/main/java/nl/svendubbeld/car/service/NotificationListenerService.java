@@ -130,7 +130,11 @@ public class NotificationListenerService extends android.service.notification.No
     public void onNotificationPosted(StatusBarNotification sbn) {
         super.onNotificationPosted(sbn);
 
-        if (mTextToSpeechInitialized && mPrefSpeakNotifications && (((UiModeManager) getSystemService(UI_MODE_SERVICE)).getCurrentModeType() == Configuration.UI_MODE_TYPE_CAR)) {
+        if (mTextToSpeechInitialized
+                && mPrefSpeakNotifications
+                && (((UiModeManager) getSystemService(UI_MODE_SERVICE)).getCurrentModeType() == Configuration.UI_MODE_TYPE_CAR)
+                && (((AudioManager) getSystemService(AUDIO_SERVICE)).getRingerMode() == AudioManager.RINGER_MODE_NORMAL)
+                ) {
             Notification notification = sbn.getNotification();
             if (notification.tickerText != null) {
                 mTextToSpeech.playSilentUtterance(1500l, TextToSpeech.QUEUE_ADD, sbn.getId() + "_delay");
