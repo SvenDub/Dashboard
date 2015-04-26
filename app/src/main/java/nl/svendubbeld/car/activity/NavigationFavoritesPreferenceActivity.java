@@ -93,6 +93,8 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
         mListView.setEmptyView(findViewById(android.R.id.empty));
         mListView.setOnItemLongClickListener(this);
 
+        mListView.setFooterDividersEnabled(false);
+
         // Add padding to compensate for the nav bar.
         if ((getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) || (getResources().getConfiguration().smallestScreenWidthDp >= 600)) {
             Space v = new Space(this);
