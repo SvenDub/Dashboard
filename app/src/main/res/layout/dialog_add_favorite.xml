@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ The MIT License (MIT)
   ~
   ~ Copyright (c) 2015 Sven Dubbeld
@@ -25,21 +26,22 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-              android:padding="@dimen/activity_horizontal_margin">
+              android:paddingEnd="16dp"
+              android:paddingStart="16dp">
 
     <EditText
-        android:id="@+id/input"
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/name"
+        android:singleLine="true"/>
+
+    <EditText
+        android:id="@id/address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/address"
-        android:imeOptions="actionSearch"
+        android:imeOptions="actionDone"
         android:singleLine="true"/>
-
-    <Button
-        android:id="@+id/btn_navigate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:enabled="false"
-        android:hint="@string/navigate"/>
 
 </LinearLayout>

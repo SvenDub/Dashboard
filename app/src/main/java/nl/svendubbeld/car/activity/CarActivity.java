@@ -27,16 +27,16 @@ import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.UiModeManager;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.location.GpsSatellite;
+import android.location.GpsStatus;
 import android.location.Location;
+import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaMetadata;
 import android.media.session.MediaController;
@@ -55,7 +55,10 @@ import android.text.format.DateFormat;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextClock;
 import android.widget.TextView;
@@ -72,6 +75,8 @@ import java.util.List;
 
 import nl.svendubbeld.car.Log;
 import nl.svendubbeld.car.R;
+import nl.svendubbeld.car.animation.FadeBackgroundInOutAnimation;
+import nl.svendubbeld.car.animation.SpeakNotificationsIconAnimation;
 import nl.svendubbeld.car.service.FetchAddressIntentService;
 import nl.svendubbeld.car.service.NotificationListenerService;
 
@@ -79,7 +84,7 @@ import nl.svendubbeld.car.service.NotificationListenerService;
  * Activity to show when the systems runs in Car Mode.
  */
 public class CarActivity extends Activity
-        implements LocationListener, SharedPreferences.OnSharedPreferenceChangeListener, MediaSessionManager.OnActiveSessionsChangedListener, View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        implements LocationListener, SharedPreferences.OnSharedPreferenceChangeListener, MediaSessionManager.OnActiveSessionsChangedListener, View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GpsStatus.Listener {
 
     /**
      * Constant for speed in km/h.
@@ -97,6 +102,10 @@ public class CarActivity extends Activity
      * Minimum interval between GPS updates.
      */
     private static final int GPS_UPDATE_INTERVAL = 1000;
+    /**
+     * Threshold between GPS updated to detect locked GPS.
+     */
+    private static final int GPS_FIX_THRESHOLD = 2 * GPS_UPDATE_INTERVAL;
     /**
      * Minimum interval between geofencing.
      */
@@ -175,16 +184,21 @@ public class CarActivity extends Activity
     private TextView mSpeed;
     private TextView mSpeedUnit;
 
+    // GPS status
+    private LinearLayout mGpsStatusContainer;
+    private ImageView mGpsStatusIcon;
+    private TextView mGpsStatus;
+    private long mLastGpsMillis = 0l;
+
+    private LocationManager mLocationManager;
     private UiModeManager mUiModeManager;
     private SharedPreferences mSharedPref;
 
     // Location
-    private long mLastLocationMillis = 0l;
+    private long mLastGeofencingMillis = 0l;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
-
-    private NotificationReceiver mReceiver;
 
     /**
      * Callback for the MediaController.
@@ -301,6 +315,27 @@ public class CarActivity extends Activity
             }
         }
     };
+    private android.location.LocationListener mGpsLocationListener = new android.location.LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            mLastGpsMillis = SystemClock.elapsedRealtime();
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    };
 
     /**
      * Resets the layout according to the
@@ -309,37 +344,42 @@ public class CarActivity extends Activity
         setContentView(R.layout.activity_car);
 
         // Get date views
-        mDateContainer = ((CardView) findViewById(R.id.date_container));
-        mDate = ((TextClock) findViewById(R.id.date));
-        mTime = ((TextClock) findViewById(R.id.time));
+        mDateContainer = (CardView) findViewById(R.id.date_container);
+        mDate = (TextClock) findViewById(R.id.date);
+        mTime = (TextClock) findViewById(R.id.time);
 
         // Get speed views
-        mSpeedContainer = ((CardView) findViewById(R.id.speed_container));
+        mSpeedContainer = (CardView) findViewById(R.id.speed_container);
         mSpeedAddress = (TextView) findViewById(R.id.address);
-        mSpeed = ((TextView) findViewById(R.id.speed));
-        mSpeedUnit = ((TextView) findViewById(R.id.speed_unit));
+        mSpeed = (TextView) findViewById(R.id.speed);
+        mSpeedUnit = (TextView) findViewById(R.id.speed_unit);
+
+        // Get GPS status views
+        mGpsStatusContainer = (LinearLayout) findViewById(R.id.gps_status_container);
+        mGpsStatusIcon = (ImageView) findViewById(R.id.gps_status_icon);
+        mGpsStatus = (TextView) findViewById(R.id.gps_status_label);
 
         // Get media views
-        mMediaContainer = ((CardView) findViewById(R.id.media_container));
-        mMediaArt = ((ImageView) findViewById(R.id.media_art));
-        mMediaTitle = ((TextView) findViewById(R.id.media_title));
-        mMediaArtist = ((TextView) findViewById(R.id.media_artist));
-        mMediaAlbum = ((TextView) findViewById(R.id.media_album));
-        mMediaVolDown = ((ImageView) findViewById(R.id.media_vol_down));
-        mMediaPrev = ((ImageView) findViewById(R.id.media_prev));
-        mMediaPlay = ((ImageView) findViewById(R.id.media_play));
-        mMediaPlayProgress = ((ProgressBar) findViewById(R.id.media_play_progress));
-        mMediaNext = ((ImageView) findViewById(R.id.media_next));
-        mMediaVolUp = ((ImageView) findViewById(R.id.media_vol_up));
+        mMediaContainer = (CardView) findViewById(R.id.media_container);
+        mMediaArt = (ImageView) findViewById(R.id.media_art);
+        mMediaTitle = (TextView) findViewById(R.id.media_title);
+        mMediaArtist = (TextView) findViewById(R.id.media_artist);
+        mMediaAlbum = (TextView) findViewById(R.id.media_album);
+        mMediaVolDown = (ImageView) findViewById(R.id.media_vol_down);
+        mMediaPrev = (ImageView) findViewById(R.id.media_prev);
+        mMediaPlay = (ImageView) findViewById(R.id.media_play);
+        mMediaPlayProgress = (ProgressBar) findViewById(R.id.media_play_progress);
+        mMediaNext = (ImageView) findViewById(R.id.media_next);
+        mMediaVolUp = (ImageView) findViewById(R.id.media_vol_up);
 
         // Get buttons
-        mButtonSettings = ((CardView) findViewById(R.id.btn_settings));
-        mButtonNavigation = ((CardView) findViewById(R.id.btn_navigation));
-        mButtonDialer = ((CardView) findViewById(R.id.btn_dialer));
-        mButtonVoice = ((CardView) findViewById(R.id.btn_voice));
-        mButtonSpeakNotifications = ((CardView) findViewById(R.id.btn_speak_notifications));
-        mButtonSpeakNotificationsIcon = ((ImageView) findViewById(R.id.btn_speak_notifications_icon));
-        mButtonExit = ((CardView) findViewById(R.id.btn_exit));
+        mButtonSettings = (CardView) findViewById(R.id.btn_settings);
+        mButtonNavigation = (CardView) findViewById(R.id.btn_navigation);
+        mButtonDialer = (CardView) findViewById(R.id.btn_dialer);
+        mButtonVoice = (CardView) findViewById(R.id.btn_voice);
+        mButtonSpeakNotifications = (CardView) findViewById(R.id.btn_speak_notifications);
+        mButtonSpeakNotificationsIcon = (ImageView) findViewById(R.id.btn_speak_notifications_icon);
+        mButtonExit = (CardView) findViewById(R.id.btn_exit);
 
         toggleDate();
         toggleSpeed();
@@ -349,6 +389,13 @@ public class CarActivity extends Activity
         String dateFormat = ((SimpleDateFormat) DateFormat.getMediumDateFormat(getApplicationContext())).toPattern();
         mDate.setFormat12Hour(null);
         mDate.setFormat24Hour(dateFormat);
+
+        // Format GPS status
+        Animation gpsStatusIconAnimation = new FadeBackgroundInOutAnimation(mGpsStatusIcon);
+        gpsStatusIconAnimation.setDuration(2000l);
+        gpsStatusIconAnimation.setInterpolator(new LinearInterpolator());
+        gpsStatusIconAnimation.setRepeatCount(Animation.INFINITE);
+        mGpsStatusIcon.startAnimation(gpsStatusIconAnimation);
 
         // Set media controls
         mMediaVolDown.setOnClickListener(mMediaControlsListener);
@@ -368,9 +415,7 @@ public class CarActivity extends Activity
         mButtonSpeakNotifications.setOnClickListener(this);
         mButtonExit.setOnClickListener(this);
 
-        mButtonSpeakNotificationsIcon.setBackgroundTintList(ColorStateList.valueOf(getTheme().obtainStyledAttributes(new int[]{android.R.attr.textColorSecondary}).getColor(0, getResources().getColor(android.R.color.secondary_text_light))));
-
-        toggleSpeakNotificationsIcon();
+        toggleSpeakNotificationsIcon(false);
     }
 
     /**
@@ -406,17 +451,29 @@ public class CarActivity extends Activity
     }
 
     /**
-     * Sets the speak notifications toggle to reflect {@link #mPrefSpeakNotifications}.
+     * Sets the speak notifications toggle to reflect {@link #mPrefSpeakNotifications}. Animation is
+     * enabled.
      */
     private void toggleSpeakNotificationsIcon() {
-        if (!mPrefSpeakNotifications) {
-            // Show background and make foreground image semi-transparent
-            mButtonSpeakNotificationsIcon.setBackgroundResource(R.drawable.ic_notification_do_not_disturb);
-            mButtonSpeakNotificationsIcon.setImageAlpha(64);
+        toggleSpeakNotificationsIcon(true);
+    }
+
+    /**
+     * Sets the speak notifications toggle to reflect {@link #mPrefSpeakNotifications}.
+     *
+     * @param animate Whether to use an animation for the change.
+     */
+    private void toggleSpeakNotificationsIcon(boolean animate) {
+        int alphaEnabled = 255;
+        int alphaDisabled = 64;
+
+        if (animate) {
+            Animation animation = new SpeakNotificationsIconAnimation(mButtonSpeakNotificationsIcon, mPrefSpeakNotifications, alphaEnabled, alphaDisabled);
+            animation.setInterpolator(new LinearInterpolator());
+            animation.setDuration(250l);
+            mButtonSpeakNotificationsIcon.startAnimation(animation);
         } else {
-            // Remove background and make foreground image fully visible
-            mButtonSpeakNotificationsIcon.setBackground(null);
-            mButtonSpeakNotificationsIcon.setImageAlpha(255);
+            mButtonSpeakNotificationsIcon.setImageAlpha(mPrefSpeakNotifications ? alphaEnabled : alphaDisabled);
         }
     }
 
@@ -500,12 +557,16 @@ public class CarActivity extends Activity
                 startActivity(settingsIntent, ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getWidth()).toBundle());
                 break;
             case R.id.btn_navigation:
-                String enabledNotificationListeners = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
-                if (enabledNotificationListeners == null || !enabledNotificationListeners.contains(getPackageName())) {
+                try {
+                    if (NotificationListenerService.getService().isMapsRunning()) {
+                        Intent navigationIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:"));
+                        startActivity(navigationIntent);
+                    } else {
+                        launchNavigation(v);
+                    }
+                } catch (Exception e) {
+                    Log.e("NotificationListenerService", "Service not available.");
                     launchNavigation(v);
-                } else {
-                    Intent navigationIntent = new Intent(NotificationListenerService.NotificationListenerServiceReceiver.ACTION_GET_MAPS);
-                    sendBroadcast(navigationIntent);
                 }
                 break;
             case R.id.btn_dialer:
@@ -557,7 +618,7 @@ public class CarActivity extends Activity
      */
     private void launchNavigation(View v) {
         Intent navigationIntent = new Intent(this, NavigationActivity.class);
-        startActivity(navigationIntent, ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getWidth()).toBundle());
+        startActivity(navigationIntent, ActivityOptions.makeSceneTransitionAnimation(this, findViewById(R.id.btn_navigation_image), getString(R.string.transition_button_navigation)).toBundle());
     }
 
     /**
@@ -627,8 +688,9 @@ public class CarActivity extends Activity
         mPrefSpeedUnit = Integer.parseInt(mSharedPref.getString("pref_key_unit_speed", "1"));
         mPrefAppsDialer = mSharedPref.getString("pref_key_dialer", "default");
 
-        // Get UiModeManager
-        mUiModeManager = ((UiModeManager) getSystemService(UI_MODE_SERVICE));
+        // Get Managers
+        mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        mUiModeManager = (UiModeManager) getSystemService(UI_MODE_SERVICE);
 
         // Create dialog for when no notification access is granted
         mNotificationListenerDialog = new AlertDialog.Builder(this)
@@ -653,11 +715,6 @@ public class CarActivity extends Activity
 
         toggleNightMode();
 
-        // Register notification receiver
-        mReceiver = new NotificationReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(NotificationListenerService.NotificationListenerServiceReceiver.ACTION_GET_MAPS);
-        registerReceiver(mReceiver, filter);
         resetLayout();
     }
 
@@ -668,7 +725,6 @@ public class CarActivity extends Activity
     protected void onDestroy() {
         super.onDestroy();
         mGoogleApiClient.disconnect();
-        unregisterReceiver(mReceiver);
     }
 
     /**
@@ -680,10 +736,10 @@ public class CarActivity extends Activity
     public void onLocationChanged(Location location) {
 
         // Only fetch the road if it is visible and the minimum interval has elapsed
-        if (mPrefShowSpeed && mPrefShowRoad && SystemClock.elapsedRealtime() - mLastLocationMillis > GEOFENCING_INTERVAL) {
+        if (mPrefShowSpeed && mPrefShowRoad && SystemClock.elapsedRealtime() - mLastGeofencingMillis > GEOFENCING_INTERVAL) {
             startIntentService(location);
 
-            mLastLocationMillis = SystemClock.elapsedRealtime();
+            mLastGeofencingMillis = SystemClock.elapsedRealtime();
         }
 
         // Get the speed and convert it to the unit specified
@@ -731,6 +787,9 @@ public class CarActivity extends Activity
             LocationServices.FusedLocationApi.removeLocationUpdates(
                     mGoogleApiClient, this);
         }
+
+        mLocationManager.removeUpdates(mGpsLocationListener);
+        mLocationManager.removeGpsStatusListener(this);
     }
 
     /**
@@ -745,6 +804,12 @@ public class CarActivity extends Activity
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         } else if (!mGoogleApiClient.isConnecting()) {
             mGoogleApiClient.connect();
+        }
+
+        // Listen for GpsStatus
+        mLocationManager.addGpsStatusListener(this);
+        if (mLocationManager.isProviderEnabled("gps")) {
+            mLocationManager.requestLocationUpdates("gps", GPS_UPDATE_INTERVAL, 0.0f, mGpsLocationListener);
         }
 
         // Get all preferences
@@ -766,7 +831,7 @@ public class CarActivity extends Activity
         toggleSpeed();
         toggleMedia();
         toggleNightMode();
-        toggleSpeakNotificationsIcon();
+        toggleSpeakNotificationsIcon(false);
 
         // Check notification access
         if (mPrefShowMedia || mPrefSpeakNotifications) {
@@ -906,6 +971,28 @@ public class CarActivity extends Activity
         startService(intent);
     }
 
+    @Override
+    public void onGpsStatusChanged(int event) {
+        int satellites = 0;
+        int fixedSatellites = 0;
+
+        for (GpsSatellite satellite : mLocationManager.getGpsStatus(null).getSatellites()) {
+            if (satellite.usedInFix()) {
+                fixedSatellites++;
+            }
+            satellites++;
+        }
+
+        if (SystemClock.elapsedRealtime() - mLastGpsMillis < GPS_FIX_THRESHOLD) {
+            mGpsStatusContainer.setVisibility(View.GONE);
+        } else {
+            mGpsStatusContainer.setVisibility(View.VISIBLE);
+            mGpsStatusIcon.setImageResource(R.drawable.ic_device_gps_not_fixed);
+            mGpsStatus.setText(fixedSatellites + "/" + satellites);
+        }
+
+    }
+
     /**
      * ResultReceiver for the current address.
      */
@@ -936,23 +1023,6 @@ public class CarActivity extends Activity
                 mSpeedAddress.setText("");
             }
 
-        }
-    }
-
-    private class NotificationReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(NotificationListenerService.NotificationListenerServiceReceiver.ACTION_GET_MAPS)) {
-                if (intent.hasExtra(NotificationListenerService.NotificationListenerServiceReceiver.EXTRA_MAPS_ACTIVE)) {
-                    if (intent.getBooleanExtra(NotificationListenerService.NotificationListenerServiceReceiver.EXTRA_MAPS_ACTIVE, false)) {
-                        Intent navigationIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:"));
-                        startActivity(navigationIntent);
-                    } else {
-                        launchNavigation(mButtonNavigation);
-                    }
-                }
-            }
         }
     }
 }

@@ -22,8 +22,9 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:paddingRight="@dimen/nav_bar_height">
 
     <ImageView
         android:id="@+id/status_bar_background"
@@ -65,7 +66,7 @@
         android:id="@+id/btn_add"
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:layout_above="@+id/navigation_bar_background"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"
@@ -82,12 +83,4 @@
             android:layout_gravity="center"
             android:src="@drawable/ic_content_add"/>
     </FrameLayout>
-
-    <ImageView
-        android:id="@+id/navigation_bar_background"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/nav_bar_height"
-        android:layout_alignParentBottom="true"
-        android:layout_gravity="bottom"
-        android:src="@drawable/navigation_bar_background"/>
 </RelativeLayout>

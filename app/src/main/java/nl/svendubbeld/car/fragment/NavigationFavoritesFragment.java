@@ -24,14 +24,16 @@
 package nl.svendubbeld.car.fragment;
 
 import android.app.ListFragment;
-import android.content.Intent;
-import android.net.Uri;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Space;
 
+import nl.svendubbeld.car.Log;
+import nl.svendubbeld.car.OnTargetChangeListener;
 import nl.svendubbeld.car.R;
 import nl.svendubbeld.car.adapter.NavigationFavoritesAdapter;
 
@@ -78,7 +80,30 @@ public class NavigationFavoritesFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
         NavigationFavoritesAdapter.NavigationFavorite favorite = mAdapter.getItem(position);
 
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=" + favorite.getAddress()));
-        startActivity(intent);
+        if (getActivity() instanceof OnTargetChangeListener) {
+            ((OnTargetChangeListener) getActivity()).onTargetChanged(favorite.getAddress());
+        } else {
+            Log.e(NavigationFavoritesFragment.class.getSimpleName(), "Parent activity should implement OnTargetChangeListener!");
+        }
+    }
+
+    /**
+     * Adds some padding to compensate for the nav bar.
+     *
+     * @param view               The View returned by {@link #onCreateView(LayoutInflater,
+     *                           ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous
+     *                           saved state as given here.
+     */
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Add padding to compensate for the nav bar.
+        if ((getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) || (getActivity().getResources().getConfiguration().smallestScreenWidthDp >= 600)) {
+            Space space = new Space(getActivity());
+            space.setMinimumHeight(getResources().getDimensionPixelSize(R.dimen.nav_bar_height));
+            ((ListView) view.findViewById(android.R.id.list)).addFooterView(space);
+        }
     }
 }
