@@ -36,8 +36,8 @@ android {
         applicationId "nl.svendubbeld.car"
         minSdkVersion 21
         targetSdkVersion 22
-        versionCode 3
-        versionName "1.1"
+        versionCode 4
+        versionName "1.2"
     }
     signingConfigs {
         release {
