@@ -25,33 +25,34 @@ package nl.svendubbeld.car.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Space;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import nl.svendubbeld.car.R;
 import nl.svendubbeld.car.adapter.NavigationFavoritesAdapter;
 
-public class NavigationFavoritesPreferenceActivity extends Activity implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+public class NavigationFavoritesPreferenceActivity extends Activity implements AdapterView.OnItemLongClickListener {
+
+    private Context mContext = this;
 
     private ListView mListView;
     private NavigationFavoritesAdapter mAdapter;
-    private EditText mName;
-    private EditText mAddress;
-    private Button mAdd;
-
-    /**
-     * Indicates the item that is currently being edited, or -1 if none.
-     */
-    private int mEdit = -1;
 
     /**
      * Sets the layout and loads the list.
@@ -76,30 +77,29 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
         // Set layout
         setContentView(R.layout.activity_navigation_favorites_preference);
 
+        // Set action bar
+        setActionBar((Toolbar) findViewById(R.id.toolbar));
+
+        if (getActionBar() != null) {
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         // Get views
         mListView = (ListView) findViewById(android.R.id.list);
-        mName = (EditText) findViewById(R.id.name);
-        mAddress = (EditText) findViewById(R.id.address);
-        mAdd = (Button) findViewById(R.id.btn_add);
 
         // Load the list
         mAdapter = new NavigationFavoritesAdapter(this, R.layout.list_item_navigation_favorite);
         mListView.setAdapter(mAdapter);
         mListView.setEmptyView(findViewById(android.R.id.empty));
-        mListView.setOnItemClickListener(this);
         mListView.setOnItemLongClickListener(this);
 
-        mAddress.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    add();
-                    return true;
-                }
+        // Add padding to compensate for the nav bar.
+        if ((getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) || (getResources().getConfiguration().smallestScreenWidthDp >= 600)) {
+            Space v = new Space(this);
+            v.setMinimumHeight(getResources().getDimensionPixelSize(R.dimen.nav_bar_height));
 
-                return false;
-            }
-        });
+            mListView.addFooterView(v);
+        }
     }
 
     /**
@@ -112,54 +112,21 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
     /**
      * Adds a new item to the adapter.
      */
-    private void add() {
-        String name = mName.getText().toString();
-        String address = mAddress.getText().toString();
-
+    private void add(String name, String address) {
         if (!name.isEmpty() && !address.isEmpty()) {
             mAdapter.add(new NavigationFavoritesAdapter.NavigationFavorite(name, address));
             mAdapter.notifyDataSetChanged();
-
-            mName.setText("");
-            mAddress.setText("");
-
-            mName.requestFocus();
         }
     }
 
     /**
      * Modifies an item in the adapter.
      */
-    private void edit() {
-        String name = mName.getText().toString();
-        String address = mAddress.getText().toString();
-
+    private void edit(int position, String name, String address) {
         if (!name.isEmpty() && !address.isEmpty()) {
-            mAdapter.edit(mEdit, name, address);
+            mAdapter.edit(position, name, address);
             mAdapter.notifyDataSetChanged();
-
-            mEdit = -1;
-            mAdd.setText(R.string.add);
-
-            mName.setText("");
-            mAddress.setText("");
-
-            mName.requestFocus();
         }
-    }
-
-    /**
-     * Starts edit mode.
-     *
-     * @param position The position of the item to edit.
-     */
-    private void startEditMode(int position) {
-        mEdit = position;
-
-        mName.setText(mAdapter.getItem(position).getName());
-        mAddress.setText(mAdapter.getItem(position).getAddress());
-
-        mAdd.setText(R.string.edit);
     }
 
     /**
@@ -181,11 +148,61 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_add:
-                if (mEdit > -1) {
-                    edit();
-                } else {
-                    add();
-                }
+                View root = getLayoutInflater().inflate(R.layout.dialog_add_favorite, null);
+
+                final EditText name = (EditText) root.findViewById(R.id.name);
+                final EditText address = (EditText) root.findViewById(R.id.address);
+
+                final AlertDialog dialog = new AlertDialog.Builder(this)
+                        .setTitle(R.string.add)
+                        .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                add(name.getText().toString(), address.getText().toString());
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, null)
+                        .setView(root)
+                        .create();
+
+                TextWatcher textWatcher = new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(name.length() > 0 && address.length() > 0);
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                    }
+                };
+
+                name.addTextChangedListener(textWatcher);
+                address.addTextChangedListener(textWatcher);
+
+                address.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                    @Override
+                    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                        if (actionId == EditorInfo.IME_ACTION_DONE) {
+                            Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                            if (button.isEnabled()) {
+                                button.callOnClick();
+                            }
+
+                            return true;
+                        }
+
+                        return false;
+                    }
+                });
+
+                dialog.show();
+                dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(name.length() > 0 && address.length() > 0);
+
+                dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                 break;
         }
     }
@@ -211,40 +228,6 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
     }
 
     /**
-     * <p>Callback method to be invoked when an item in this AdapterView has been clicked.</p>
-     *
-     * <p>Puts the activity in edit mode.</p>
-     *
-     * @param parent   The AdapterView where the click happened.
-     * @param view     The view within the AdapterView that was clicked (this will be a view
-     *                 provided by the adapter)
-     * @param position The position of the view in the adapter.
-     * @param id       The row id of the item that was clicked.
-     */
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        startEditMode(position);
-    }
-
-    /**
-     * Disables edit mode if enabled.
-     */
-    @Override
-    public void onBackPressed() {
-        if (mEdit > -1) {
-            mEdit = -1;
-            mAdd.setText(R.string.add);
-
-            mName.setText("");
-            mAddress.setText("");
-
-            mName.requestFocus();
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    /**
      * <p>Callback method to be invoked when an item in this view has been clicked and held.</p>
      *
      * <p>Shows a popup menu with additional options.</p>
@@ -264,7 +247,64 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
                         switch (which) {
                             case 0:
                                 // Edit
-                                startEditMode(position);
+                                View root = getLayoutInflater().inflate(R.layout.dialog_add_favorite, null);
+
+                                final EditText name = (EditText) root.findViewById(R.id.name);
+                                final EditText address = (EditText) root.findViewById(R.id.address);
+
+                                final AlertDialog editDialog = new AlertDialog.Builder(mContext)
+                                        .setTitle(R.string.edit)
+                                        .setPositiveButton(R.string.edit, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                edit(position, name.getText().toString(), address.getText().toString());
+                                            }
+                                        })
+                                        .setNegativeButton(R.string.cancel, null)
+                                        .setView(root)
+                                        .create();
+
+                                TextWatcher textWatcher = new TextWatcher() {
+                                    @Override
+                                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                                    }
+
+                                    @Override
+                                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                        editDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(name.length() > 0 && address.length() > 0);
+                                    }
+
+                                    @Override
+                                    public void afterTextChanged(Editable s) {
+                                    }
+                                };
+
+                                name.addTextChangedListener(textWatcher);
+                                address.addTextChangedListener(textWatcher);
+
+                                address.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                                    @Override
+                                    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                                        if (actionId == EditorInfo.IME_ACTION_DONE) {
+                                            Button button = editDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                                            if (button.isEnabled()) {
+                                                button.callOnClick();
+                                            }
+
+                                            return true;
+                                        }
+
+                                        return false;
+                                    }
+                                });
+
+                                editDialog.show();
+                                editDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(name.length() > 0 && address.length() > 0);
+
+                                name.setText(mAdapter.getItem(position).getName());
+                                address.setText(mAdapter.getItem(position).getAddress());
+
+                                editDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                                 break;
                             case 1:
                                 // Delete
