@@ -118,6 +118,7 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
 
         fragmentTransaction.commit();
         mapFragment.getMapAsync(this);
+        mapFragment.setRetainInstance(true);
 
         mTxtTarget = (EditText) findViewById(R.id.target);
         mTxtTarget.setOnEditorActionListener(new TextView.OnEditorActionListener() {
