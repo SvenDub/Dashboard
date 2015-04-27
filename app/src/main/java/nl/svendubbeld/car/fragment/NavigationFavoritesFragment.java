@@ -99,11 +99,16 @@ public class NavigationFavoritesFragment extends ListFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        ListView listView =  ((ListView) view.findViewById(android.R.id.list));
+
+        listView.setFooterDividersEnabled(false);
+
         // Add padding to compensate for the nav bar.
         if ((getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) || (getActivity().getResources().getConfiguration().smallestScreenWidthDp >= 600)) {
             Space space = new Space(getActivity());
             space.setMinimumHeight(getResources().getDimensionPixelSize(R.dimen.nav_bar_height));
-            ((ListView) view.findViewById(android.R.id.list)).addFooterView(space);
+
+           listView.addFooterView(space);
         }
     }
 }
