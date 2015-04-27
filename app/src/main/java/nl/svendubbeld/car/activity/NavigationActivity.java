@@ -38,7 +38,7 @@ import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
+import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -56,6 +56,7 @@ import java.util.List;
 
 import nl.svendubbeld.car.OnTargetChangeListener;
 import nl.svendubbeld.car.R;
+import nl.svendubbeld.car.adapter.NavigationFavoritesAdapter;
 import nl.svendubbeld.car.fragment.NavigationFavoritesFragment;
 
 /**
@@ -68,7 +69,7 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
     private GoogleMap mMap;
     private Location mLocation;
 
-    private EditText mTxtTarget;
+    private AutoCompleteTextView mTxtTarget;
     private ImageView mTargetVoice;
     private ImageView mTargetClear;
 
@@ -128,7 +129,7 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
         mTargetVoice = (ImageView) findViewById(R.id.target_voice);
         mTargetClear = (ImageView) findViewById(R.id.target_clear);
 
-        mTxtTarget = (EditText) findViewById(R.id.target);
+        mTxtTarget = (AutoCompleteTextView) findViewById(R.id.target);
         mTxtTarget.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -158,6 +159,10 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
 
             }
         });
+
+        NavigationFavoritesAdapter favoritesAdapter = new NavigationFavoritesAdapter(this, R.layout.list_item_auto_complete_navigation_favorite);
+
+        mTxtTarget.setAdapter(favoritesAdapter);
     }
 
     /**

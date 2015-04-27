@@ -28,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -40,12 +41,15 @@ import nl.svendubbeld.car.database.DatabaseHandler;
  */
 public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavoritesAdapter.NavigationFavorite> {
 
+    private final Object mLock = new Object();
     private Context mContext;
     private DatabaseHandler mDb;
-
     private ArrayList<NavigationFavorite> mFavorites = new ArrayList<>();
+    private ArrayList<NavigationFavorite> mOriginalValues;
 
     private int mResource;
+
+    private Filter mFilter;
 
     /**
      * Create a new Adapter.
@@ -62,6 +66,68 @@ public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavorites
         mDb = new DatabaseHandler(mContext);
 
         loadFromDatabase();
+
+        mFilter = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults results = new FilterResults();
+
+                if (mOriginalValues == null) {
+                    synchronized (mLock) {
+                        mOriginalValues = new ArrayList<>(mFavorites);
+                    }
+                }
+
+                if (constraint == null || constraint.length() == 0) {
+                    ArrayList<NavigationFavorite> list;
+                    synchronized (mLock) {
+                        list = new ArrayList<>(mOriginalValues);
+                    }
+                    results.values = list;
+                    results.count = list.size();
+                } else {
+                    String constraintString = constraint.toString().toLowerCase();
+
+                    ArrayList<NavigationFavorite> values;
+                    synchronized (mLock) {
+                        values = new ArrayList<>(mOriginalValues);
+                    }
+
+                    ArrayList<NavigationFavorite> newValues = new ArrayList<>();
+
+                    for (NavigationFavorite favorite : values) {
+                        if (favorite.getName().toLowerCase().contains(constraintString) || favorite.getAddress().toLowerCase().contains(constraintString)) {
+                            newValues.add(favorite);
+                        }
+                    }
+
+                    results.values = newValues;
+                    results.count = newValues.size();
+                }
+
+                return results;
+            }
+
+            @Override
+            public CharSequence convertResultToString(Object resultValue) {
+                if (resultValue instanceof NavigationFavorite) {
+                    return ((NavigationFavorite) resultValue).getAddress();
+                } else {
+                    return "";
+                }
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                //noinspection unchecked
+                mFavorites = (ArrayList<NavigationFavorite>) results.values;
+                if (results.count > 0) {
+                    notifyDataSetChanged();
+                } else {
+                    notifyDataSetInvalidated();
+                }
+            }
+        };
     }
 
     /**
@@ -101,7 +167,13 @@ public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavorites
      */
     @Override
     public void add(NavigationFavorite object) {
-        mFavorites.add(object);
+        synchronized (mLock) {
+            if (mOriginalValues != null) {
+                mOriginalValues.add(object);
+            } else {
+                mFavorites.add(object);
+            }
+        }
     }
 
     /**
@@ -122,7 +194,13 @@ public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavorites
      * @param position The position of the item.
      */
     public void remove(int position) {
-        mFavorites.remove(position);
+        synchronized (mLock) {
+            if (mOriginalValues != null) {
+                mOriginalValues.remove(position);
+            } else {
+                mFavorites.remove(position);
+            }
+        }
     }
 
     /**
@@ -139,6 +217,11 @@ public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavorites
     public void loadFromDatabase() {
         mFavorites = mDb.getNavigationFavorites();
         notifyDataSetChanged();
+    }
+
+    @Override
+    public Filter getFilter() {
+        return mFilter;
     }
 
     /**
