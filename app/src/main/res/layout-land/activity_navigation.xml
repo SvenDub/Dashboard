@@ -192,6 +192,21 @@
                     android:src="@drawable/ic_av_mic"
                     android:tint="?android:textColorSecondary"/>
 
+                <ImageView
+                    android:id="@+id/target_clear"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="end"
+                    android:background="@drawable/round_ripple"
+                    android:backgroundTint="?cardBackgroundColor"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:onClick="onClick"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_content_clear"
+                    android:tint="?android:textColorSecondary"
+                    android:visibility="gone"/>
+
             </LinearLayout>
         </android.support.v7.widget.CardView>
 
