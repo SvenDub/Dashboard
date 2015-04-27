@@ -45,6 +45,7 @@
             android:layout_height="40dp"
             android:layout_weight="1"
             android:background="@android:color/transparent"
+            android:completionThreshold="1"
             android:dropDownAnchor="@+id/target_container"
             android:dropDownSelector="@drawable/selectable_background_transparent"
             android:dropDownVerticalOffset="0dp"

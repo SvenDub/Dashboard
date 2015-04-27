@@ -160,7 +160,7 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
             }
         });
 
-        NavigationFavoritesAdapter favoritesAdapter = new NavigationFavoritesAdapter(this, R.layout.list_item_auto_complete_navigation_favorite);
+        NavigationFavoritesAdapter favoritesAdapter = new NavigationFavoritesAdapter(this, R.layout.list_item_auto_complete_navigation_favorite, true);
 
         mTxtTarget.setAdapter(favoritesAdapter);
     }

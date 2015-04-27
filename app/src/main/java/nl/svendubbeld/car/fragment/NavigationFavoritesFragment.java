@@ -54,7 +54,7 @@ public class NavigationFavoritesFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAdapter = new NavigationFavoritesAdapter(getActivity(), R.layout.list_item_navigation_favorite);
+        mAdapter = new NavigationFavoritesAdapter(getActivity(), R.layout.list_item_navigation_favorite, false);
 
         setListAdapter(mAdapter);
     }
