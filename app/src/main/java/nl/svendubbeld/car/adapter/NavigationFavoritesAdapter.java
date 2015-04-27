@@ -24,10 +24,17 @@
 package nl.svendubbeld.car.adapter;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.net.Uri;
+import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -40,20 +47,27 @@ import nl.svendubbeld.car.database.DatabaseHandler;
  */
 public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavoritesAdapter.NavigationFavorite> {
 
+    private final Object mLock = new Object();
     private Context mContext;
     private DatabaseHandler mDb;
 
     private ArrayList<NavigationFavorite> mFavorites = new ArrayList<>();
+    private ArrayList<NavigationFavorite> mOriginalValues;
+
+    private boolean mIncludeContacts;
 
     private int mResource;
+
+    private Filter mFilter;
 
     /**
      * Create a new Adapter.
      *
-     * @param context  The current context.
-     * @param resource The resource ID for a layout file to use when instantiating views.
+     * @param context         The current context.
+     * @param resource        The resource ID for a layout file to use when instantiating views.
+     * @param includeContacts Whether to include contacts in the list.
      */
-    public NavigationFavoritesAdapter(Context context, int resource) {
+    public NavigationFavoritesAdapter(Context context, int resource, boolean includeContacts) {
         super(context, resource);
 
         mContext = context;
@@ -61,7 +75,71 @@ public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavorites
 
         mDb = new DatabaseHandler(mContext);
 
+        mIncludeContacts = includeContacts;
+
         loadFromDatabase();
+
+        mFilter = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults results = new FilterResults();
+
+                if (mOriginalValues == null) {
+                    synchronized (mLock) {
+                        mOriginalValues = new ArrayList<>(mFavorites);
+                    }
+                }
+
+                if (constraint == null || constraint.length() == 0) {
+                    ArrayList<NavigationFavorite> list;
+                    synchronized (mLock) {
+                        list = new ArrayList<>(mOriginalValues);
+                    }
+                    results.values = list;
+                    results.count = list.size();
+                } else {
+                    String constraintString = constraint.toString().toLowerCase();
+
+                    ArrayList<NavigationFavorite> values;
+                    synchronized (mLock) {
+                        values = new ArrayList<>(mOriginalValues);
+                    }
+
+                    ArrayList<NavigationFavorite> newValues = new ArrayList<>();
+
+                    for (NavigationFavorite favorite : values) {
+                        if (favorite.getName().toLowerCase().contains(constraintString) || favorite.getAddress().toLowerCase().contains(constraintString)) {
+                            newValues.add(favorite);
+                        }
+                    }
+
+                    results.values = newValues;
+                    results.count = newValues.size();
+                }
+
+                return results;
+            }
+
+            @Override
+            public CharSequence convertResultToString(Object resultValue) {
+                if (resultValue instanceof NavigationFavorite) {
+                    return ((NavigationFavorite) resultValue).getAddress();
+                } else {
+                    return "";
+                }
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                //noinspection unchecked
+                mFavorites = (ArrayList<NavigationFavorite>) results.values;
+                if (results.count > 0) {
+                    notifyDataSetChanged();
+                } else {
+                    notifyDataSetInvalidated();
+                }
+            }
+        };
     }
 
     /**
@@ -71,11 +149,29 @@ public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavorites
     public View getView(int position, View convertView, ViewGroup parent) {
         View v = convertView != null ? convertView : LayoutInflater.from(mContext).inflate(mResource, parent, false);
 
+        ImageView icon = (ImageView) v.findViewById(R.id.icon);
         TextView name = (TextView) v.findViewById(R.id.name);
         TextView address = (TextView) v.findViewById(R.id.address);
 
-        name.setText(getItem(position).getName());
-        address.setText(getItem(position).getAddress());
+        NavigationFavorite item = getItem(position);
+
+        if (icon != null) {
+            if (!item.getIcon().equals(Uri.EMPTY)) {
+                icon.setVisibility(View.VISIBLE);
+                icon.setImageURI(item.getIcon());
+                if (!item.getIcon().equals(Uri.parse("android.resource://nl.svendubbeld.car/" + R.drawable.ic_social_person))) {
+                    icon.setImageTintList(null);
+                } else {
+                    icon.setImageTintList(ColorStateList.valueOf(getContext().obtainStyledAttributes(new int[]{android.R.attr.textColorPrimary}).getColor(0, Color.BLACK)));
+                }
+            } else {
+                icon.setVisibility(View.GONE);
+                icon.setImageTintList(ColorStateList.valueOf(getContext().obtainStyledAttributes(new int[]{android.R.attr.textColorPrimary}).getColor(0, Color.BLACK)));
+            }
+        }
+
+        name.setText(item.getName());
+        address.setText(item.getAddress());
 
         return v;
     }
@@ -101,7 +197,13 @@ public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavorites
      */
     @Override
     public void add(NavigationFavorite object) {
-        mFavorites.add(object);
+        synchronized (mLock) {
+            if (mOriginalValues != null) {
+                mOriginalValues.add(object);
+            } else {
+                mFavorites.add(object);
+            }
+        }
     }
 
     /**
@@ -122,7 +224,13 @@ public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavorites
      * @param position The position of the item.
      */
     public void remove(int position) {
-        mFavorites.remove(position);
+        synchronized (mLock) {
+            if (mOriginalValues != null) {
+                mOriginalValues.remove(position);
+            } else {
+                mFavorites.remove(position);
+            }
+        }
     }
 
     /**
@@ -138,7 +246,46 @@ public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavorites
      */
     public void loadFromDatabase() {
         mFavorites = mDb.getNavigationFavorites();
+        if (mIncludeContacts) {
+            mFavorites.addAll(getContacts());
+        }
         notifyDataSetChanged();
+    }
+
+    private ArrayList<NavigationFavorite> getContacts() {
+        ArrayList<NavigationFavorite> contacts = new ArrayList<>();
+
+        Uri uri = StructuredPostal.CONTENT_URI;
+        String[] projection = new String[]{
+                StructuredPostal._ID,
+                StructuredPostal.LOOKUP_KEY,
+                StructuredPostal.DISPLAY_NAME,
+                StructuredPostal.FORMATTED_ADDRESS,
+                StructuredPostal.PHOTO_THUMBNAIL_URI
+        };
+        String sortOrder = StructuredPostal.DISPLAY_NAME_PRIMARY + " COLLATE LOCALIZED ASC";
+        Cursor c = getContext().getContentResolver().query(uri, projection, null, null, sortOrder);
+        while (c.moveToNext()) {
+            String name = c.getString(c.getColumnIndex(StructuredPostal.DISPLAY_NAME_PRIMARY));
+            String address = c.getString(c.getColumnIndex(StructuredPostal.FORMATTED_ADDRESS));
+            String icon = c.getString(c.getColumnIndex(StructuredPostal.PHOTO_THUMBNAIL_URI));
+
+            if (icon == null) {
+                icon = "android.resource://nl.svendubbeld.car/" + R.drawable.ic_social_person;
+            }
+
+            contacts.add(new NavigationFavorite(name, address, Uri.parse(icon)));
+
+        }
+        c.close();
+
+        return contacts;
+    }
+
+
+    @Override
+    public Filter getFilter() {
+        return mFilter;
     }
 
     /**
@@ -148,6 +295,7 @@ public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavorites
 
         private String mName;
         private String mAddress;
+        private Uri mIcon;
 
         /**
          * Create a new favorite.
@@ -156,8 +304,17 @@ public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavorites
          * @param address The address of the favorite.
          */
         public NavigationFavorite(String name, String address) {
+            init(name, address, Uri.EMPTY);
+        }
+
+        public NavigationFavorite(String name, String address, Uri icon) {
+            init(name, address, icon);
+        }
+
+        private void init(String name, String address, Uri icon) {
             setName(name);
             setAddress(address);
+            setIcon(icon);
         }
 
         /**
@@ -186,6 +343,17 @@ public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavorites
          */
         public void setAddress(String address) {
             mAddress = address;
+        }
+
+        /**
+         * @return The Ur
+         */
+        public Uri getIcon() {
+            return mIcon;
+        }
+
+        public void setIcon(Uri icon) {
+            mIcon = icon;
         }
     }
 

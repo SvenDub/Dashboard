@@ -33,10 +33,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
+import android.widget.AutoCompleteTextView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -53,6 +56,7 @@ import java.util.List;
 
 import nl.svendubbeld.car.OnTargetChangeListener;
 import nl.svendubbeld.car.R;
+import nl.svendubbeld.car.adapter.NavigationFavoritesAdapter;
 import nl.svendubbeld.car.fragment.NavigationFavoritesFragment;
 
 /**
@@ -65,7 +69,9 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
     private GoogleMap mMap;
     private Location mLocation;
 
-    private EditText mTxtTarget;
+    private AutoCompleteTextView mTxtTarget;
+    private ImageView mTargetVoice;
+    private ImageView mTargetClear;
 
     /**
      * Sets the layout and initializes the map.
@@ -118,8 +124,12 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
 
         fragmentTransaction.commit();
         mapFragment.getMapAsync(this);
+        mapFragment.setRetainInstance(true);
 
-        mTxtTarget = (EditText) findViewById(R.id.target);
+        mTargetVoice = (ImageView) findViewById(R.id.target_voice);
+        mTargetClear = (ImageView) findViewById(R.id.target_clear);
+
+        mTxtTarget = (AutoCompleteTextView) findViewById(R.id.target);
         mTxtTarget.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -131,6 +141,28 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
                 return false;
             }
         });
+        mTxtTarget.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                boolean input = count > 0;
+                mTargetClear.setVisibility(input ? View.VISIBLE : View.GONE);
+                mTargetVoice.setVisibility(input ? View.GONE : View.VISIBLE);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        NavigationFavoritesAdapter favoritesAdapter = new NavigationFavoritesAdapter(this, R.layout.list_item_auto_complete_navigation_favorite, true);
+
+        mTxtTarget.setAdapter(favoritesAdapter);
     }
 
     /**
@@ -188,6 +220,9 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
                 break;
             case R.id.btn_navigation:
                 startNavigation();
+                break;
+            case R.id.target_clear:
+                onTargetChanged("");
                 break;
             case R.id.target_voice:
                 Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
