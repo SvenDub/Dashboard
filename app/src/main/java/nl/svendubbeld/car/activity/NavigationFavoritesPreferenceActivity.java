@@ -88,7 +88,7 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
         mListView = (ListView) findViewById(android.R.id.list);
 
         // Load the list
-        mAdapter = new NavigationFavoritesAdapter(this, R.layout.list_item_navigation_favorite);
+        mAdapter = new NavigationFavoritesAdapter(this, R.layout.list_item_navigation_favorite, false);
         mListView.setAdapter(mAdapter);
         mListView.setEmptyView(findViewById(android.R.id.empty));
         mListView.setOnItemLongClickListener(this);

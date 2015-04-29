@@ -31,8 +31,11 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -53,7 +56,6 @@ import android.provider.Settings;
 import android.support.v7.widget.CardView;
 import android.text.format.DateFormat;
 import android.util.Pair;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -302,16 +304,11 @@ public class CarActivity extends Activity
                 }
             } else {
 
-                // Simulate media button event to start media playback
-                Intent mediaIntent = new Intent("android.intent.action.MEDIA_BUTTON");
-                mediaIntent.putExtra("android.intent.extra.KEY_EVENT", new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY));
-                sendOrderedBroadcast(mediaIntent, null);
+                Intent mediaIntent = new Intent(Intent.ACTION_MAIN);
+                mediaIntent.addCategory(Intent.CATEGORY_APP_MUSIC);
+                mediaIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(mediaIntent);
 
-                mediaIntent.putExtra("android.intent.extra.KEY_EVENT", new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY));
-                sendOrderedBroadcast(mediaIntent, null);
-
-                mMediaPlay.setVisibility(View.GONE);
-                mMediaPlayProgress.setVisibility(View.VISIBLE);
             }
         }
     };
@@ -404,8 +401,6 @@ public class CarActivity extends Activity
         mMediaNext.setOnClickListener(mMediaControlsListener);
         mMediaVolUp.setOnClickListener(mMediaControlsListener);
         mMediaContainer.setOnClickListener(this);
-
-        mMediaPlay.setImageTintList(ColorStateList.valueOf(getTheme().obtainStyledAttributes(new int[]{R.attr.cardBackgroundColor}).getColor(0, getResources().getColor(R.color.white))));
 
         // Set buttons
         mButtonSettings.setOnClickListener(this);
@@ -531,6 +526,24 @@ public class CarActivity extends Activity
                 mMediaCallback.onPlaybackStateChanged(mMediaController.getPlaybackState());
                 Log.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
             }
+
+            mMediaPlay.setImageTintList(ColorStateList.valueOf(getTheme().obtainStyledAttributes(new int[]{R.attr.cardBackgroundColor}).getColor(0, getResources().getColor(R.color.white))));
+        } else {
+
+            mMediaArtist.setText("");
+            mMediaAlbum.setText("");
+            mMediaTitle.setText(R.string.media_idle);
+            mMediaArt.setImageResource(R.drawable.bg_default_album_art);
+
+            Intent i = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_MUSIC);
+            PackageManager pm = getPackageManager();
+            ResolveInfo info = pm.resolveActivity(i, 0);
+
+            Drawable icon = info.loadIcon(pm);
+            mMediaPlay.setPadding(20, 20, 20, 20);
+            mMediaPlay.setImageDrawable(icon);
+
+            mMediaPlay.setImageTintList(null);
         }
     }
 
