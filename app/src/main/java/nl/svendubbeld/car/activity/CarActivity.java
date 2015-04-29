@@ -530,6 +530,11 @@ public class CarActivity extends Activity
             mMediaPlay.setImageTintList(ColorStateList.valueOf(getTheme().obtainStyledAttributes(new int[]{R.attr.cardBackgroundColor}).getColor(0, getResources().getColor(R.color.white))));
         } else {
 
+            mMediaArtist.setText("");
+            mMediaAlbum.setText("");
+            mMediaTitle.setText(R.string.media_idle);
+            mMediaArt.setImageResource(R.drawable.bg_default_album_art);
+
             Intent i = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_MUSIC);
             PackageManager pm = getPackageManager();
             ResolveInfo info = pm.resolveActivity(i, 0);
