@@ -274,6 +274,19 @@ public class MediaActivity extends Activity
                 mMediaCallback.onPlaybackStateChanged(mMediaController.getPlaybackState());
                 Log.d("MediaController", "MediaController set: " + mMediaController.getPackageName());
             }
+
+            mMediaPlay.setImageTintList(ColorStateList.valueOf(getTheme().obtainStyledAttributes(new int[]{R.attr.cardBackgroundColor}).getColor(0, getResources().getColor(R.color.white))));
+        } else {
+
+            Intent i = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_MUSIC);
+            PackageManager pm = getPackageManager();
+            ResolveInfo info = pm.resolveActivity(i, 0);
+
+            Drawable icon = info.loadIcon(pm);
+            mMediaPlay.setPadding(20, 20, 20, 20);
+            mMediaPlay.setImageDrawable(icon);
+
+            mMediaPlay.setImageTintList(null);
         }
     }
 
@@ -323,8 +336,6 @@ public class MediaActivity extends Activity
         mMediaPlay.setOnClickListener(mMediaControlsListener);
         mMediaNext.setOnClickListener(mMediaControlsListener);
         mMediaVolUp.setOnClickListener(mMediaControlsListener);
-
-        mMediaPlay.setImageTintList(ColorStateList.valueOf(getTheme().obtainStyledAttributes(new int[]{R.attr.cardBackgroundColor}).getColor(0, getResources().getColor(R.color.white))));
 
         mMediaTitle.setSelected(true);
 
@@ -428,17 +439,6 @@ public class MediaActivity extends Activity
                         })
                         .show();
             }
-        }
-
-        if (mMediaController == null) {
-
-            Intent i = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_MUSIC);
-            PackageManager pm = getPackageManager();
-            ResolveInfo info = pm.resolveActivity(i, 0);
-
-            Drawable icon = info.loadIcon(pm);
-            mMediaPlay.setPadding(20, 20, 20, 20);
-            mMediaPlay.setImageDrawable(icon);
         }
     }
 
