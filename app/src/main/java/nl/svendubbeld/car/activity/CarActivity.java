@@ -304,8 +304,10 @@ public class CarActivity extends Activity
                 }
             } else {
 
-                Intent i = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_MUSIC);
-                startActivity(i);
+                Intent mediaIntent = new Intent(Intent.ACTION_MAIN);
+                mediaIntent.addCategory(Intent.CATEGORY_APP_MUSIC);
+                mediaIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(mediaIntent);
 
             }
         }
