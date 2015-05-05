@@ -24,10 +24,14 @@
 package nl.svendubbeld.car.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -95,6 +99,27 @@ public class SettingsActivity extends Activity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
+
+            findPreference("pref_key_licenses").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.pref_title_licenses)
+                            .setView(R.layout.dialog_licenses)
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show();
+
+                    return true;
+                }
+            });
+            findPreference("pref_key_version").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/SvenDub/Dashboard/releases/tag/" + getString(R.string.app_version_name)));
+                    startActivity(intent);
+                    return true;
+                }
+            });
         }
 
         /**
