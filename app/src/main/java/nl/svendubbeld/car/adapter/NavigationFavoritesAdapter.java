@@ -24,10 +24,10 @@
 package nl.svendubbeld.car.adapter;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -159,14 +159,14 @@ public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavorites
             if (!item.getIcon().equals(Uri.EMPTY)) {
                 icon.setVisibility(View.VISIBLE);
                 icon.setImageURI(item.getIcon());
-                if (!item.getIcon().equals(Uri.parse("android.resource://nl.svendubbeld.car/" + R.drawable.ic_social_person))) {
-                    icon.setImageTintList(null);
+                if (item.getIcon().toString().startsWith("android.resource://nl.svendubbeld.car/")) {
+                    icon.setColorFilter(getContext().obtainStyledAttributes(new int[]{android.R.attr.textColorPrimary}).getColor(0, Color.BLACK));
                 } else {
-                    icon.setImageTintList(ColorStateList.valueOf(getContext().obtainStyledAttributes(new int[]{android.R.attr.textColorPrimary}).getColor(0, Color.BLACK)));
+                    icon.setColorFilter(null);
                 }
             } else {
                 icon.setVisibility(View.GONE);
-                icon.setImageTintList(ColorStateList.valueOf(getContext().obtainStyledAttributes(new int[]{android.R.attr.textColorPrimary}).getColor(0, Color.BLACK)));
+                icon.setColorFilter(getContext().obtainStyledAttributes(new int[]{android.R.attr.textColorPrimary}).getColor(0, Color.BLACK));
             }
         }
 
@@ -245,7 +245,23 @@ public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavorites
      * from the database.
      */
     public void loadFromDatabase() {
-        mFavorites = mDb.getNavigationFavorites();
+        mFavorites.clear();
+
+        if (mIncludeContacts) {
+            String home = PreferenceManager.getDefaultSharedPreferences(mContext).getString("pref_key_navigation_home", "");
+            String work = PreferenceManager.getDefaultSharedPreferences(mContext).getString("pref_key_navigation_work", "");
+
+            if (home != null && !home.isEmpty()) {
+                mFavorites.add(new NavigationFavorite(mContext.getString(R.string.pref_title_navigation_home), home, Uri.parse("android.resource://nl.svendubbeld.car/" + R.drawable.ic_action_home)));
+            }
+
+            if (work != null && !work.isEmpty()) {
+                mFavorites.add(new NavigationFavorite(mContext.getString(R.string.pref_title_navigation_work), work, Uri.parse("android.resource://nl.svendubbeld.car/" + R.drawable.ic_action_work)));
+            }
+        }
+
+        mFavorites.addAll(mDb.getNavigationFavorites());
+
         if (mIncludeContacts) {
             mFavorites.addAll(getContacts());
         }
