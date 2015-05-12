@@ -32,6 +32,7 @@
     <string name="cancel">Cancel</string>
     <string name="default_app">Default</string>
     <string name="delete">Delete</string>
+    <string name="dialer_input">Enter a name or phone number</string>
     <string name="dialog_notification_access_message">Please enable Notification Access to use media controls or spoken notifications</string>
     <string name="dialog_notification_access_negative">No, thanks</string>
     <string name="dialog_notification_access_positive">Make it so!</string>

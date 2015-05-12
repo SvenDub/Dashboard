@@ -21,54 +21,39 @@
   ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:layout_marginLeft="@dimen/activity_horizontal_margin"
-              android:layout_marginRight="@dimen/activity_horizontal_margin"
-              android:orientation="vertical"
-              android:paddingBottom="@dimen/nav_bar_height"
-              android:paddingTop="@dimen/status_bar_height">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
-    <ListView
-        android:id="@+id/suggestions"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        <include layout="@layout/text_view_dialer"/>
 
-        <LinearLayout
+        <FrameLayout
+            android:id="@+id/contact_most_recent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_below="@+id/input_container"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:animateLayoutChanges="true"
+            tools:ignore="UnknownIdInLayout">
 
-            <TextView
-                android:id="@+id/input"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="32sp"/>
-
-            <ImageView
-                android:id="@+id/input_delete"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:background="?android:selectableItemBackgroundBorderless"
-                android:longClickable="true"
-                android:onClick="inputButton"
-                android:src="@android:drawable/ic_input_delete"
-                android:tint="?android:textColorSecondary"/>
-        </LinearLayout>
+            <include layout="@layout/list_item_contact"/>
+        </FrameLayout>
 
         <GridLayout
+            android:id="@+id/dialpad"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:columnCount="3">
+            android:layout_alignParentBottom="true"
+            android:backgroundTint="?cardBackgroundColor"
+            android:columnCount="3"
+            android:paddingBottom="@dimen/nav_bar_height">
 
             <TextView
                 android:id="@+id/dialpad_1"
@@ -203,5 +188,18 @@
                 android:transitionName="@string/transition_button_dialer"/>
 
         </GridLayout>
-    </LinearLayout>
-</LinearLayout>
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/status_bar_background"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/status_bar_height"
+        android:src="@drawable/status_bar_background"/>
+
+    <ImageView
+        android:id="@+id/navigation_bar_background"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/nav_bar_height"
+        android:layout_gravity="bottom"
+        android:src="@drawable/navigation_bar_background"/>
+</FrameLayout>
