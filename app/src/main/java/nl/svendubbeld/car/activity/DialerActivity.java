@@ -26,6 +26,7 @@ package nl.svendubbeld.car.activity;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
@@ -33,14 +34,15 @@ import android.os.Bundle;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.speech.RecognizerIntent;
+import android.support.v7.widget.CardView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -69,7 +71,7 @@ public class DialerActivity extends Activity implements AdapterView.OnItemClickL
     private ContactsAdapter.Contact mMostRecent;
 
     // Dialpad
-    private GridLayout mDialpad;
+    private CardView mDialpad;
     private TextView mDialpad0;
     private TextView mDialpad1;
     private TextView mDialpad2;
@@ -155,7 +157,7 @@ public class DialerActivity extends Activity implements AdapterView.OnItemClickL
         });
 
         // Get dialpad views
-        mDialpad = (GridLayout) findViewById(R.id.dialpad);
+        mDialpad = (CardView) findViewById(R.id.dialpad);
         mDialpad0 = (TextView) findViewById(R.id.dialpad_0);
         mDialpad1 = (TextView) findViewById(R.id.dialpad_1);
         mDialpad2 = (TextView) findViewById(R.id.dialpad_2);
@@ -259,10 +261,15 @@ public class DialerActivity extends Activity implements AdapterView.OnItemClickL
         super.onWindowFocusChanged(hasFocus);
 
         if (hasFocus) {
-            View anchor = findViewById(mInput.getDropDownAnchor());
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                View anchor = findViewById(mInput.getDropDownAnchor());
 
-            int height = mDialpad.getTop() - (anchor.getBottom() + mInput.getDropDownVerticalOffset());
-            mInput.setDropDownHeight(height);
+                int height = mDialpad.getTop() - (anchor.getBottom() + mInput.getDropDownVerticalOffset());
+
+                mInput.setDropDownHeight(height);
+            } else {
+                mInput.setDropDownHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+            }
         }
     }
 
