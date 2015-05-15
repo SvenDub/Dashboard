@@ -23,33 +23,44 @@
   -->
 
 <resources>
-    <string name="app_name">Dashboard</string>
     <string name="accessibility_service">Voegt aangepaste spraak acties toe aan Google Now </string>
     <string name="add">Toevoegen</string>
     <string name="address">Adres</string>
+    <string name="always">Altijd</string>
+    <string name="app_name">Dashboard</string>
+    <string name="automatic">Auto</string>
+    <string name="built_in">Ingebouwd</string>
     <string name="cancel">Annuleren</string>
+    <string name="default_app">Standaard</string>
     <string name="delete">Verwijderen</string>
+    <string name="dialer_input">Naam of telefoonnummer in</string>
+    <string name="dialog_notification_access_message">Er is toegang tot notificaties nodig voor het gebruik van mediabediening of gesproken notificaties</string>
     <string name="dialog_notification_access_negative">Nee, bedankt</string>
     <string name="dialog_notification_access_positive">Ja, graag!</string>
-    <string name="dialog_notification_access_message">Er is toegang tot notificaties nodig voor het gebruik van mediabediening of gesproken notificaties</string>
     <string name="dialog_notification_access_title">Geen toegang tot notificaties</string>
     <string name="edit">Aanpassen</string>
+    <string name="high">Hoog</string>
+    <string name="low">Laag</string>
     <string name="media_idle">Geen media actief</string>
     <string name="media_up_next">Hierna:</string>
+    <string name="medium">Normaal</string>
     <string name="name">Naam</string>
     <string name="navigate">Navigeren</string>
     <string name="navigation_favorites">Favorieten</string>
     <string name="navigation_favorites_empty">Geen favorieten ingesteld</string>
     <string name="navigation_input">Bestemming</string>
+    <string name="never">Nooit</string>
     <string name="pref_summary_show_road">Actieve internetverbinding vereist</string>
-    <string name="pref_summary_speak_notifications_on">Spreek notificaties uit als car mode actief is</string>
     <string name="pref_summary_speak_notifications_off">Spreek notificaties niet uit als car mode actief is</string>
+    <string name="pref_summary_speak_notifications_on">Spreek notificaties uit als car mode actief is</string>
+    <string name="pref_title_about">Over</string>
     <string name="pref_title_apps">Apps</string>
     <string name="pref_title_bg">Achtergrond</string>
     <string name="pref_title_colors">Kleuren</string>
     <string name="pref_title_dialer">Telefoon</string>
     <string name="pref_title_keep_screen_on">Laat scherm aan</string>
     <string name="pref_title_launcher">Home launcher</string>
+    <string name="pref_title_licenses">Licenties</string>
     <string name="pref_title_navigation">Navigatie</string>
     <string name="pref_title_navigation_favorites">Favorieten</string>
     <string name="pref_title_navigation_home">Thuis</string>
@@ -66,14 +77,7 @@
     <string name="pref_title_unit_speed">Snelheid</string>
     <string name="pref_title_unit_temp">Temperatuur</string>
     <string name="pref_title_units">Eenheden</string>
+    <string name="pref_title_version">Versie</string>
     <string name="search">Zoeken</string>
     <string name="title_activity_settings">Instellingen</string>
-    <string name="always">Altijd</string>
-    <string name="automatic">Auto</string>
-    <string name="built_in">Ingebouwd</string>
-    <string name="default_app">Standaard</string>
-    <string name="never">Nooit</string>
-    <string name="high">Hoog</string>
-    <string name="low">Laag</string>
-    <string name="medium">Normaal</string>
 </resources>

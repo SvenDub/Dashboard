@@ -53,7 +53,7 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_title_apps">
         <ListPreference
-            android:defaultValue="default"
+            android:defaultValue="builtin"
             android:entries="@array/pref_entries_dialer"
             android:entryValues="@array/pref_values_dialer"
             android:key="pref_key_dialer"
@@ -97,5 +97,14 @@
             android:key="pref_key_speak_notifications_volume"
             android:summary="@array/pref_summary_speak_notifications_volume"
             android:title="@string/pref_title_speak_notifications_volume"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_title_about">
+        <Preference
+            android:key="pref_key_version"
+            android:summary="@string/app_version_name"
+            android:title="@string/pref_title_version"/>
+        <Preference
+            android:key="pref_key_licenses"
+            android:title="@string/pref_title_licenses"/>
     </PreferenceCategory>
 </PreferenceScreen>

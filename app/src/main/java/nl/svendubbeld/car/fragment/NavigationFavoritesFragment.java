@@ -99,7 +99,7 @@ public class NavigationFavoritesFragment extends ListFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ListView listView =  ((ListView) view.findViewById(android.R.id.list));
+        ListView listView = ((ListView) view.findViewById(android.R.id.list));
 
         listView.setFooterDividersEnabled(false);
 
@@ -108,7 +108,7 @@ public class NavigationFavoritesFragment extends ListFragment {
             Space space = new Space(getActivity());
             space.setMinimumHeight(getResources().getDimensionPixelSize(R.dimen.nav_bar_height));
 
-           listView.addFooterView(space);
+            listView.addFooterView(space);
         }
     }
 }

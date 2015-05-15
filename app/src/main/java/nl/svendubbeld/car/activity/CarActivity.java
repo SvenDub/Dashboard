@@ -699,7 +699,7 @@ public class CarActivity extends Activity
         mPrefKeepScreenOn = mSharedPref.getBoolean("pref_key_keep_screen_on", true);
         mPrefNightMode = mSharedPref.getString("pref_key_night_mode", "auto");
         mPrefSpeedUnit = Integer.parseInt(mSharedPref.getString("pref_key_unit_speed", "1"));
-        mPrefAppsDialer = mSharedPref.getString("pref_key_dialer", "default");
+        mPrefAppsDialer = mSharedPref.getString("pref_key_dialer", "builtin");
 
         // Get Managers
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -835,7 +835,7 @@ public class CarActivity extends Activity
         mPrefKeepScreenOn = mSharedPref.getBoolean("pref_key_keep_screen_on", true);
         mPrefNightMode = mSharedPref.getString("pref_key_night_mode", "auto");
         mPrefSpeedUnit = Integer.parseInt(mSharedPref.getString("pref_key_unit_speed", "1"));
-        mPrefAppsDialer = mSharedPref.getString("pref_key_dialer", "default");
+        mPrefAppsDialer = mSharedPref.getString("pref_key_dialer", "builtin");
 
         // Set Car Mode to either keep screen on or not
         mUiModeManager.enableCarMode(mPrefKeepScreenOn ? 0 : UiModeManager.ENABLE_CAR_MODE_ALLOW_SLEEP);
@@ -916,7 +916,7 @@ public class CarActivity extends Activity
                 toggleNightMode();
                 break;
             case "pref_key_dialer":
-                mPrefAppsDialer = sharedPreferences.getString("pref_key_dialer", "default");
+                mPrefAppsDialer = sharedPreferences.getString("pref_key_dialer", "builtin");
                 break;
         }
     }
