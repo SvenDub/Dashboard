@@ -33,7 +33,7 @@
     <string name="cancel">Annuleren</string>
     <string name="default_app">Standaard</string>
     <string name="delete">Verwijderen</string>
-    <string name="dialer_input">Voer een naam of telefoonnummer in</string>
+    <string name="dialer_input">Naam of telefoonnummer in</string>
     <string name="dialog_notification_access_message">Er is toegang tot notificaties nodig voor het gebruik van mediabediening of gesproken notificaties</string>
     <string name="dialog_notification_access_negative">Nee, bedankt</string>
     <string name="dialog_notification_access_positive">Ja, graag!</string>
