@@ -75,6 +75,9 @@ android {
             versionNameSuffix '-debug'
         }
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
