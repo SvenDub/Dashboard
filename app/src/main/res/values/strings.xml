@@ -37,6 +37,8 @@
     <string name="dialog_notification_access_negative">No, thanks</string>
     <string name="dialog_notification_access_positive">Make it so!</string>
     <string name="dialog_notification_access_title">No Notification Access</string>
+    <string name="dialog_voice_assist_not_found_title">Voice assistant not found</string>
+    <string name="dialog_voice_assist_not_found_message">A compatible voice assistant, like Google, is required to use this function</string>
     <string name="edit">Edit</string>
     <string name="high">High</string>
     <string name="low">Low</string>
@@ -49,6 +51,8 @@
     <string name="navigation_favorites_empty">No favorites set</string>
     <string name="navigation_input">Destination</string>
     <string name="never">Never</string>
+    <string name="okay">Okay</string>
+    <string name="play_store">Play Store</string>
     <string name="pref_summary_show_road">Requires an active data connection</string>
     <string name="pref_summary_speak_notifications_off">"Don't read notifications out loud when car mode is on"</string>
     <string name="pref_summary_speak_notifications_on">Read notifications out loud when car mode is on</string>

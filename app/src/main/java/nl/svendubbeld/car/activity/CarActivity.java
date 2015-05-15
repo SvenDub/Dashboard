@@ -27,6 +27,7 @@ import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.UiModeManager;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -589,7 +590,23 @@ public class CarActivity extends Activity
                 // Launch voice assistance. It launches Google Now over the current activity instead
                 // of switching to it, in contrast to Intent.ACTION_VOICE_COMMAND.
                 Intent voiceIntent = new Intent("android.intent.action.VOICE_ASSIST");
-                startActivity(voiceIntent);
+                try {
+                    startActivity(voiceIntent);
+                } catch (ActivityNotFoundException e) {
+                    e.printStackTrace();
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.dialog_voice_assist_not_found_title)
+                            .setMessage(R.string.dialog_voice_assist_not_found_message)
+                            .setPositiveButton(R.string.okay, null)
+                            .setNeutralButton(R.string.play_store, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.googlequicksearchbox"));
+                                    startActivity(intent);
+                                }
+                            })
+                            .show();
+                }
                 break;
             case R.id.btn_speak_notifications:
                 // Toggle spoken notifications
