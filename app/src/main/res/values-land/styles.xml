@@ -23,22 +23,11 @@
 
 <resources>
 
-    <style name="AppTheme" parent="@android:style/Theme.Material.NoActionBar">
-        <item name="android:fitsSystemWindows">false</item>
-        <item name="android:windowTranslucentStatus">false</item>
-        <item name="android:windowTranslucentNavigation">false</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:windowContentTransitions">true</item>
-        <item name="android:colorAccent">@color/accent</item>
-        <item name="android:windowAllowReturnTransitionOverlap">true</item>
-        <item name="android:windowAllowEnterTransitionOverlap">true</item>
-        <item name="android:backgroundTint">@color/background_dark</item>
-        <item name="colorDialer">@android:color/holo_blue_dark</item>
-        <item name="colorNavigation">@android:color/holo_green_dark</item>
-        <item name="colorVoice">@android:color/holo_red_light</item>
-        <item name="background">@color/background_dark</item>
-        <item name="cardBackgroundColor">@color/cardview_dark_background</item>
-        <item name="cardElevation">2.0dip</item>
-        <item name="android:textColorPrimary">?android:textColorSecondary</item>
+    <style name="TextAppearance.Dialpad" parent="@android:style/TextAppearance.Material">
+        <item name="android:layout_columnWeight">1</item>
+        <item name="android:layout_gravity">fill</item>
+        <item name="android:background">?android:selectableItemBackgroundBorderless</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">42sp</item>
     </style>
 </resources>
