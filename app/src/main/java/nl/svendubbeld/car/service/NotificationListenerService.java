@@ -36,6 +36,7 @@ import android.service.notification.StatusBarNotification;
 import android.speech.tts.TextToSpeech;
 
 import nl.svendubbeld.car.Log;
+import nl.svendubbeld.car.preference.Preferences;
 
 /**
  * NotificationListener that speaks notifications as they come in.
@@ -85,8 +86,8 @@ public class NotificationListenerService extends android.service.notification.No
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         mSharedPref.registerOnSharedPreferenceChangeListener(this);
 
-        mPrefSpeakNotifications = mSharedPref.getBoolean("pref_key_speak_notifications", true);
-        mPrefSpeakNotificationsVolume = mSharedPref.getFloat("pref_key_speak_notifications_volume", 0.5f);
+        mPrefSpeakNotifications = mSharedPref.getBoolean(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS, true);
+        mPrefSpeakNotificationsVolume = mSharedPref.getFloat(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS_VOLUME, 0.5f);
 
         Log.i("TextToSpeech", "Speak notifications: " + mPrefSpeakNotifications);
     }
@@ -154,11 +155,11 @@ public class NotificationListenerService extends android.service.notification.No
      * {@inheritDoc}
      */
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals("pref_key_speak_notifications")) {
-            mPrefSpeakNotifications = sharedPreferences.getBoolean("pref_key_speak_notifications", true);
+        if (key.equals(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS)) {
+            mPrefSpeakNotifications = sharedPreferences.getBoolean(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS, true);
             Log.i("TextToSpeech", "Spoken notifications: " + mPrefSpeakNotifications);
-        } else if (key.equals("pref_key_speak_notifications_volume")) {
-            mPrefSpeakNotificationsVolume = sharedPreferences.getFloat("pref_key_speak_notifications_volume", 0.5f);
+        } else if (key.equals(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS_VOLUME)) {
+            mPrefSpeakNotificationsVolume = sharedPreferences.getFloat(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS_VOLUME, 0.5f);
             mTextToSpeechOptions.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, mPrefSpeakNotificationsVolume);
         }
     }

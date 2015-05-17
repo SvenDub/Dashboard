@@ -58,6 +58,7 @@ import nl.svendubbeld.car.OnTargetChangeListener;
 import nl.svendubbeld.car.R;
 import nl.svendubbeld.car.adapter.NavigationFavoritesAdapter;
 import nl.svendubbeld.car.fragment.NavigationFavoritesFragment;
+import nl.svendubbeld.car.preference.Preferences;
 
 /**
  * Activity for starting navigation.
@@ -211,11 +212,11 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_home:
-                String home = PreferenceManager.getDefaultSharedPreferences(this).getString("pref_key_navigation_home", "");
+                String home = PreferenceManager.getDefaultSharedPreferences(this).getString(Preferences.PREF_KEY_NAVIGATION_HOME, "");
                 onTargetChanged(home);
                 break;
             case R.id.btn_work:
-                String work = PreferenceManager.getDefaultSharedPreferences(this).getString("pref_key_navigation_work", "");
+                String work = PreferenceManager.getDefaultSharedPreferences(this).getString(Preferences.PREF_KEY_NAVIGATION_WORK, "");
                 onTargetChanged(work);
                 break;
             case R.id.btn_navigation:

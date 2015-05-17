@@ -29,6 +29,7 @@ import android.preference.PreferenceManager;
 import android.view.accessibility.AccessibilityEvent;
 
 import nl.svendubbeld.car.R;
+import nl.svendubbeld.car.preference.Preferences;
 
 /**
  * AccessibilityService for Google Now that listens for specific commands.
@@ -70,11 +71,11 @@ public class VoiceAccessibilityService extends AccessibilityService {
     private boolean interpretCommand(String command) {
         if (command.toLowerCase().equals(getString(R.string.command_enable_spoken_notifications))) {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            preferences.edit().putBoolean("pref_key_speak_notifications", true).apply();
+            preferences.edit().putBoolean(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS, true).apply();
             return true;
         } else if (command.toLowerCase().equals(getString(R.string.command_disable_spoken_notifications))) {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            preferences.edit().putBoolean("pref_key_speak_notifications", false).apply();
+            preferences.edit().putBoolean(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS, false).apply();
             return true;
         }
         return false;

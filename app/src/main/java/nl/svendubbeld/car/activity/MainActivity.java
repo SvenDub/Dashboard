@@ -28,6 +28,8 @@ import android.app.UiModeManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
+import nl.svendubbeld.car.preference.Preferences;
+
 /**
  * Helper activity that starts Car Mode.
  */
@@ -45,7 +47,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         boolean prefKeepScreenOn = PreferenceManager.getDefaultSharedPreferences(this)
-                .getBoolean("pref_key_keep_screen_on", true);
+                .getBoolean(Preferences.PREF_KEY_KEEP_SCREEN_ON, true);
 
         // Enable Car Mode and start the Car Home, send ENABLE_CAR_MODE_ALLOW_SLEEP if the screen doesn't need to be kept on
         ((UiModeManager) getSystemService(UI_MODE_SERVICE))

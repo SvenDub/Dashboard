@@ -79,6 +79,7 @@ import nl.svendubbeld.car.Log;
 import nl.svendubbeld.car.R;
 import nl.svendubbeld.car.animation.FadeBackgroundInOutAnimation;
 import nl.svendubbeld.car.animation.SpeakNotificationsIconAnimation;
+import nl.svendubbeld.car.preference.Preferences;
 import nl.svendubbeld.car.service.FetchAddressIntentService;
 import nl.svendubbeld.car.service.NotificationListenerService;
 
@@ -593,7 +594,7 @@ public class CarActivity extends Activity
                 break;
             case R.id.btn_speak_notifications:
                 // Toggle spoken notifications
-                mSharedPref.edit().putBoolean("pref_key_speak_notifications", !mPrefSpeakNotifications).apply();
+                mSharedPref.edit().putBoolean(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS, !mPrefSpeakNotifications).apply();
                 break;
             case R.id.btn_exit:
                 // Disable Car Mode and exit the activity
@@ -691,15 +692,15 @@ public class CarActivity extends Activity
         // Get all preferences
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        mPrefShowDate = mSharedPref.getBoolean("pref_key_show_date", true);
-        mPrefShowSpeed = mSharedPref.getBoolean("pref_key_show_speed", true);
-        mPrefShowRoad = mSharedPref.getBoolean("pref_key_show_road", true);
-        mPrefShowMedia = mSharedPref.getBoolean("pref_key_show_media", true);
-        mPrefSpeakNotifications = mSharedPref.getBoolean("pref_key_speak_notifications", true);
-        mPrefKeepScreenOn = mSharedPref.getBoolean("pref_key_keep_screen_on", true);
-        mPrefNightMode = mSharedPref.getString("pref_key_night_mode", "auto");
-        mPrefSpeedUnit = Integer.parseInt(mSharedPref.getString("pref_key_unit_speed", "1"));
-        mPrefAppsDialer = mSharedPref.getString("pref_key_dialer", "builtin");
+        mPrefShowDate = mSharedPref.getBoolean(Preferences.PREF_KEY_SHOW_DATE, true);
+        mPrefShowSpeed = mSharedPref.getBoolean(Preferences.PREF_KEY_SHOW_SPEED, true);
+        mPrefShowRoad = mSharedPref.getBoolean(Preferences.PREF_KEY_SHOW_ROAD, true);
+        mPrefShowMedia = mSharedPref.getBoolean(Preferences.PREF_KEY_SHOW_MEDIA, true);
+        mPrefSpeakNotifications = mSharedPref.getBoolean(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS, true);
+        mPrefKeepScreenOn = mSharedPref.getBoolean(Preferences.PREF_KEY_KEEP_SCREEN_ON, true);
+        mPrefNightMode = mSharedPref.getString(Preferences.PREF_KEY_NIGHT_MODE, "auto");
+        mPrefSpeedUnit = Integer.parseInt(mSharedPref.getString(Preferences.PREF_KEY_UNIT_SPEED, "1"));
+        mPrefAppsDialer = mSharedPref.getString(Preferences.PREF_KEY_DIALER, "builtin");
 
         // Get Managers
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -719,7 +720,7 @@ public class CarActivity extends Activity
                 .setNegativeButton(R.string.dialog_notification_access_negative, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mSharedPref.edit().putBoolean("pref_key_show_media", false).putBoolean("pref_key_speak_notifications", false).apply();
+                        mSharedPref.edit().putBoolean(Preferences.PREF_KEY_SHOW_MEDIA, false).putBoolean(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS, false).apply();
                         dialog.dismiss();
                     }
                 })
@@ -827,15 +828,15 @@ public class CarActivity extends Activity
 
         // Get all preferences
         mSharedPref.registerOnSharedPreferenceChangeListener(this);
-        mPrefShowDate = mSharedPref.getBoolean("pref_key_show_date", true);
-        mPrefShowSpeed = mSharedPref.getBoolean("pref_key_show_speed", true);
-        mPrefShowRoad = mSharedPref.getBoolean("pref_key_show_road", true);
-        mPrefShowMedia = mSharedPref.getBoolean("pref_key_show_media", true);
-        mPrefSpeakNotifications = mSharedPref.getBoolean("pref_key_speak_notifications", true);
-        mPrefKeepScreenOn = mSharedPref.getBoolean("pref_key_keep_screen_on", true);
-        mPrefNightMode = mSharedPref.getString("pref_key_night_mode", "auto");
-        mPrefSpeedUnit = Integer.parseInt(mSharedPref.getString("pref_key_unit_speed", "1"));
-        mPrefAppsDialer = mSharedPref.getString("pref_key_dialer", "builtin");
+        mPrefShowDate = mSharedPref.getBoolean(Preferences.PREF_KEY_SHOW_DATE, true);
+        mPrefShowSpeed = mSharedPref.getBoolean(Preferences.PREF_KEY_SHOW_SPEED, true);
+        mPrefShowRoad = mSharedPref.getBoolean(Preferences.PREF_KEY_SHOW_ROAD, true);
+        mPrefShowMedia = mSharedPref.getBoolean(Preferences.PREF_KEY_SHOW_MEDIA, true);
+        mPrefSpeakNotifications = mSharedPref.getBoolean(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS, true);
+        mPrefKeepScreenOn = mSharedPref.getBoolean(Preferences.PREF_KEY_KEEP_SCREEN_ON, true);
+        mPrefNightMode = mSharedPref.getString(Preferences.PREF_KEY_NIGHT_MODE, "auto");
+        mPrefSpeedUnit = Integer.parseInt(mSharedPref.getString(Preferences.PREF_KEY_UNIT_SPEED, "1"));
+        mPrefAppsDialer = mSharedPref.getString(Preferences.PREF_KEY_DIALER, "builtin");
 
         // Set Car Mode to either keep screen on or not
         mUiModeManager.enableCarMode(mPrefKeepScreenOn ? 0 : UiModeManager.ENABLE_CAR_MODE_ALLOW_SLEEP);
@@ -875,28 +876,28 @@ public class CarActivity extends Activity
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
-            case "pref_key_show_date":
-                mPrefShowDate = sharedPreferences.getBoolean("pref_key_show_date", true);
+            case Preferences.PREF_KEY_SHOW_DATE:
+                mPrefShowDate = sharedPreferences.getBoolean(Preferences.PREF_KEY_SHOW_DATE, true);
                 toggleDate();
                 break;
-            case "pref_key_show_speed":
-                mPrefShowSpeed = sharedPreferences.getBoolean("pref_key_show_speed", true);
+            case Preferences.PREF_KEY_SHOW_SPEED:
+                mPrefShowSpeed = sharedPreferences.getBoolean(Preferences.PREF_KEY_SHOW_SPEED, true);
                 toggleSpeed();
                 break;
-            case "pref_key_show_road":
-                mPrefShowRoad = sharedPreferences.getBoolean("pref_key_show_road", true);
+            case Preferences.PREF_KEY_SHOW_ROAD:
+                mPrefShowRoad = sharedPreferences.getBoolean(Preferences.PREF_KEY_SHOW_ROAD, true);
                 toggleSpeed();
                 break;
-            case "pref_key_keep_screen_on":
-                mPrefKeepScreenOn = sharedPreferences.getBoolean("pref_key_keep_screen_on", true);
+            case Preferences.PREF_KEY_KEEP_SCREEN_ON:
+                mPrefKeepScreenOn = sharedPreferences.getBoolean(Preferences.PREF_KEY_KEEP_SCREEN_ON, true);
                 mUiModeManager.enableCarMode(UiModeManager.ENABLE_CAR_MODE_GO_CAR_HOME | (mPrefKeepScreenOn ? 0 : UiModeManager.ENABLE_CAR_MODE_ALLOW_SLEEP));
                 break;
-            case "pref_key_show_media":
-                mPrefShowMedia = sharedPreferences.getBoolean("pref_key_show_media", true);
+            case Preferences.PREF_KEY_SHOW_MEDIA:
+                mPrefShowMedia = sharedPreferences.getBoolean(Preferences.PREF_KEY_SHOW_MEDIA, true);
                 toggleMedia();
                 break;
-            case "pref_key_speak_notifications":
-                mPrefSpeakNotifications = sharedPreferences.getBoolean("pref_key_speak_notifications", true);
+            case Preferences.PREF_KEY_SPEAK_NOTIFICATIONS:
+                mPrefSpeakNotifications = sharedPreferences.getBoolean(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS, true);
 
                 // Check notification access
                 if (mPrefSpeakNotifications) {
@@ -911,12 +912,12 @@ public class CarActivity extends Activity
 
                 toggleSpeakNotificationsIcon();
                 break;
-            case "pref_key_night_mode":
-                mPrefNightMode = sharedPreferences.getString("pref_key_night_mode", "auto");
+            case Preferences.PREF_KEY_NIGHT_MODE:
+                mPrefNightMode = sharedPreferences.getString(Preferences.PREF_KEY_NIGHT_MODE, "auto");
                 toggleNightMode();
                 break;
-            case "pref_key_dialer":
-                mPrefAppsDialer = sharedPreferences.getString("pref_key_dialer", "builtin");
+            case Preferences.PREF_KEY_DIALER:
+                mPrefAppsDialer = sharedPreferences.getString(Preferences.PREF_KEY_DIALER, "builtin");
                 break;
         }
     }

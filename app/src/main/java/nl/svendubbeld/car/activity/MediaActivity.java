@@ -56,6 +56,7 @@ import java.util.TimerTask;
 
 import nl.svendubbeld.car.Log;
 import nl.svendubbeld.car.R;
+import nl.svendubbeld.car.preference.Preferences;
 import nl.svendubbeld.car.service.NotificationListenerService;
 
 /**
@@ -416,7 +417,7 @@ public class MediaActivity extends Activity
 
         // Get preferences
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        mPrefShowMedia = mSharedPref.getBoolean("pref_key_show_media", true);
+        mPrefShowMedia = mSharedPref.getBoolean(Preferences.PREF_KEY_SHOW_MEDIA, true);
 
         // Check media access and connect to session
         if (mPrefShowMedia) {
@@ -438,7 +439,7 @@ public class MediaActivity extends Activity
                         })
                         .setNegativeButton(R.string.dialog_notification_access_negative, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                mSharedPref.edit().putBoolean("pref_key_show_media", false).putBoolean("pref_key_speak_notifications", false).apply();
+                                mSharedPref.edit().putBoolean(Preferences.PREF_KEY_SHOW_MEDIA, false).putBoolean("pref_key_speak_notifications", false).apply();
                                 dialog.dismiss();
                             }
                         })

@@ -39,6 +39,7 @@ import android.view.ViewGroup;
 import android.widget.Toolbar;
 
 import nl.svendubbeld.car.R;
+import nl.svendubbeld.car.preference.Preferences;
 
 /**
  * Activity for modifying preferences.
@@ -100,7 +101,7 @@ public class SettingsActivity extends Activity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
 
-            findPreference("pref_key_licenses").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            findPreference(Preferences.PREF_KEY_LICENSES).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     new AlertDialog.Builder(getActivity())
@@ -112,7 +113,7 @@ public class SettingsActivity extends Activity {
                     return true;
                 }
             });
-            findPreference("pref_key_version").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            findPreference(Preferences.PREF_KEY_VERSION).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/SvenDub/Dashboard/releases/tag/" + getString(R.string.app_version_name)));
