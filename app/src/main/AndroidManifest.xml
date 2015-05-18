@@ -45,6 +45,7 @@
 
     <application
         android:allowBackup="true"
+        android:backupAgent=".backup.BackupAgent"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">

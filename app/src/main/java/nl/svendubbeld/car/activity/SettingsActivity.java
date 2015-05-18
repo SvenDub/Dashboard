@@ -26,13 +26,16 @@ package nl.svendubbeld.car.activity;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.app.backup.BackupManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +47,7 @@ import nl.svendubbeld.car.preference.Preferences;
 /**
  * Activity for modifying preferences.
  */
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends Activity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     /**
      * Sets the layout and loads {@link nl.svendubbeld.car.activity.SettingsActivity.SettingsFragment}.
@@ -82,6 +85,25 @@ public class SettingsActivity extends Activity {
             SettingsFragment fragment = new SettingsFragment();
             fragmentTransaction.replace(R.id.container, fragment).commit();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        new BackupManager(this).dataChanged();
     }
 
     /**

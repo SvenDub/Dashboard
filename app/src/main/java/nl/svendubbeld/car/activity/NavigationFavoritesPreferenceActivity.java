@@ -25,6 +25,7 @@ package nl.svendubbeld.car.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
@@ -109,6 +110,7 @@ public class NavigationFavoritesPreferenceActivity extends Activity implements A
      */
     private void save() {
         mAdapter.saveToDatabase();
+        new BackupManager(this).dataChanged();
     }
 
     /**

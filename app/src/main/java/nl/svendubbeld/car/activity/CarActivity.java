@@ -27,6 +27,7 @@ import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.UiModeManager;
+import android.app.backup.BackupManager;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -920,6 +921,8 @@ public class CarActivity extends Activity
                 mPrefAppsDialer = sharedPreferences.getString(Preferences.PREF_KEY_DIALER, "builtin");
                 break;
         }
+
+        new BackupManager(this).dataChanged();
     }
 
     /**
