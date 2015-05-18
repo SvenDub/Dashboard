@@ -41,6 +41,8 @@ android {
         versionCode 6
         versionName version_name
         resValue "string", "app_version_name", version_name
+        resValue "string", "maps_api_key", NL_SVENDUBBELD_CAR_MAPS_API_KEY
+        resValue "string", "backup_api_key", NL_SVENDUBBELD_CAR_BACKUP_API_KEY
     }
     signingConfigs {
         release {

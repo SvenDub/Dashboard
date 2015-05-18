@@ -41,6 +41,7 @@ import java.util.ArrayList;
 
 import nl.svendubbeld.car.R;
 import nl.svendubbeld.car.database.DatabaseHandler;
+import nl.svendubbeld.car.preference.Preferences;
 
 /**
  * ArrayAdapter that holds NavigationFavorites.
@@ -248,8 +249,8 @@ public class NavigationFavoritesAdapter extends ArrayAdapter<NavigationFavorites
         mFavorites.clear();
 
         if (mIncludeContacts) {
-            String home = PreferenceManager.getDefaultSharedPreferences(mContext).getString("pref_key_navigation_home", "");
-            String work = PreferenceManager.getDefaultSharedPreferences(mContext).getString("pref_key_navigation_work", "");
+            String home = PreferenceManager.getDefaultSharedPreferences(mContext).getString(Preferences.PREF_KEY_NAVIGATION_HOME, "");
+            String work = PreferenceManager.getDefaultSharedPreferences(mContext).getString(Preferences.PREF_KEY_NAVIGATION_WORK, "");
 
             if (home != null && !home.isEmpty()) {
                 mFavorites.add(new NavigationFavorite(mContext.getString(R.string.pref_title_navigation_home), home, Uri.parse("android.resource://nl.svendubbeld.car/" + R.drawable.ic_action_home)));
