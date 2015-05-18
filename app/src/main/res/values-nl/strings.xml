@@ -38,6 +38,8 @@
     <string name="dialog_notification_access_negative">Nee, bedankt</string>
     <string name="dialog_notification_access_positive">Ja, graag!</string>
     <string name="dialog_notification_access_title">Geen toegang tot notificaties</string>
+    <string name="dialog_voice_assist_not_found_title">Spraakassistent niet gevonden</string>
+    <string name="dialog_voice_assist_not_found_message">Om gebruik te maken van deze functie is een spraakassistent, zoals Google, nodig</string>
     <string name="edit">Aanpassen</string>
     <string name="high">Hoog</string>
     <string name="low">Laag</string>
@@ -50,6 +52,8 @@
     <string name="navigation_favorites_empty">Geen favorieten ingesteld</string>
     <string name="navigation_input">Bestemming</string>
     <string name="never">Nooit</string>
+    <string name="okay">Oké</string>
+    <string name="play_store">Play Store</string>
     <string name="pref_summary_show_road">Actieve internetverbinding vereist</string>
     <string name="pref_summary_speak_notifications_off">Spreek notificaties niet uit als car mode actief is</string>
     <string name="pref_summary_speak_notifications_on">Spreek notificaties uit als car mode actief is</string>
