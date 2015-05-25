@@ -150,9 +150,9 @@ public class NavigationActivity extends Activity implements OnMapReadyCallback, 
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                boolean input = count > 0;
-                mTargetClear.setVisibility(input ? View.VISIBLE : View.GONE);
-                mTargetVoice.setVisibility(input ? View.GONE : View.VISIBLE);
+                boolean hasInput = s.length() > 0;
+                mTargetClear.setVisibility(hasInput ? View.VISIBLE : View.GONE);
+                mTargetVoice.setVisibility(hasInput ? View.GONE : View.VISIBLE);
             }
 
             @Override
