@@ -397,6 +397,8 @@ public class CarActivity extends Activity
         gpsStatusIconAnimation.setRepeatCount(Animation.INFINITE);
         mGpsStatusIcon.startAnimation(gpsStatusIconAnimation);
 
+        mSpeedContainer.setOnClickListener(this);
+
         // Set media controls
         mMediaVolDown.setOnClickListener(mMediaControlsListener);
         mMediaPrev.setOnClickListener(mMediaControlsListener);
@@ -640,6 +642,10 @@ public class CarActivity extends Activity
 
                 startActivity(mediaIntent, ActivityOptions.makeSceneTransitionAnimation(this, elements).toBundle());
                 break;
+            case R.id.speed_container:
+                // Launch OBD2Activity
+                Intent obd2Intent = new Intent(this, ObdActivity.class);
+                startActivity(obd2Intent);
         }
     }
 
