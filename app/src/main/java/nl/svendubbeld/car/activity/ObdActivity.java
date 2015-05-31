@@ -316,9 +316,11 @@ public class ObdActivity extends Activity implements ObdListener {
             } else if (name.equals(AvailableCommandNames.ENGINE_RPM.getValue())) {
                 ((SeekBar) findViewById(R.id.rpm)).setProgress(((EngineRPMObdCommand) command).getRPM());
             } else if (name.equals("VIN")) {
-                String vin = ((VehicleIdentificationNumberCommand) command).getVin();
-                if (vin.length() == 17) {
-                    mVin = vin;
+                if (((VehicleIdentificationNumberCommand) command).hasData()) {
+                    String vin = ((VehicleIdentificationNumberCommand) command).getVin();
+                    if (vin.length() == 17) {
+                        mVin = vin;
+                    }
                 }
             }
 
