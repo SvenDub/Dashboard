@@ -31,9 +31,16 @@
     <string name="automatic">Auto</string>
     <string name="built_in">Ingebouwd</string>
     <string name="cancel">Annuleren</string>
+    <string name="cars_empty">Nog geen auto\'s</string>
     <string name="default_app">Standaard</string>
     <string name="delete">Verwijderen</string>
     <string name="dialer_input">Naam of telefoonnummer in</string>
+    <string name="dialog_bluetooth_connecting">Verbinden…</string>
+    <string name="dialog_bluetooth_disconnected_choose_device">Kies apparaat</string>
+    <string name="dialog_bluetooth_disconnected_disconnect">Sluiten</string>
+    <string name="dialog_bluetooth_disconnected_reconnect">Probeer opnieuw</string>
+    <string name="dialog_bluetooth_disconnected_title">Verbinding kon niet tot stand worden gebracht</string>
+    <string name="dialog_bluetooth_required_message">Bluetooth is nodig voor wagenstatus</string>
     <string name="dialog_notification_access_message">Er is toegang tot notificaties nodig voor het gebruik van mediabediening of gesproken notificaties</string>
     <string name="dialog_notification_access_negative">Nee, bedankt</string>
     <string name="dialog_notification_access_positive">Ja, graag!</string>
@@ -60,6 +67,8 @@
     <string name="pref_title_about">Over</string>
     <string name="pref_title_apps">Apps</string>
     <string name="pref_title_bg">Achtergrond</string>
+    <string name="pref_title_car">Auto</string>
+    <string name="pref_title_car_manage">Beheer auto\'s</string>
     <string name="pref_title_colors">Kleuren</string>
     <string name="pref_title_dialer">Telefoon</string>
     <string name="pref_title_keep_screen_on">Laat scherm aan</string>

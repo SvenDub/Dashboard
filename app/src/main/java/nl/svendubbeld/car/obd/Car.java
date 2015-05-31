@@ -23,19 +23,57 @@
 
 package nl.svendubbeld.car.obd;
 
-import java.util.ArrayList;
+public class Car {
 
-import pt.lighthouselabs.obd.commands.ObdCommand;
+    private String mVin = "";
+    private String mName = "";
 
-public interface ObdListener {
+    private float[] mGears = {
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f,
+            0f
+    };
 
-    void onObdDeviceSelected();
+    public Car(String vin) {
+        init(vin, "", new float[]{0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f});
+    }
 
-    void onObdDeviceConnected();
+    public Car(String vin, String name) {
+        init(vin, name, new float[]{0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f});
+    }
 
-    void onObdDeviceDisconnected();
+    public Car(String vin, String name, float[] gears) {
+        init(vin, name, gears);
+    }
 
-    void onObdDeviceReady();
+    private void init(String vin, String name, float[] gears) {
+        mVin = vin;
+        mName = name;
+        mGears = gears;
+    }
 
-    void onObdCommandExecuted(ArrayList<ObdCommand> commands);
+    public String getVin() {
+        return mVin;
+    }
+
+    public String getName() {
+        return mName;
+    }
+
+    public void setName(String name) {
+        mName = name;
+    }
+
+    public float[] getGears() {
+        return mGears;
+    }
+
+    public void setGears(float[] gears) {
+        mGears = gears;
+    }
 }

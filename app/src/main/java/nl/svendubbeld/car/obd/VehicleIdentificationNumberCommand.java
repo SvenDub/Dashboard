@@ -23,19 +23,56 @@
 
 package nl.svendubbeld.car.obd;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import pt.lighthouselabs.obd.commands.ObdCommand;
+import pt.lighthouselabs.obd.exceptions.NoDataException;
 
-public interface ObdListener {
+public class VehicleIdentificationNumberCommand extends ObdCommand {
 
-    void onObdDeviceSelected();
+    private String mVin = "";
+    private boolean mData = false;
 
-    void onObdDeviceConnected();
+    public VehicleIdentificationNumberCommand() {
+        super("09 02");
+    }
 
-    void onObdDeviceDisconnected();
+    @Override
+    public void run(InputStream in, OutputStream out) throws IOException, InterruptedException {
+        try {
+            super.run(in, out);
 
-    void onObdDeviceReady();
+            mData = true;
+        } catch (NoDataException e) {
+            mData = false;
+        }
+    }
 
-    void onObdCommandExecuted(ArrayList<ObdCommand> commands);
+    @Override
+    protected void performCalculations() {
+        mVin = "";
+        for (int i : buffer) {
+            mVin += Character.toString((char) i);
+        }
+    }
+
+    @Override
+    public String getFormattedResult() {
+        return mVin;
+    }
+
+    @Override
+    public String getName() {
+        return "VIN";
+    }
+
+    public boolean hasData() {
+        return mData;
+    }
+
+    public String getVin() {
+        return mVin;
+    }
 }

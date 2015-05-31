@@ -73,6 +73,13 @@
                 android:targetPackage="nl.svendubbeld.car"/>
         </Preference>
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_title_car">
+        <Preference android:title="@string/pref_title_car_manage">
+            <intent
+                android:targetClass="nl.svendubbeld.car.activity.CarsPreferenceActivity"
+                android:targetPackage="nl.svendubbeld.car"/>
+        </Preference>
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_title_other">
         <CheckBoxPreference
             android:defaultValue="true"

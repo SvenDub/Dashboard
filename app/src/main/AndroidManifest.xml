@@ -108,6 +108,10 @@
         <activity
             android:name=".activity.ObdActivity"
             android:parentActivityName=".activity.CarActivity"/>
+        <activity
+            android:name=".activity.CarsPreferenceActivity"
+            android:label="@string/pref_title_car_manage"
+            android:parentActivityName=".activity.SettingsActivity"/>
 
         <service
             android:name=".service.VoiceAccessibilityService"

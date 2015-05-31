@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ The MIT License (MIT)
   ~
   ~ Copyright (c) 2015 Sven Dubbeld
@@ -22,38 +21,9 @@
   ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
-
-    <ScrollView
-        android:id="@+id/bg"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:orientation="vertical"
-            android:paddingBottom="@dimen/nav_bar_height"
-            android:paddingTop="@dimen/status_bar_height">
-
-            <SeekBar
-                android:id="@+id/speed"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="255"/>
-
-            <SeekBar
-                android:id="@+id/rpm"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="7000"/>
-
-        </LinearLayout>
-    </ScrollView>
+                android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/status_bar_background"
@@ -61,10 +31,41 @@
         android:layout_height="@dimen/status_bar_height"
         android:src="@drawable/status_bar_background"/>
 
+    <Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="fill_parent"
+        android:layout_height="?android:actionBarSize"
+        android:layout_below="@id/status_bar_background"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:orientation="vertical">
+
+        <ListView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@android:id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_weight="1"
+            android:padding="8dp"
+            android:text="@string/cars_empty"/>
+
+    </LinearLayout>
+
     <ImageView
         android:id="@+id/navigation_bar_background"
         android:layout_width="match_parent"
         android:layout_height="@dimen/nav_bar_height"
+        android:layout_alignParentBottom="true"
         android:layout_gravity="bottom"
         android:src="@drawable/navigation_bar_background"/>
-</FrameLayout>
+</RelativeLayout>

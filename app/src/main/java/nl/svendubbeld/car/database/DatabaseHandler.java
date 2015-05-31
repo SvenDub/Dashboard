@@ -30,9 +30,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 import nl.svendubbeld.car.adapter.NavigationFavoritesAdapter;
+import nl.svendubbeld.car.obd.Car;
 
 /**
  * API for interacting with the database.
@@ -46,7 +51,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     /**
      * The version of the database.
      */
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
 
     /**
      * Constant for text column type.
@@ -56,6 +61,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * Constant for integer column type.
      */
     private static final String TYPE_INT = " INTEGER";
+    /**
+     * Constant for float column type.
+     */
+    private static final String TYPE_FLOAT = " FLOAT";
     /**
      * Constant for comma separator.
      */
@@ -69,6 +78,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     Contract.NavigationFavoriteEntry._ID + TYPE_INT + " PRIMARY KEY" + COMMA_SEP +
                     Contract.NavigationFavoriteEntry.COLUMN_NAME_NAME + TYPE_TEXT + COMMA_SEP +
                     Contract.NavigationFavoriteEntry.COLUMN_NAME_ADDRESS + TYPE_TEXT + ")";
+
+    /**
+     * SQL query for creating table with car VINs.
+     */
+    private static final String SQL_CREATE_CARS =
+            "CREATE TABLE " + Contract.Car.TABLE_NAME + " (" +
+                    Contract.Car.COLUMN_NAME_VIN + TYPE_TEXT + " PRIMARY KEY" + COMMA_SEP +
+                    Contract.Car.COLUMN_NAME_NAME + TYPE_TEXT + COMMA_SEP +
+                    Contract.Car.COLUMN_NAME_GEAR_RATIO + TYPE_TEXT + ")";
 
     /**
      * Create a new DatabaseHandler.
@@ -85,6 +103,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_NAVIGATION_FAVORITES);
+        db.execSQL(SQL_CREATE_CARS);
     }
 
     /**
@@ -92,7 +111,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        switch (oldVersion) {
+            case 1:
+                db.execSQL(SQL_CREATE_CARS);
+                break;
+        }
     }
 
     /**
@@ -132,6 +155,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
 
+        cursor.close();
         db.close();
         return navigationFavorites;
     }
@@ -159,14 +183,148 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    public Car getCar(String vin) throws JSONException {
+        SQLiteDatabase db = getReadableDatabase();
+
+        // Columns to fetch
+        String[] projection = {
+                Contract.Car.COLUMN_NAME_VIN,
+                Contract.Car.COLUMN_NAME_NAME,
+                Contract.Car.COLUMN_NAME_GEAR_RATIO
+        };
+
+        // Where clause
+        String selection = Contract.Car.COLUMN_NAME_VIN + " = ?";
+
+        // Where args
+        String[] selectionArgs = {
+                vin
+        };
+
+        // Execute query
+        Cursor cursor = db.query(
+                Contract.Car.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        Car car = null;
+
+        if (cursor.moveToFirst()) {
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(Contract.Car.COLUMN_NAME_NAME));
+            String gearRatioString = cursor.getString(cursor.getColumnIndexOrThrow(Contract.Car.COLUMN_NAME_GEAR_RATIO));
+
+            JSONArray gearRatioJSON = new JSONArray(gearRatioString);
+            float[] gearRatio = new float[gearRatioJSON.length()];
+            for (int i = 0; i < gearRatio.length; i++) {
+                gearRatio[i] = Float.parseFloat(gearRatioJSON.getString(i));
+            }
+
+            car = new Car(vin, name, gearRatio);
+        }
+
+        cursor.close();
+        db.close();
+        return car;
+    }
+
+    public ArrayList<Car> getCars() throws JSONException {
+        SQLiteDatabase db = getReadableDatabase();
+
+        // Columns to fetch
+        String[] projection = {
+                Contract.Car.COLUMN_NAME_VIN,
+                Contract.Car.COLUMN_NAME_NAME,
+                Contract.Car.COLUMN_NAME_GEAR_RATIO
+        };
+
+        // Execute query
+        Cursor cursor = db.query(
+                Contract.Car.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        ArrayList<Car> cars = new ArrayList<>();
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            String vin = cursor.getString(cursor.getColumnIndexOrThrow(Contract.Car.COLUMN_NAME_VIN));
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(Contract.Car.COLUMN_NAME_NAME));
+            String gearRatioString = cursor.getString(cursor.getColumnIndexOrThrow(Contract.Car.COLUMN_NAME_GEAR_RATIO));
+
+            JSONArray gearRatioJSON = new JSONArray(gearRatioString);
+            float[] gearRatio = new float[gearRatioJSON.length()];
+            for (int i = 0; i < gearRatio.length; i++) {
+                gearRatio[i] = Float.parseFloat(gearRatioJSON.getString(i));
+            }
+
+            Car car = new Car(vin, name, gearRatio);
+            cars.add(car);
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+        db.close();
+        return cars;
+    }
+
+    public void setCars(ArrayList<Car> cars) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        // Remove old favorites
+        db.delete(Contract.Car.TABLE_NAME, null, null);
+
+        // Insert each new favorite
+        for (Car car : cars) {
+            ContentValues values = new ContentValues();
+            values.put(Contract.Car.COLUMN_NAME_VIN, car.getVin());
+            values.put(Contract.Car.COLUMN_NAME_NAME, car.getName());
+            values.put(Contract.Car.COLUMN_NAME_GEAR_RATIO, JSONObject.wrap(car.getGears()).toString());
+
+            db.insert(Contract.NavigationFavoriteEntry.TABLE_NAME, null, values);
+        }
+
+        db.close();
+    }
+
+    /**
+     * @param car The car to add.
+     */
+    public void addCar(Car car) {
+        addCar(car.getVin(), car.getName(), car.getGears());
+    }
+
+    /**
+     * @param vin       The VIN of the car.
+     * @param name      The user-defined label of the car.
+     * @param gearRatio The gear ratio of the car.
+     */
+    public void addCar(String vin, String name, float[] gearRatio) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(Contract.Car.COLUMN_NAME_VIN, vin);
+        values.put(Contract.Car.COLUMN_NAME_NAME, name);
+        values.put(Contract.Car.COLUMN_NAME_GEAR_RATIO, JSONObject.wrap(gearRatio).toString());
+
+        db.replace(Contract.Car.TABLE_NAME, null, values);
+
+        db.close();
+    }
+
     /**
      * Contract containing constants for all tables and columns.
      */
-    public static final class Contract {
-
-        public Contract() {
-
-        }
+    public static abstract class Contract {
 
         /**
          * The table containing {@link nl.svendubbeld.car.adapter.NavigationFavoritesAdapter.NavigationFavorite}.
@@ -184,6 +342,28 @@ public class DatabaseHandler extends SQLiteOpenHelper {
              * Constant for the address column.
              */
             public static final String COLUMN_NAME_ADDRESS = "address";
+        }
+
+        /**
+         * The table containing car data.
+         */
+        public static abstract class Car implements BaseColumns {
+            /**
+             * Constant for the table name.
+             */
+            public static final String TABLE_NAME = "cars";
+            /**
+             * Constant for the VIN column.
+             */
+            public static final String COLUMN_NAME_VIN = "vin";
+            /**
+             * Constant for the name column.
+             */
+            public static final String COLUMN_NAME_NAME = "name";
+            /**
+             * Constant for the gear ratio column. Data saved as a JSONArray of floats.
+             */
+            public static final String COLUMN_NAME_GEAR_RATIO = "gear_ratio";
         }
 
     }
