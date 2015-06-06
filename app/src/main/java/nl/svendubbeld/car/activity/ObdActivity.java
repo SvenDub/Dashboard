@@ -36,7 +36,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.SeekBar;
 
 import org.json.JSONException;
 
@@ -51,6 +50,7 @@ import nl.svendubbeld.car.database.DatabaseHandler;
 import nl.svendubbeld.car.obd.Car;
 import nl.svendubbeld.car.obd.ObdListener;
 import nl.svendubbeld.car.obd.VehicleIdentificationNumberCommand;
+import nl.svendubbeld.car.widget.DialView;
 import pt.lighthouselabs.obd.commands.ObdCommand;
 import pt.lighthouselabs.obd.commands.SpeedObdCommand;
 import pt.lighthouselabs.obd.commands.engine.EngineRPMObdCommand;
@@ -140,15 +140,17 @@ public class ObdActivity extends Activity implements ObdListener {
                 startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
                 mBtDialogOpen = true;
             } else {
-                showDeviceChooser();
+                if (mSocket != null && !mSocket.isConnected()) {
+                    onObdDeviceSelected();
+                } else {
+                    showDeviceChooser();
+                }
             }
         } else {
             mBtDialogOpen ^= true;
         }
 
-        if (mSocket != null && !mSocket.isConnected()) {
-            onObdDeviceSelected();
-        }
+
     }
 
     @Override
@@ -251,6 +253,13 @@ public class ObdActivity extends Activity implements ObdListener {
     public void onObdDeviceConnected() {
         Log.i(TAG_OBDII, "Device connected");
 
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mDisconnectedDialog.hide();
+            }
+        });
+
         try {
             new EchoOffObdCommand().run(mSocket.getInputStream(), mSocket.getOutputStream());
             Log.i(TAG_OBDII, "Echo disabled");
@@ -295,6 +304,8 @@ public class ObdActivity extends Activity implements ObdListener {
                     Log.d(TAG_OBDII, "Thread interrupted while ready");
                 } catch (IOException e) {
                     e.printStackTrace();
+
+                    onObdDeviceDisconnected();
                 }
 
                 onObdCommandExecuted(commands);
@@ -312,9 +323,9 @@ public class ObdActivity extends Activity implements ObdListener {
             String name = command.getName();
 
             if (name.equals(AvailableCommandNames.SPEED.getValue())) {
-                ((SeekBar) findViewById(R.id.speed)).setProgress(((SpeedObdCommand) command).getMetricSpeed());
+                ((DialView) findViewById(R.id.speed)).setProgress(((SpeedObdCommand) command).getMetricSpeed());
             } else if (name.equals(AvailableCommandNames.ENGINE_RPM.getValue())) {
-                ((SeekBar) findViewById(R.id.rpm)).setProgress(((EngineRPMObdCommand) command).getRPM());
+                ((DialView) findViewById(R.id.rpm)).setProgress(((EngineRPMObdCommand) command).getRPM());
             } else if (name.equals("VIN")) {
                 if (((VehicleIdentificationNumberCommand) command).hasData()) {
                     String vin = ((VehicleIdentificationNumberCommand) command).getVin();

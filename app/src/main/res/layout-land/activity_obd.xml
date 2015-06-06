@@ -37,14 +37,14 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:orientation="vertical"
-            android:paddingBottom="@dimen/nav_bar_height"
+            android:orientation="horizontal"
             android:paddingTop="@dimen/status_bar_height">
 
             <nl.svendubbeld.car.widget.DialView
                 android:id="@+id/speed"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:padding="4dp"
                 android:textColor="?android:textColorPrimary"
                 app:appShowText="true"
@@ -55,8 +55,9 @@
 
             <nl.svendubbeld.car.widget.DialView
                 android:id="@+id/rpm"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:padding="4dp"
                 android:textColor="?android:textColorPrimary"
                 app:appShowText="true"
