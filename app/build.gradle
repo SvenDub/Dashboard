@@ -33,7 +33,7 @@ def version_name = "1.4"
 
 android {
     compileSdkVersion 22
-    buildToolsVersion '23.0.0 rc1'
+    buildToolsVersion '23.0.0 rc2'
     defaultConfig {
         applicationId "nl.svendubbeld.car"
         minSdkVersion 21
