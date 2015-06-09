@@ -93,4 +93,6 @@
     <string name="pref_title_version">Versie</string>
     <string name="search">Zoeken</string>
     <string name="title_activity_settings">Instellingen</string>
+    <string name="tutorial_text">Tik aan om het OBD II scherm te openen. Hier is een geschikte OBD II bluetooth adapter nodig voor je auto.</string>
+    <string name="tutorial_title">OBD II</string>
 </resources>

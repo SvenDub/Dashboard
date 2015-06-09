@@ -105,4 +105,6 @@
     <string name="transition_media_title" translatable="false">transition_media_title</string>
     <string name="transition_media_vol_down" translatable="false">transition_media_vol_down</string>
     <string name="transition_media_vol_up" translatable="false">transition_media_vol_up</string>
+    <string name="tutorial_text">Tap to open the OBD II view. This requires a compatible OBD II bluetooth adapter for your car.</string>
+    <string name="tutorial_title">OBD II</string>
 </resources>

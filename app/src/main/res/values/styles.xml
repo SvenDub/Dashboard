@@ -62,4 +62,13 @@
         <item name="android:gravity">center</item>
         <item name="android:textSize">52sp</item>
     </style>
+
+    <style name="ShowcaseView">
+        <item name="sv_showcaseColor">?android:colorAccent</item>
+    </style>
+
+    <style name="TextAppearance.ShowcaseView.Title" parent="TextAppearance.ShowcaseView.Title">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">32sp</item>
+    </style>
 </resources>
