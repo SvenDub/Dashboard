@@ -265,8 +265,8 @@ public class ObdActivity extends Activity implements ObdListener {
             Log.i(TAG_OBDII, "Echo disabled");
             new LineFeedOffObdCommand().run(mSocket.getInputStream(), mSocket.getOutputStream());
             Log.i(TAG_OBDII, "Linefeed disabled");
-            new TimeoutObdCommand(0).run(mSocket.getInputStream(), mSocket.getOutputStream());
-            Log.i(TAG_OBDII, "Timeout 200");
+            new TimeoutObdCommand(15).run(mSocket.getInputStream(), mSocket.getOutputStream());
+            Log.i(TAG_OBDII, "Timeout 60");
             new SelectProtocolObdCommand(ObdProtocols.AUTO).run(mSocket.getInputStream(), mSocket.getOutputStream());
             Log.i(TAG_OBDII, "Protocol: " + ObdProtocols.AUTO.name());
 

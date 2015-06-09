@@ -23,4 +23,4 @@
 
 
 
-include ':app', ':AndroidSliderPreference'
+include ':app', ':AndroidSliderPreference', ':obd-java-api'

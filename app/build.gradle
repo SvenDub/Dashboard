@@ -90,6 +90,6 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:7.5.0'
     compile project(':AndroidSliderPreference')
     compile 'de.hdodenhof:circleimageview:1.2.2'
-    compile 'pt.lighthouselabs.obd:obd-java-api:0.8'
+    compile project(':obd-java-api')
     compile 'com.github.amlcurran.showcaseview:library:5.0.0'
 }

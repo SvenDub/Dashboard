@@ -118,7 +118,7 @@ public class DialView extends View implements ValueAnimator.AnimatorUpdateListen
         mTextPaintBig = new Paint(mTextPaint);
         mTextPaintBig.setTextSize(150);
 
-        mProgressAnimator.setDuration(1000);
+        mProgressAnimator.setDuration(300);
         mProgressAnimator.addUpdateListener(this);
 
         mHandler = new Handler();
@@ -207,7 +207,7 @@ public class DialView extends View implements ValueAnimator.AnimatorUpdateListen
         }
 
         if (isShowText()) {
-            drawTextCentred(formatLabel(getProgress()), mBounds.centerX(), mBounds.centerY(), mTextPaintBig, canvas);
+            drawTextCentred(formatLabel((Float) mProgressAnimator.getAnimatedValue()), mBounds.centerX(), mBounds.centerY(), mTextPaintBig, canvas);
         }
     }
 

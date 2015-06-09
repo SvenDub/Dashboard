@@ -1,3 +1,6 @@
 [submodule "AndroidSliderPreference"]
 	path = AndroidSliderPreference
 	url = https://github.com/jayschwa/AndroidSliderPreference
+[submodule "obd-java-api"]
+	path = obd-java-api
+	url = https://github.com/SvenDub/obd-java-api
