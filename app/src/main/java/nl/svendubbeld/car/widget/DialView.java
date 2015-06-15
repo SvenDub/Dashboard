@@ -143,7 +143,21 @@ public class DialView extends View implements ValueAnimator.AnimatorUpdateListen
         int widthWithoutPadding = widthSpecSize - getPaddingLeft() - getPaddingRight();
         int heightWithoutPadding = heightSpecSize - getPaddingTop() - getPaddingBottom();
 
-        if (widthWithoutPadding <= 0 || heightWithoutPadding <= 0) {
+        if (widthSpecMode == MeasureSpec.UNSPECIFIED && heightSpecMode != MeasureSpec.UNSPECIFIED) {
+            size = heightWithoutPadding;
+        } else if (widthSpecMode != MeasureSpec.UNSPECIFIED && heightSpecMode == MeasureSpec.UNSPECIFIED) {
+            size = widthWithoutPadding;
+        } else if (widthSpecMode == MeasureSpec.UNSPECIFIED && heightSpecMode == MeasureSpec.UNSPECIFIED) {
+            size = Math.max(widthWithoutPadding, heightWithoutPadding);
+        } else {
+            if (widthWithoutPadding > heightWithoutPadding) {
+                size = heightWithoutPadding;
+            } else {
+                size = widthWithoutPadding;
+            }
+        }
+
+        /*if (widthWithoutPadding <= 0 || heightWithoutPadding <= 0) {
             size = Math.max(widthWithoutPadding, heightWithoutPadding);
         } else {
             // set the dimensions
@@ -152,7 +166,7 @@ public class DialView extends View implements ValueAnimator.AnimatorUpdateListen
             } else {
                 size = widthWithoutPadding;
             }
-        }
+        }*/
 
         setMeasuredDimension(size + getPaddingLeft() + getPaddingRight(), size + getPaddingTop() + getPaddingBottom());
     }
