@@ -106,6 +106,27 @@ public class CarsPreferenceActivity extends Activity implements AdapterView.OnIt
     }
 
     /**
+     * Saves the list.
+     */
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        save();
+    }
+
+    /**
+     * Reload the list.
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        mAdapter.loadFromDatabase();
+    }
+
+
+    /**
      * Requests the adapter to save the current list to the database.
      */
     private void save() {

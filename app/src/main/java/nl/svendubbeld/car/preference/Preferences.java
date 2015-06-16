@@ -39,6 +39,7 @@ public class Preferences {
     public static final String PREF_KEY_SPEAK_NOTIFICATIONS_VOLUME = "pref_key_speak_notifications_volume";
     public static final String PREF_KEY_VERSION = "pref_key_version";
     public static final String PREF_KEY_LICENSES = "pref_key_licenses";
+    public static final String PREF_KEY_SHOW_TUTORIAL = "pref_key_show_tutorial";
 
     public static final String[] PREF_KEYS = {
             PREF_KEY_SHOW_DATE,
@@ -54,6 +55,7 @@ public class Preferences {
             PREF_KEY_SPEAK_NOTIFICATIONS,
             PREF_KEY_SPEAK_NOTIFICATIONS_VOLUME,
             PREF_KEY_VERSION,
-            PREF_KEY_LICENSES
+            PREF_KEY_LICENSES,
+            PREF_KEY_SHOW_TUTORIAL
     };
 }

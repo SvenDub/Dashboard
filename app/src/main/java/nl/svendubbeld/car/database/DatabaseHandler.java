@@ -290,7 +290,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(Contract.Car.COLUMN_NAME_NAME, car.getName());
             values.put(Contract.Car.COLUMN_NAME_GEAR_RATIO, JSONObject.wrap(car.getGears()).toString());
 
-            db.insert(Contract.NavigationFavoriteEntry.TABLE_NAME, null, values);
+            db.insert(Contract.Car.TABLE_NAME, null, values);
         }
 
         db.close();

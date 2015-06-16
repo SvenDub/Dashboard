@@ -759,7 +759,7 @@ public class CarActivity extends Activity
 
         resetLayout();
 
-        if (mSharedPref.getBoolean("pref_key_show_tutorial", true)) {
+        if (mSharedPref.getBoolean(Preferences.PREF_KEY_SHOW_TUTORIAL, true)) {
             new ShowcaseView.Builder(this)
                     .setTarget(new ViewTarget(R.id.speed_container, this))
                     .setContentTitle(R.string.tutorial_title)
@@ -768,7 +768,7 @@ public class CarActivity extends Activity
                     .setShowcaseEventListener(new OnShowcaseEventListener() {
                         @Override
                         public void onShowcaseViewHide(ShowcaseView showcaseView) {
-                            mSharedPref.edit().putBoolean("pref_key_show_tutorial", false).apply();
+                            mSharedPref.edit().putBoolean(Preferences.PREF_KEY_SHOW_TUTORIAL, false).apply();
                         }
 
                         @Override
