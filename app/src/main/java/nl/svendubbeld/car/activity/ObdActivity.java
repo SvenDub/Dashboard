@@ -276,11 +276,11 @@ public class ObdActivity extends Activity implements ObdListener {
         alertDialog.show();
     }
 
-    private void showNewCarDialog() {
-        if (!mIgnoreNewVin && !mVin.equals("unknown")) {
+    private void showNewCarDialog(String vin) {
+        if (!mIgnoreNewVin && !vin.equals("unknown")) {
             mIgnoreNewVin = true;
             if (!mNewCarDialog.isShowing()) {
-                mNewCarDialog.setMessage(getString(R.string.dialog_new_car_message, mVin));
+                mNewCarDialog.setMessage(getString(R.string.dialog_new_car_message, vin));
                 mNewCarDialog.show();
             }
         }
@@ -407,12 +407,13 @@ public class ObdActivity extends Activity implements ObdListener {
 
             try {
                 mCar = mDatabaseHandler.getCar(mVin);
+                final String vin = mVin;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ((TextView) findViewById(R.id.vin)).setText(mVin);
+                        ((TextView) findViewById(R.id.vin)).setText(vin);
                         if (mCar == null) {
-                            showNewCarDialog();
+                            showNewCarDialog(vin);
                         } else {
                             ((TextView) findViewById(R.id.name)).setText(mCar.getName());
                         }
