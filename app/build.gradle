@@ -43,6 +43,7 @@ android {
         resValue "string", "app_version_name", version_name
         resValue "string", "maps_api_key", NL_SVENDUBBELD_CAR_MAPS_API_KEY
         resValue "string", "backup_api_key", NL_SVENDUBBELD_CAR_BACKUP_API_KEY
+        resValue "string", "edmunds_api_key", NL_SVENDUBBELD_CAR_EDMUNDS_API_KEY
     }
     signingConfigs {
         release {
@@ -92,4 +93,5 @@ dependencies {
     compile 'de.hdodenhof:circleimageview:1.2.2'
     compile project(':obd-java-api')
     compile 'com.github.amlcurran.showcaseview:library:5.0.0'
+    compile 'com.koushikdutta.ion:ion:2.1.6'
 }

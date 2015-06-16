@@ -41,6 +41,20 @@
             android:paddingBottom="@dimen/nav_bar_height"
             android:paddingTop="@dimen/status_bar_height">
 
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="48sp"/>
+
+            <TextView
+                android:id="@+id/vin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="32sp"/>
+
             <nl.svendubbeld.car.widget.DialView
                 android:id="@+id/speed"
                 android:layout_width="match_parent"

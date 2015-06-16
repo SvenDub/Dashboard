@@ -36,6 +36,11 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
+
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
 
 import org.json.JSONException;
 
@@ -49,6 +54,7 @@ import nl.svendubbeld.car.R;
 import nl.svendubbeld.car.database.DatabaseHandler;
 import nl.svendubbeld.car.obd.Car;
 import nl.svendubbeld.car.obd.ObdListener;
+import nl.svendubbeld.car.obd.VIN;
 import nl.svendubbeld.car.obd.VehicleIdentificationNumberCommand;
 import nl.svendubbeld.car.widget.DialView;
 import pt.lighthouselabs.obd.commands.ObdCommand;
@@ -70,6 +76,7 @@ public class ObdActivity extends Activity implements ObdListener {
 
     private ProgressDialog mProgressDialog;
     private AlertDialog mDisconnectedDialog;
+    private AlertDialog mNewCarDialog;
 
     private String mDeviceAddress;
     private BluetoothSocket mSocket;
@@ -77,6 +84,7 @@ public class ObdActivity extends Activity implements ObdListener {
     private DatabaseHandler mDatabaseHandler;
 
     private String mVin = "unknown";
+    private boolean mIgnoreNewVin = false;
     private Car mCar;
 
     @Override
@@ -124,6 +132,58 @@ public class ObdActivity extends Activity implements ObdListener {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         finish();
+                    }
+                })
+                .create();
+
+        mNewCarDialog = new AlertDialog.Builder(ObdActivity.this)
+                .setTitle(R.string.dialog_new_car_title)
+                .setMessage(getString(R.string.dialog_new_car_message, mVin))
+                .setPositiveButton(R.string.dialog_new_car_positive, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Ion.with(ObdActivity.this)
+                                .load("https://api.edmunds.com/api/vehicle/v2/vins/" + mVin + "?fmt=json&api_key=" + getString(R.string.edmunds_api_key))
+                                .progressDialog(new ProgressDialog(ObdActivity.this))
+                                .asJsonObject()
+                                .setCallback(new FutureCallback<JsonObject>() {
+
+                                    @Override
+                                    public void onCompleted(Exception e, JsonObject result) {
+                                        String name = "Default";
+
+                                        if (e == null && result.has("make") && result.has("model") && result.has("years")) {
+
+                                            String make = result.getAsJsonObject("make").get("name").getAsString();
+                                            String model = result.getAsJsonObject("model").get("name").getAsString();
+                                            String year = result.getAsJsonObject("years").get("year").getAsString();
+
+                                            name = make + " " + model + " (" + year + ")";
+
+                                        } else {
+                                            name = VIN.resolveVin(mVin);
+                                        }
+
+                                        Log.i(TAG_OBDII, "Adding new car with VIN: " + mVin + "; name: " + name);
+                                        mCar = new Car(mVin, name);
+                                        mDatabaseHandler.addCar(mCar);
+                                        mIgnoreNewVin = false;
+                                    }
+
+                                });
+
+                    }
+                })
+                .setNegativeButton(R.string.dialog_new_car_negative, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mIgnoreNewVin = true;
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        mIgnoreNewVin = true;
                     }
                 })
                 .create();
@@ -197,7 +257,7 @@ public class ObdActivity extends Activity implements ObdListener {
         }
 
         // show list
-        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(ObdActivity.this);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.select_dialog_singlechoice,
                 deviceStrs.toArray(new String[deviceStrs.size()]));
@@ -214,6 +274,16 @@ public class ObdActivity extends Activity implements ObdListener {
 
         alertDialog.setTitle("Choose Bluetooth device");
         alertDialog.show();
+    }
+
+    private void showNewCarDialog() {
+        if (!mIgnoreNewVin && !mVin.equals("unknown")) {
+            mIgnoreNewVin = true;
+            if (!mNewCarDialog.isShowing()) {
+                mNewCarDialog.setMessage(getString(R.string.dialog_new_car_message, mVin));
+                mNewCarDialog.show();
+            }
+        }
     }
 
     @Override
@@ -337,11 +407,17 @@ public class ObdActivity extends Activity implements ObdListener {
 
             try {
                 mCar = mDatabaseHandler.getCar(mVin);
-                if (mCar == null) {
-                    Log.i(TAG_OBDII, "Adding new car with VIN: " + mVin);
-                    mCar = new Car(mVin);
-                    mDatabaseHandler.addCar(mCar);
-                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((TextView) findViewById(R.id.vin)).setText(mVin);
+                        if (mCar == null) {
+                            showNewCarDialog();
+                        } else {
+                            ((TextView) findViewById(R.id.name)).setText(mCar.getName());
+                        }
+                    }
+                });
             } catch (JSONException e) {
                 e.printStackTrace();
             }
