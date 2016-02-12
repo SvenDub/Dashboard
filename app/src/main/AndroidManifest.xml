@@ -34,6 +34,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -103,6 +104,13 @@
         <activity
             android:name=".activity.NavigationFavoritesPreferenceActivity"
             android:label="@string/navigation_favorites"
+            android:parentActivityName=".activity.SettingsActivity"/>
+        <activity
+            android:name=".activity.ObdActivity"
+            android:parentActivityName=".activity.CarActivity"/>
+        <activity
+            android:name=".activity.CarsPreferenceActivity"
+            android:label="@string/pref_title_car_manage"
             android:parentActivityName=".activity.SettingsActivity"/>
 
         <service

@@ -21,6 +21,35 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+package nl.svendubbeld.car.obd;
 
+public class Car {
 
-include ':app'
+    private String mVin = "";
+    private String mName = "";
+
+    public Car(String vin) {
+        init(vin, "");
+    }
+
+    public Car(String vin, String name) {
+        init(vin, name);
+    }
+
+    private void init(String vin, String name) {
+        mVin = vin;
+        mName = name;
+    }
+
+    public String getVin() {
+        return mVin;
+    }
+
+    public String getName() {
+        return mName;
+    }
+
+    public void setName(String name) {
+        mName = name;
+    }
+}

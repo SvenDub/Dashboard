@@ -31,15 +31,26 @@
     <string name="automatic">Auto</string>
     <string name="built_in">Ingebouwd</string>
     <string name="cancel">Annuleren</string>
+    <string name="cars_empty">Nog geen auto\'s</string>
     <string name="default_app">Standaard</string>
     <string name="delete">Verwijderen</string>
     <string name="dialer_input">Naam of telefoonnummer in</string>
+    <string name="dialog_bluetooth_connecting">Verbinden…</string>
+    <string name="dialog_bluetooth_disconnected_choose_device">Kies apparaat</string>
+    <string name="dialog_bluetooth_disconnected_disconnect">Sluiten</string>
+    <string name="dialog_bluetooth_disconnected_reconnect">Probeer opnieuw</string>
+    <string name="dialog_bluetooth_disconnected_title">Verbinding kon niet tot stand worden gebracht</string>
+    <string name="dialog_bluetooth_required_message">Bluetooth is nodig voor wagenstatus</string>
+    <string name="dialog_new_car_message">Nieuwe auto met VIN %s toevoegen?</string>
+    <string name="dialog_new_car_negative">@string/no_polite</string>
+    <string name="dialog_new_car_positive">@string/okay</string>
+    <string name="dialog_new_car_title">Nieuwe auto gevonden</string>
     <string name="dialog_notification_access_message">Er is toegang tot notificaties nodig voor het gebruik van mediabediening of gesproken notificaties</string>
-    <string name="dialog_notification_access_negative">Nee, bedankt</string>
-    <string name="dialog_notification_access_positive">Ja, graag!</string>
+    <string name="dialog_notification_access_negative">@string/no_polite</string>
+    <string name="dialog_notification_access_positive">@string/yes_enthusiastic</string>
     <string name="dialog_notification_access_title">Geen toegang tot notificaties</string>
-    <string name="dialog_voice_assist_not_found_title">Spraakassistent niet gevonden</string>
     <string name="dialog_voice_assist_not_found_message">Om gebruik te maken van deze functie is een spraakassistent, zoals Google, nodig</string>
+    <string name="dialog_voice_assist_not_found_title">Spraakassistent niet gevonden</string>
     <string name="edit">Aanpassen</string>
     <string name="high">Hoog</string>
     <string name="low">Laag</string>
@@ -52,6 +63,8 @@
     <string name="navigation_favorites_empty">Geen favorieten ingesteld</string>
     <string name="navigation_input">Bestemming</string>
     <string name="never">Nooit</string>
+    <string name="no">Nee</string>
+    <string name="no_polite">Nee, bedankt</string>
     <string name="okay">Oké</string>
     <string name="play_store">Play Store</string>
     <string name="pref_summary_show_road">Actieve internetverbinding vereist</string>
@@ -60,6 +73,8 @@
     <string name="pref_title_about">Over</string>
     <string name="pref_title_apps">Apps</string>
     <string name="pref_title_bg">Achtergrond</string>
+    <string name="pref_title_car">Auto</string>
+    <string name="pref_title_car_manage">Beheer auto\'s</string>
     <string name="pref_title_colors">Kleuren</string>
     <string name="pref_title_dialer">Telefoon</string>
     <string name="pref_title_keep_screen_on">Laat scherm aan</string>
@@ -84,4 +99,8 @@
     <string name="pref_title_version">Versie</string>
     <string name="search">Zoeken</string>
     <string name="title_activity_settings">Instellingen</string>
+    <string name="tutorial_text">Tik aan om het OBD II scherm te openen. Hier is een geschikte OBD II bluetooth adapter nodig voor je auto.</string>
+    <string name="tutorial_title">OBD II</string>
+    <string name="yes">Ja</string>
+    <string name="yes_enthusiastic">Ja, graag!</string>
 </resources>

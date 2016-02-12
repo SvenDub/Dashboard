@@ -21,23 +21,58 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package nl.svendubbeld.car.obd;
 
-buildscript {
-    repositories {
-        jcenter()
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import pt.lighthouselabs.obd.commands.ObdCommand;
+import pt.lighthouselabs.obd.exceptions.NoDataException;
+
+public class VehicleIdentificationNumberCommand extends ObdCommand {
+
+    private String mVin = "";
+    private boolean mData = false;
+
+    public VehicleIdentificationNumberCommand() {
+        super("09 02");
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:1.3.0'
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+    @Override
+    public void run(InputStream in, OutputStream out) throws IOException, InterruptedException {
+        try {
+            super.run(in, out);
+
+            mData = true;
+        } catch (NoDataException e) {
+            mData = false;
+        }
     }
-}
 
-allprojects {
-    repositories {
-        jcenter()
-        maven { url "https://jitpack.io" }
+    @Override
+    protected void performCalculations() {
+        mVin = "";
+        for (int i : buffer) {
+            mVin += Character.toString((char) i);
+        }
+    }
+
+    @Override
+    public String getFormattedResult() {
+        return mVin;
+    }
+
+    @Override
+    public String getName() {
+        return "VIN";
+    }
+
+    public boolean hasData() {
+        return mData;
+    }
+
+    public String getVin() {
+        return mVin;
     }
 }

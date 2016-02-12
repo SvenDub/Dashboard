@@ -67,6 +67,9 @@ import android.widget.ProgressBar;
 import android.widget.TextClock;
 import android.widget.TextView;
 
+import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -315,6 +318,7 @@ public class CarActivity extends Activity
             }
         }
     };
+
     private android.location.LocationListener mGpsLocationListener = new android.location.LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
@@ -396,6 +400,8 @@ public class CarActivity extends Activity
         gpsStatusIconAnimation.setInterpolator(new LinearInterpolator());
         gpsStatusIconAnimation.setRepeatCount(Animation.INFINITE);
         mGpsStatusIcon.startAnimation(gpsStatusIconAnimation);
+
+        mSpeedContainer.setOnClickListener(this);
 
         // Set media controls
         mMediaVolDown.setOnClickListener(mMediaControlsListener);
@@ -640,6 +646,10 @@ public class CarActivity extends Activity
 
                 startActivity(mediaIntent, ActivityOptions.makeSceneTransitionAnimation(this, elements).toBundle());
                 break;
+            case R.id.speed_container:
+                // Launch OBD2Activity
+                Intent obd2Intent = new Intent(this, ObdActivity.class);
+                startActivity(obd2Intent);
         }
     }
 
@@ -748,6 +758,31 @@ public class CarActivity extends Activity
         toggleNightMode();
 
         resetLayout();
+
+        if (mSharedPref.getBoolean(Preferences.PREF_KEY_SHOW_TUTORIAL, true)) {
+            new ShowcaseView.Builder(this)
+                    .setTarget(new ViewTarget(R.id.speed_container, this))
+                    .setContentTitle(R.string.tutorial_title)
+                    .setContentText(R.string.tutorial_text)
+                    .hideOnTouchOutside()
+                    .setShowcaseEventListener(new OnShowcaseEventListener() {
+                        @Override
+                        public void onShowcaseViewHide(ShowcaseView showcaseView) {
+                            mSharedPref.edit().putBoolean(Preferences.PREF_KEY_SHOW_TUTORIAL, false).apply();
+                        }
+
+                        @Override
+                        public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+
+                        }
+
+                        @Override
+                        public void onShowcaseViewShow(ShowcaseView showcaseView) {
+
+                        }
+                    })
+                    .build();
+        }
     }
 
     /**

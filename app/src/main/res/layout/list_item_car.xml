@@ -21,12 +21,24 @@
   ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   -->
 
-<resources>
-    <color name="accent">#ffff9800</color>
-    <color name="background_dark">@color/background_material_dark</color>
-    <color name="background_light">@color/light_gray</color>
-    <color name="gray">#ffb5b5b5</color>
-    <color name="light_gray">#ffe5e5e5</color>
-    <color name="white">#ffffffff</color>
-    <color name="blue">#ff0d47a1</color>
-</resources>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:padding="8dp">
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="name"
+        android:textSize="25sp"/>
+
+    <TextView
+        android:id="@+id/vin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="vin"
+        android:textSize="20sp"/>
+
+</LinearLayout>

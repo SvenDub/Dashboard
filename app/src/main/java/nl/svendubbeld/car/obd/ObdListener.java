@@ -21,6 +21,21 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+package nl.svendubbeld.car.obd;
 
+import java.util.ArrayList;
 
-include ':app'
+import pt.lighthouselabs.obd.commands.ObdCommand;
+
+public interface ObdListener {
+
+    void onObdDeviceSelected();
+
+    void onObdDeviceConnected();
+
+    void onObdDeviceDisconnected();
+
+    void onObdDeviceReady();
+
+    void onObdCommandExecuted(ArrayList<ObdCommand> commands);
+}
