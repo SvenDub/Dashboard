@@ -33,37 +33,58 @@
         android:layout_height="fill_parent">
 
         <LinearLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:paddingTop="@dimen/status_bar_height">
 
-            <nl.svendubbeld.car.widget.DialView
-                android:id="@+id/speed"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="4dp"
-                android:textColor="?android:textColorPrimary"
-                app:appShowText="true"
-                app:decimals="0"
-                app:labels="10"
-                app:labelsHighlighted="@array/labels_highlighted_speed"
-                app:max="200"/>
 
-            <nl.svendubbeld.car.widget.DialView
-                android:id="@+id/rpm"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="4dp"
-                android:textColor="?android:textColorPrimary"
-                app:appShowText="true"
-                app:labels="500"
-                app:max="6000"/>
+                android:orientation="horizontal">
 
+                <nl.svendubbeld.car.widget.DialView
+                    android:id="@+id/speed"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="4dp"
+                    android:textColor="?android:textColorPrimary"
+                    app:appShowText="true"
+                    app:decimals="0"
+                    app:labels="10"
+                    app:labelsHighlighted="@array/labels_highlighted_speed"
+                    app:max="200"/>
+
+                <nl.svendubbeld.car.widget.DialView
+                    android:id="@+id/rpm"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="4dp"
+                    android:textColor="?android:textColorPrimary"
+                    app:appShowText="true"
+                    app:labels="500"
+                    app:max="6000"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="48sp"/>
+
+            <TextView
+                android:id="@+id/vin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="32sp"/>
         </LinearLayout>
     </ScrollView>
 

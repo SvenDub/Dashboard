@@ -66,6 +66,7 @@ import pt.lighthouselabs.obd.commands.protocol.SelectProtocolObdCommand;
 import pt.lighthouselabs.obd.commands.protocol.TimeoutObdCommand;
 import pt.lighthouselabs.obd.enums.AvailableCommandNames;
 import pt.lighthouselabs.obd.enums.ObdProtocols;
+import pt.lighthouselabs.obd.exceptions.NoDataException;
 
 public class ObdActivity extends Activity implements ObdListener {
 
@@ -304,7 +305,7 @@ public class ObdActivity extends Activity implements ObdListener {
                     mSocket = (BluetoothSocket) device.getClass().getMethod("createRfcommSocket", new Class[]{int.class}).invoke(device, 1);
                     mSocket.connect();
                 } catch (IOException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-                    Log.e(TAG_OBDII, "Could not connect to device");
+                    Log.e(TAG_OBDII, "Could not connect to device", e);
 
                     onObdDeviceDisconnected();
 
@@ -376,6 +377,8 @@ public class ObdActivity extends Activity implements ObdListener {
                     e.printStackTrace();
 
                     onObdDeviceDisconnected();
+                } catch (NoDataException e) {
+                    Log.e(TAG_OBDII, "No data received", e);
                 }
 
                 onObdCommandExecuted(commands);
