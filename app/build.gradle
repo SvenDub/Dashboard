@@ -21,12 +21,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-
-
-
-
-
-
 apply plugin: 'com.android.application'
 
 def version_name = "1.4"
@@ -91,7 +85,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:8.4.0'
     compile 'com.github.meierjan:AndroidSliderPreference:1.1'
     compile 'de.hdodenhof:circleimageview:1.2.2'
-    compile project(':obd-java-api')
+    compile 'com.github.svendub:obd-java-api:master-SNAPSHOT'
     compile 'com.github.amlcurran.showcaseview:library:5.0.0'
     compile 'com.koushikdutta.ion:ion:2.1.6'
 }

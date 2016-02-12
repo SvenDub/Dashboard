@@ -23,4 +23,4 @@
 
 
 
-include ':app', ':obd-java-api'
+include ':app'
