@@ -30,9 +30,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -85,8 +83,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String SQL_CREATE_CARS =
             "CREATE TABLE " + Contract.Car.TABLE_NAME + " (" +
                     Contract.Car.COLUMN_NAME_VIN + TYPE_TEXT + " PRIMARY KEY" + COMMA_SEP +
-                    Contract.Car.COLUMN_NAME_NAME + TYPE_TEXT + COMMA_SEP +
-                    Contract.Car.COLUMN_NAME_GEAR_RATIO + TYPE_TEXT + ")";
+                    Contract.Car.COLUMN_NAME_NAME + TYPE_TEXT + ")";
 
     /**
      * Create a new DatabaseHandler.
@@ -189,8 +186,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // Columns to fetch
         String[] projection = {
                 Contract.Car.COLUMN_NAME_VIN,
-                Contract.Car.COLUMN_NAME_NAME,
-                Contract.Car.COLUMN_NAME_GEAR_RATIO
+                Contract.Car.COLUMN_NAME_NAME
         };
 
         // Where clause
@@ -216,15 +212,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             String name = cursor.getString(cursor.getColumnIndexOrThrow(Contract.Car.COLUMN_NAME_NAME));
-            String gearRatioString = cursor.getString(cursor.getColumnIndexOrThrow(Contract.Car.COLUMN_NAME_GEAR_RATIO));
 
-            JSONArray gearRatioJSON = new JSONArray(gearRatioString);
-            float[] gearRatio = new float[gearRatioJSON.length()];
-            for (int i = 0; i < gearRatio.length; i++) {
-                gearRatio[i] = Float.parseFloat(gearRatioJSON.getString(i));
-            }
-
-            car = new Car(vin, name, gearRatio);
+            car = new Car(vin, name);
         }
 
         cursor.close();
@@ -238,8 +227,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // Columns to fetch
         String[] projection = {
                 Contract.Car.COLUMN_NAME_VIN,
-                Contract.Car.COLUMN_NAME_NAME,
-                Contract.Car.COLUMN_NAME_GEAR_RATIO
+                Contract.Car.COLUMN_NAME_NAME
         };
 
         // Execute query
@@ -259,15 +247,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         while (!cursor.isAfterLast()) {
             String vin = cursor.getString(cursor.getColumnIndexOrThrow(Contract.Car.COLUMN_NAME_VIN));
             String name = cursor.getString(cursor.getColumnIndexOrThrow(Contract.Car.COLUMN_NAME_NAME));
-            String gearRatioString = cursor.getString(cursor.getColumnIndexOrThrow(Contract.Car.COLUMN_NAME_GEAR_RATIO));
 
-            JSONArray gearRatioJSON = new JSONArray(gearRatioString);
-            float[] gearRatio = new float[gearRatioJSON.length()];
-            for (int i = 0; i < gearRatio.length; i++) {
-                gearRatio[i] = Float.parseFloat(gearRatioJSON.getString(i));
-            }
-
-            Car car = new Car(vin, name, gearRatio);
+            Car car = new Car(vin, name);
             cars.add(car);
             cursor.moveToNext();
         }
@@ -288,7 +269,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             ContentValues values = new ContentValues();
             values.put(Contract.Car.COLUMN_NAME_VIN, car.getVin());
             values.put(Contract.Car.COLUMN_NAME_NAME, car.getName());
-            values.put(Contract.Car.COLUMN_NAME_GEAR_RATIO, JSONObject.wrap(car.getGears()).toString());
 
             db.insert(Contract.Car.TABLE_NAME, null, values);
         }
@@ -300,21 +280,19 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * @param car The car to add.
      */
     public void addCar(Car car) {
-        addCar(car.getVin(), car.getName(), car.getGears());
+        addCar(car.getVin(), car.getName());
     }
 
     /**
      * @param vin       The VIN of the car.
      * @param name      The user-defined label of the car.
-     * @param gearRatio The gear ratio of the car.
      */
-    public void addCar(String vin, String name, float[] gearRatio) {
+    public void addCar(String vin, String name) {
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(Contract.Car.COLUMN_NAME_VIN, vin);
         values.put(Contract.Car.COLUMN_NAME_NAME, name);
-        values.put(Contract.Car.COLUMN_NAME_GEAR_RATIO, JSONObject.wrap(gearRatio).toString());
 
         db.replace(Contract.Car.TABLE_NAME, null, values);
 
@@ -360,10 +338,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
              * Constant for the name column.
              */
             public static final String COLUMN_NAME_NAME = "name";
-            /**
-             * Constant for the gear ratio column. Data saved as a JSONArray of floats.
-             */
-            public static final String COLUMN_NAME_GEAR_RATIO = "gear_ratio";
         }
 
     }

@@ -28,33 +28,17 @@ public class Car {
     private String mVin = "";
     private String mName = "";
 
-    private float[] mGears = {
-            0f,
-            0f,
-            0f,
-            0f,
-            0f,
-            0f,
-            0f,
-            0f
-    };
-
     public Car(String vin) {
-        init(vin, "", new float[]{0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f});
+        init(vin, "");
     }
 
     public Car(String vin, String name) {
-        init(vin, name, new float[]{0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f});
+        init(vin, name);
     }
 
-    public Car(String vin, String name, float[] gears) {
-        init(vin, name, gears);
-    }
-
-    private void init(String vin, String name, float[] gears) {
+    private void init(String vin, String name) {
         mVin = vin;
         mName = name;
-        mGears = gears;
     }
 
     public String getVin() {
@@ -67,13 +51,5 @@ public class Car {
 
     public void setName(String name) {
         mName = name;
-    }
-
-    public float[] getGears() {
-        return mGears;
-    }
-
-    public void setGears(float[] gears) {
-        mGears = gears;
     }
 }
