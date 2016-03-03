@@ -3,6 +3,7 @@ package nl.svendubbeld.car.activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextClock;
+import android.widget.TextView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -12,6 +13,7 @@ import nl.svendubbeld.car.R;
 public class MainActivity extends AppCompatActivity {
 
     private TextClock mDateView;
+    private TextView mSpeedView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,5 +27,7 @@ public class MainActivity extends AppCompatActivity {
             mDateView.setFormat24Hour(((SimpleDateFormat) shortDateFormat).toPattern());
             mDateView.setFormat12Hour(((SimpleDateFormat) shortDateFormat).toPattern());
         }
+
+        mSpeedView = (TextView) findViewById(R.id.speed);
     }
 }

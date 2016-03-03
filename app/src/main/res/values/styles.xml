@@ -9,4 +9,8 @@
         <item name="android:backgroundTint">@color/background</item>
     </style>
 
+    <style name="CardViewStyle" parent="CardView">
+        <item name="android:layout_margin">@dimen/card_view_margin</item>
+    </style>
+
 </resources>
