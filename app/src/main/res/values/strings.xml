@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Dashboard</string>
+    <string name="play_services_missing">Could not load Google Play Services. Some features have been disabled.</string>
+    <string name="location_disabled">Location updates disabled</string>
 </resources>
