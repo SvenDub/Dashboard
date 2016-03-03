@@ -23,6 +23,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import nl.svendubbeld.car.R;
+import nl.svendubbeld.car.unit.speed.KilometerPerHour;
+import nl.svendubbeld.car.unit.speed.MeterPerSecond;
+import nl.svendubbeld.car.unit.speed.Speed;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, LocationListener, GoogleApiClient.ConnectionCallbacks {
 
@@ -107,7 +110,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     @Override
     public void onLocationChanged(Location location) {
-        mSpeedView.setText(Math.round(location.getSpeed() * 3.6) + "");
+        Speed speed = new MeterPerSecond(location.getSpeed());
+
+        Speed speedKmh = new KilometerPerHour(speed);
+
+        mSpeedView.setText(speedKmh.getValueString(0));
     }
 
     protected void createLocationRequest() {
