@@ -38,6 +38,10 @@
                 <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".service.FetchAddressIntentService"
+            android:exported="false"/>
     </application>
 
 </manifest>

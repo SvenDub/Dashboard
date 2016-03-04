@@ -1,9 +1,15 @@
 package nl.svendubbeld.car.activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -23,6 +29,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import nl.svendubbeld.car.R;
+import nl.svendubbeld.car.service.FetchAddressIntentService;
 import nl.svendubbeld.car.unit.speed.KilometerPerHour;
 import nl.svendubbeld.car.unit.speed.MeterPerSecond;
 import nl.svendubbeld.car.unit.speed.Speed;
@@ -31,12 +38,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 1;
 
+    private static final int GEOCODER_INTERVAL = 10000;
+
     private GoogleApiClient mGoogleApiClient;
 
     private TextClock mDateView;
     private TextView mSpeedView;
 
     private LocationRequest mLocationRequest;
+    private AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
+    private long mLastGeocoderMillis = 0;
 
     //region Lifecycle
 
@@ -115,12 +126,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         Speed speedKmh = new KilometerPerHour(speed);
 
         mSpeedView.setText(speedKmh.getValueString(0));
+
+        if (SystemClock.elapsedRealtime() - mLastGeocoderMillis > GEOCODER_INTERVAL) {
+            startIntentService(location);
+
+            mLastGeocoderMillis = SystemClock.elapsedRealtime();
+        }
     }
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(500);
+        mLocationRequest.setFastestInterval(10);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -140,6 +157,57 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(
                     mGoogleApiClient, this);
+        }
+    }
+
+    private void startIntentService(Location location) {
+        Intent intent = new Intent(this, FetchAddressIntentService.class);
+        intent.putExtra(FetchAddressIntentService.Constants.RECEIVER, mResultReceiver);
+        intent.putExtra(FetchAddressIntentService.Constants.LOCATION_DATA_EXTRA, location);
+        startService(intent);
+    }
+
+    @SuppressLint("ParcelCreator")
+    private class AddressResultReceiver extends ResultReceiver {
+
+        public AddressResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if (resultCode == FetchAddressIntentService.Constants.SUCCESS_RESULT) {
+                Address address = resultData.getParcelable(FetchAddressIntentService.Constants.RESULT_DATA_KEY);
+
+                if (getSupportActionBar() != null) {
+                    if (address != null) {
+                        String road = address.getThoroughfare();
+                        String locality = address.getLocality();
+
+                        if (road != null) {
+                            getSupportActionBar().setTitle(road);
+
+                            if (locality != null) {
+                                getSupportActionBar().setSubtitle(locality);
+                            } else {
+                                getSupportActionBar().setSubtitle("");
+                            }
+                        } else {
+                            if (locality != null) {
+                                getSupportActionBar().setTitle(locality);
+                                getSupportActionBar().setSubtitle("");
+                            } else {
+                                getSupportActionBar().setTitle(R.string.app_name);
+                                getSupportActionBar().setSubtitle("");
+                            }
+                        }
+                    } else {
+                        getSupportActionBar().setTitle(R.string.app_name);
+                        getSupportActionBar().setSubtitle("");
+                    }
+                }
+            }
+
         }
     }
 
