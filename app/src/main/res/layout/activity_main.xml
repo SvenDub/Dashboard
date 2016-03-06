@@ -22,26 +22,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <LinearLayout
+            <nl.svendubbeld.car.widget.DateView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextClock
-                    android:id="@+id/time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:textSize="48sp"/>
-
-                <TextClock
-                    android:id="@+id/date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:textColor="?android:textColorSecondary"
-                    android:textSize="32sp"/>
-            </LinearLayout>
+                android:layout_height="wrap_content"/>
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
