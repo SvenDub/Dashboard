@@ -7,6 +7,9 @@
         <item name="android:textColorPrimary">@color/primary_text</item>
         <item name="android:textColorSecondary">@color/secondary_text</item>
         <item name="cardBackgroundColor">@color/white</item>
+        <item name="colorDialer">@android:color/holo_blue_dark</item>
+        <item name="colorNavigation">@android:color/holo_green_light</item>
+        <item name="colorVoice">@android:color/holo_red_light</item>
     </style>
 
     <style name="CardViewStyle" parent="CardView">

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="SpeedView">
-        <attr name="showLabel" format="boolean" />
+        <attr name="showLabel" format="boolean"/>
     </declare-styleable>
+
+    <attr name="colorDialer" format="color"/>
+    <attr name="colorNavigation" format="color"/>
+    <attr name="colorVoice" format="color"/>
 </resources>
