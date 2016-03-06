@@ -1,14 +1,22 @@
 <resources>
     <string name="app_name">Dashboard</string>
-    <string name="play_services_missing">Could not load Google Play Services. Some features have been disabled.</string>
-    <string name="location_disabled">Location updates disabled</string>
-    <string name="geocoder_service_not_available">Geocoder not available</string>
+    <string name="dialog_notification_access_message">Please enable Notification Access to use media controls or spoken notifications</string>
+    <string name="dialog_notification_access_negative">@string/no_polite</string>
+    <string name="dialog_notification_access_positive">@string/yes_enthusiastic</string>
+    <string name="dialog_notification_access_title">No Notification Access</string>
+    <string name="dialog_voice_assist_not_found_message">A compatible voice assistant, like Google, is required to use this function</string>
+    <string name="dialog_voice_assist_not_found_title">Voice assistant not found</string>
     <string name="geocoder_invalid_lat_long">Invalid latitude and longitude given</string>
     <string name="geocoder_no_address_found">No address found</string>
-    <string name="media_idle">No media playing</string>
+    <string name="geocoder_service_not_available">Geocoder not available</string>
+    <string name="location_disabled">Location updates disabled</string>
     <string name="media_disabled">Media updates disabled</string>
-    <string name="dialog_notification_access_message">Please enable Notification Access to use media controls or spoken notifications</string>
-    <string name="dialog_notification_access_negative">No, thanks</string>
-    <string name="dialog_notification_access_positive">Make it so!</string>
-    <string name="dialog_notification_access_title">No Notification Access</string>
+    <string name="media_idle">No media playing</string>
+    <string name="no">No</string>
+    <string name="no_polite">No, thanks</string>
+    <string name="okay">Okay</string>
+    <string name="play_services_missing">Could not load Google Play Services. Some features have been disabled.</string>
+    <string name="play_store">Play Store</string>
+    <string name="yes">Yes</string>
+    <string name="yes_enthusiastic">Make it so!</string>
 </resources>

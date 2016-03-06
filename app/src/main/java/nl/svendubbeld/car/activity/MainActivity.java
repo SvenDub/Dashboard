@@ -3,10 +3,12 @@ package nl.svendubbeld.car.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.UiModeManager;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -15,6 +17,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 
@@ -91,6 +94,23 @@ public class MainActivity extends AppCompatActivity
         mNavigationButton.setOnClickListener(v -> {
         });
         mVoiceButton.setOnClickListener(v -> {
+            // Launch voice assistance. It launches Google Now over the current activity instead
+            // of switching to it, in contrast to Intent.ACTION_VOICE_COMMAND.
+            Intent voiceIntent = new Intent("android.intent.action.VOICE_ASSIST");
+            try {
+                startActivity(voiceIntent);
+            } catch (ActivityNotFoundException e) {
+                e.printStackTrace();
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.dialog_voice_assist_not_found_title)
+                        .setMessage(R.string.dialog_voice_assist_not_found_message)
+                        .setPositiveButton(R.string.okay, null)
+                        .setNeutralButton(R.string.play_store, (dialog, which) -> {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.googlequicksearchbox"));
+                            startActivity(intent);
+                        })
+                        .show();
+            }
         });
         mNotificationsButton.setOnClickListener(v -> {
         });
