@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/media_art"
+            android:layout_width="wrap_content"
+            android:layout_height="64dp"
+            android:layout_gravity="center_vertical"
+            android:adjustViewBounds="true"
+            android:padding="8dp"
+            android:src="@drawable/bg_default_album_art"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/media_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text="@string/media_idle"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/media_artist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/media_album"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:textSize="16sp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/media_vol_down"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_av_volume_down"
+            android:tint="?android:textColorSecondary"/>
+
+        <ImageView
+            android:id="@+id/media_prev"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_av_skip_previous"
+            android:tint="?android:textColorSecondary"/>
+
+        <ImageView
+            android:id="@+id/media_play"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="@drawable/round_ripple"
+            android:backgroundTint="?android:colorAccent"
+            android:src="@drawable/ic_av_play_arrow"
+            android:tint="?cardBackgroundColor"/>
+
+        <ProgressBar
+            android:id="@+id/media_play_progress"
+            android:layout_width="0.0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:indeterminate="true"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/media_next"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_av_skip_next"
+            android:tint="?android:textColorSecondary"/>
+
+        <ImageView
+            android:id="@+id/media_vol_up"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_av_volume_up"
+            android:tint="?android:textColorSecondary"/>
+    </LinearLayout>
+</LinearLayout>
