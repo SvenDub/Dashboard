@@ -2,6 +2,7 @@ package nl.svendubbeld.car.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.UiModeManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -15,6 +16,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -41,9 +43,18 @@ public class MainActivity extends AppCompatActivity
     private SpeedView mSpeedView;
     private MediaControlView mMediaView;
 
+    private CardView mDialerButton;
+    private CardView mNavigationButton;
+    private CardView mVoiceButton;
+    private CardView mNotificationsButton;
+    private CardView mSettingsButton;
+    private CardView mExitButton;
+
     private LocationRequest mLocationRequest;
     private AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
     private long mLastGeocoderMillis = 0;
+
+    private UiModeManager mUiModeManager;
 
     //region Lifecycle
 
@@ -61,10 +72,34 @@ public class MainActivity extends AppCompatActivity
 
         createLocationRequest();
 
+        mUiModeManager = (UiModeManager) getSystemService(UI_MODE_SERVICE);
+
         setContentView(R.layout.activity_main);
 
         mSpeedView = (SpeedView) findViewById(R.id.speed);
         mMediaView = (MediaControlView) findViewById(R.id.media);
+
+        mDialerButton = (CardView) findViewById(R.id.btn_dialer);
+        mNavigationButton = (CardView) findViewById(R.id.btn_navigation);
+        mVoiceButton = (CardView) findViewById(R.id.btn_voice);
+        mNotificationsButton = (CardView) findViewById(R.id.btn_speak_notifications);
+        mSettingsButton = (CardView) findViewById(R.id.btn_settings);
+        mExitButton = (CardView) findViewById(R.id.btn_exit);
+
+        mDialerButton.setOnClickListener(v -> {
+        });
+        mNavigationButton.setOnClickListener(v -> {
+        });
+        mVoiceButton.setOnClickListener(v -> {
+        });
+        mNotificationsButton.setOnClickListener(v -> {
+        });
+        mSettingsButton.setOnClickListener(v -> {
+        });
+        mExitButton.setOnClickListener(v -> {
+            mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);
+            finish();
+        });
     }
 
     @Override
@@ -78,6 +113,12 @@ public class MainActivity extends AppCompatActivity
         super.onPause();
         stopLocationUpdates();
         mMediaView.stopMediaUpdates();
+    }
+
+    @Override
+    public void onBackPressed() {
+        mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);
+        finish();
     }
 
     //endregion
