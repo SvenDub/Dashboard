@@ -45,9 +45,7 @@ import java.util.List;
 import nl.svendubbeld.car.R;
 import nl.svendubbeld.car.service.FetchAddressIntentService;
 import nl.svendubbeld.car.service.NotificationListenerService;
-import nl.svendubbeld.car.unit.speed.KilometerPerHour;
-import nl.svendubbeld.car.unit.speed.MeterPerSecond;
-import nl.svendubbeld.car.unit.speed.Speed;
+import nl.svendubbeld.car.widget.SpeedView;
 
 public class MainActivity extends AppCompatActivity
         implements GoogleApiClient.OnConnectionFailedListener, LocationListener,
@@ -61,7 +59,7 @@ public class MainActivity extends AppCompatActivity
     private GoogleApiClient mGoogleApiClient;
 
     private TextClock mDateView;
-    private TextView mSpeedView;
+    private SpeedView mSpeedView;
     private TextView mMediaTitleView;
     private TextView mMediaArtistView;
     private TextView mMediaAlbumView;
@@ -105,7 +103,7 @@ public class MainActivity extends AppCompatActivity
             mDateView.setFormat12Hour(((SimpleDateFormat) shortDateFormat).toPattern());
         }
 
-        mSpeedView = (TextView) findViewById(R.id.speed);
+        mSpeedView = (SpeedView) findViewById(R.id.speed);
 
         mMediaTitleView = (TextView) findViewById(R.id.media_title);
         mMediaArtistView = (TextView) findViewById(R.id.media_artist);
@@ -167,12 +165,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLocationChanged(Location location) {
-        Speed speed = new MeterPerSecond(location.getSpeed());
-
-        Speed speedKmh = new KilometerPerHour(speed);
-
-        mSpeedView.setText(speedKmh.getValueString(0));
-
         if (SystemClock.elapsedRealtime() - mLastGeocoderMillis > GEOCODER_INTERVAL) {
             startIntentService(location);
 
@@ -196,6 +188,8 @@ public class MainActivity extends AppCompatActivity
             }
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     mGoogleApiClient, mLocationRequest, this);
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient, mLocationRequest, mSpeedView);
         }
     }
 
