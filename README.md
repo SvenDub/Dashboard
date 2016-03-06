@@ -3,7 +3,9 @@
     <img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png" width="200px" />
 </a>
 
-Dashboard provides easy access to the most common actions while driving. This list includes, but is not limited to:
+Dashboard provides easy access to the most common actions while driving.
+
+## Features
 
 - [x] Check speed
 - [x] Control music
