@@ -2,6 +2,7 @@ package nl.svendubbeld.car.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ActivityOptions;
 import android.app.UiModeManager;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -115,6 +116,8 @@ public class MainActivity extends AppCompatActivity
         mNotificationsButton.setOnClickListener(v -> {
         });
         mSettingsButton.setOnClickListener(v -> {
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent, ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getWidth()).toBundle());
         });
         mExitButton.setOnClickListener(v -> {
             mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);

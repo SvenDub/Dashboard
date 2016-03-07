@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/pref_title_show_items">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_key_show_date"
+            android:title="@string/pref_title_show_date"/>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_key_show_speed"
+            android:title="@string/pref_title_show_speed"/>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:dependency="pref_key_show_speed"
+            android:key="pref_key_show_road"
+            android:summary="@string/pref_summary_show_road"
+            android:title="@string/pref_title_show_road"/>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_key_show_media"
+            android:title="@string/pref_title_show_media"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_title_units">
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/pref_entries_unit_speed"
+            android:entryValues="@array/pref_values_unit_speed"
+            android:key="pref_key_unit_speed"
+            android:summary="%s"
+            android:title="@string/pref_title_unit_speed"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_title_apps">
+        <ListPreference
+            android:defaultValue="builtin"
+            android:entries="@array/pref_entries_dialer"
+            android:entryValues="@array/pref_values_dialer"
+            android:key="pref_key_dialer"
+            android:summary="%s"
+            android:title="@string/pref_title_dialer"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_title_navigation">
+        <nl.svendubbeld.car.preference.EditTextPreference
+            android:key="pref_key_navigation_home"
+            android:title="@string/pref_title_navigation_home"/>
+        <nl.svendubbeld.car.preference.EditTextPreference
+            android:key="pref_key_navigation_work"
+            android:title="@string/pref_title_navigation_work"/>
+        <Preference android:title="@string/pref_title_navigation_favorites">
+            <intent
+                android:targetClass="nl.svendubbeld.car.activity.NavigationFavoritesPreferenceActivity"
+                android:targetPackage="nl.svendubbeld.car"/>
+        </Preference>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_title_other">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_key_keep_screen_on"
+            android:title="@string/pref_title_keep_screen_on"/>
+        <ListPreference
+            android:defaultValue="auto"
+            android:entries="@array/pref_entries_night_mode"
+            android:entryValues="@array/pref_values_night_mode"
+            android:key="pref_key_night_mode"
+            android:summary="%s"
+            android:title="@string/pref_title_night_mode"/>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_key_speak_notifications"
+            android:summaryOff="@string/pref_summary_speak_notifications_off"
+            android:summaryOn="@string/pref_summary_speak_notifications_on"
+            android:title="@string/pref_title_speak_notifications"/>
+        <net.jayschwa.android.preference.SliderPreference
+            android:defaultValue="0.5f"
+            android:dependency="pref_key_speak_notifications"
+            android:key="pref_key_speak_notifications_volume"
+            android:summary="@array/pref_summary_speak_notifications_volume"
+            android:title="@string/pref_title_speak_notifications_volume"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_title_about">
+        <Preference
+            android:key="pref_key_version"
+            android:summary="@string/app_version_name"
+            android:title="@string/pref_title_version"/>
+        <Preference
+            android:key="pref_key_licenses"
+            android:title="@string/pref_title_licenses"/>
+    </PreferenceCategory>
+</PreferenceScreen>

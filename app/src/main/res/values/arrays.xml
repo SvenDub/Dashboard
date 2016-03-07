@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string-array name="pref_entries_dialer">
+        <item>@string/default_app</item>
+        <item>@string/built_in</item>
+    </string-array>
+    <string-array name="pref_entries_night_mode">
+        <item>@string/automatic</item>
+        <item>@string/always</item>
+        <item>@string/never</item>
+    </string-array>
+    <string-array name="pref_entries_unit_speed">
+        <item>m/s</item>
+        <item>km/h</item>
+        <item>mph</item>
+    </string-array>
+    <string-array name="pref_entries_unit_temp">
+        <item>°C</item>
+        <item>°F</item>
+    </string-array>
+    <string-array name="pref_navigation_long_click_items">
+        <item>@string/edit</item>
+        <item>@string/delete</item>
+        <item>@string/cancel</item>
+    </string-array>
+    <string-array name="pref_values_dialer">
+        <item>default</item>
+        <item>builtin</item>
+    </string-array>
+    <string-array name="pref_values_night_mode">
+        <item>auto</item>
+        <item>always</item>
+        <item>never</item>
+    </string-array>
+    <string-array name="pref_values_unit_speed">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="pref_values_unit_temp">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+    <string-array name="pref_summary_speak_notifications_volume">
+        <item>@string/low</item>
+        <item>@string/medium</item>
+        <item>@string/high</item>
+    </string-array>
+</resources>
