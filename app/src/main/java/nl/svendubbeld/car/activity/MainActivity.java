@@ -148,8 +148,7 @@ public class MainActivity extends AppCompatActivity
         mSettingsButton = (CardView) findViewById(R.id.btn_settings);
         mExitButton = (CardView) findViewById(R.id.btn_exit);
 
-        mDialerButton.setOnClickListener(v -> {
-        });
+        mDialerButton.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_DIAL)));
         mNavigationButton.setOnClickListener(v -> {
         });
         mVoiceButton.setOnClickListener(v -> {

@@ -28,7 +28,7 @@
             android:summary="%s"
             android:title="@string/pref_title_unit_speed"/>
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/pref_title_apps">
+    <!--<PreferenceCategory android:title="@string/pref_title_apps">
         <ListPreference
             android:defaultValue="builtin"
             android:entries="@array/pref_entries_dialer"
@@ -36,7 +36,7 @@
             android:key="pref_key_dialer"
             android:summary="%s"
             android:title="@string/pref_title_dialer"/>
-    </PreferenceCategory>
+    </PreferenceCategory>-->
     <PreferenceCategory android:title="@string/pref_title_navigation">
         <nl.svendubbeld.car.preference.EditTextPreference
             android:key="pref_key_navigation_home"
