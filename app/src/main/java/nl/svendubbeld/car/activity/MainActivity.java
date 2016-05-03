@@ -441,14 +441,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void toggleDate() {
-        mDateView.setVisibility(mPrefShowDate ? View.VISIBLE : View.GONE);
+        ((View) mDateView.getParent()).setVisibility(mPrefShowDate ? View.VISIBLE : View.GONE);
     }
 
     /**
      * Shows or hides the media player depending on {@link #mPrefShowMedia}.
      */
     private void toggleMedia() {
-        mMediaView.setVisibility(mPrefShowMedia ? View.VISIBLE : View.GONE);
+        ((View) mMediaView.getParent()).setVisibility(mPrefShowMedia ? View.VISIBLE : View.GONE);
     }
 
     /**
@@ -500,7 +500,7 @@ public class MainActivity extends AppCompatActivity
      * Shows or hides the speed depending on {@link #mPrefShowSpeed}.
      */
     private void toggleSpeed() {
-        mSpeedView.setVisibility(mPrefShowSpeed ? View.VISIBLE : View.GONE);
+        ((View) mSpeedView.getParent()).setVisibility(mPrefShowSpeed ? View.VISIBLE : View.GONE);
         mSpeedView.setUnit(mPrefSpeedUnit);
     }
 
