@@ -25,6 +25,17 @@
     <string name="never">Never</string>
     <string name="no">No</string>
     <string name="no_polite">No, thanks</string>
+    <string name="obd_service">OBD II</string>
+    <string name="obd_service_bluetooth_off">Bluetooth off</string>
+    <string name="obd_service_connected">Connected</string>
+    <string name="obd_service_connecting">Connecting</string>
+    <string name="obd_service_device">Device</string>
+    <string name="obd_service_device_not_available">Device not available</string>
+    <string name="obd_service_device_not_selected">Device not selected</string>
+    <string name="obd_service_disconnected">Disconnected</string>
+    <string name="obd_service_disconnecting">Disconnecting</string>
+    <string name="obd_service_enabled">Enabled</string>
+    <string name="obd_service_unknown">Unknown</string>
     <string name="okay">Okay</string>
     <string name="play_services_missing">Could not load Google Play Services. Some features have been disabled.</string>
     <string name="play_store">Play Store</string>

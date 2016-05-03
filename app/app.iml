@@ -138,6 +138,7 @@
     <orderEntry type="library" exported="" name="support-vector-drawable-23.3.0" level="project" />
     <orderEntry type="library" exported="" name="animated-vector-drawable-23.3.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-basement-8.4.0" level="project" />
+    <orderEntry type="library" exported="" name="obd-java-api-1.0-RC15" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-23.3.0" level="project" />
   </component>
 </module>

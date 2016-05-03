@@ -3,6 +3,7 @@
           xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL"/>
 
     <application
@@ -53,6 +54,9 @@
                 <action android:name="android.service.notification.NotificationListenerService"/>
             </intent-filter>
         </service>
+        <service
+            android:name=".service.obd.ObdService"
+            android:label="@string/obd_service"/>
 
         <activity
             android:name=".activity.SettingsActivity"

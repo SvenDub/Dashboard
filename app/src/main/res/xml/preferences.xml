@@ -50,6 +50,16 @@
                 android:targetPackage="nl.svendubbeld.car"/>
         </Preference>
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/obd_service">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_key_obd_enabled"
+            android:title="@string/obd_service_enabled"/>
+        <nl.svendubbeld.car.preference.ObdDevicePreference
+            android:dependency="pref_key_obd_enabled"
+            android:key="pref_key_obd_device"
+            android:title="@string/obd_service_device"/>
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_title_other">
         <CheckBoxPreference
             android:defaultValue="true"

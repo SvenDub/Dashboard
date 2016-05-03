@@ -7,6 +7,8 @@ public abstract class Preferences {
     public static final String PREF_KEY_NAVIGATION_HOME = "pref_key_navigation_home";
     public static final String PREF_KEY_NAVIGATION_WORK = "pref_key_navigation_work";
     public static final String PREF_KEY_NIGHT_MODE = "pref_key_night_mode";
+    public static final String PREF_KEY_OBD_DEVICE = "pref_key_obd_device";
+    public static final String PREF_KEY_OBD_ENABLED = "pref_key_obd_enabled";
     public static final String PREF_KEY_SHOW_DATE = "pref_key_show_date";
     public static final String PREF_KEY_SHOW_MEDIA = "pref_key_show_media";
     public static final String PREF_KEY_SHOW_SPEED = "pref_key_show_speed";

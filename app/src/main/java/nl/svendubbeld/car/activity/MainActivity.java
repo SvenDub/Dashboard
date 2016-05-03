@@ -5,7 +5,9 @@ import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.app.UiModeManager;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -13,6 +15,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
@@ -29,6 +32,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -40,6 +44,7 @@ import nl.svendubbeld.car.R;
 import nl.svendubbeld.car.animation.SpeakNotificationsIconAnimation;
 import nl.svendubbeld.car.preference.Preferences;
 import nl.svendubbeld.car.service.FetchAddressIntentService;
+import nl.svendubbeld.car.service.obd.ObdService;
 import nl.svendubbeld.car.widget.DateView;
 import nl.svendubbeld.car.widget.MediaControlView;
 import nl.svendubbeld.car.widget.SpeedView;
@@ -89,6 +94,10 @@ public class MainActivity extends AppCompatActivity
      * "pref_key_night_mode"
      */
     private String mPrefNightMode = "auto";
+    /**
+     * "pref_key_obd_enabled"
+     */
+    private boolean mPrefObdEnabled = true;
 
     private SharedPreferences mSharedPref;
 
@@ -113,6 +122,8 @@ public class MainActivity extends AppCompatActivity
     private long mLastGeocoderMillis = 0;
 
     private UiModeManager mUiModeManager;
+
+    private ObdService mObdService;
 
     //region Lifecycle
 
@@ -176,8 +187,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(settingsIntent, ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getWidth()).toBundle());
         });
         mExitButton.setOnClickListener(v -> {
-            mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);
-            finish();
+            quit();
         });
 
         mNotificationListenerDialog = new AlertDialog.Builder(this)
@@ -210,6 +220,7 @@ public class MainActivity extends AppCompatActivity
         mPrefNightMode = mSharedPref.getString(Preferences.PREF_KEY_NIGHT_MODE, "auto");
         mPrefSpeedUnit = Integer.parseInt(mSharedPref.getString(Preferences.PREF_KEY_UNIT_SPEED, "1"));
         mPrefAppsDialer = mSharedPref.getString(Preferences.PREF_KEY_DIALER, "builtin");
+        mPrefObdEnabled = mSharedPref.getBoolean(Preferences.PREF_KEY_OBD_ENABLED, true);
 
         toggleDate();
         toggleMedia();
@@ -219,6 +230,12 @@ public class MainActivity extends AppCompatActivity
         toggleRoad();
 
         mMediaView.startMediaUpdates();
+
+        if (mPrefObdEnabled) {
+            Intent obdIntent = new Intent(this, ObdService.class);
+            startService(obdIntent);
+            bindService(obdIntent, mObdConnection, 0);
+        }
     }
 
     @Override
@@ -229,13 +246,21 @@ public class MainActivity extends AppCompatActivity
 
         stopLocationUpdates();
         mMediaView.stopMediaUpdates();
+
+        unbindService(mObdConnection);
     }
 
     @Override
     public void onBackPressed() {
+        quit();
+    }
+
+    private void quit() {
         mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);
         finish();
+        stopService(new Intent(this, ObdService.class));
     }
+
 
     //endregion
 
@@ -427,6 +452,9 @@ public class MainActivity extends AppCompatActivity
             case Preferences.PREF_KEY_DIALER:
                 mPrefAppsDialer = sharedPreferences.getString(Preferences.PREF_KEY_DIALER, "builtin");
                 break;
+            case Preferences.PREF_KEY_OBD_ENABLED:
+                mPrefObdEnabled = sharedPreferences.getBoolean(Preferences.PREF_KEY_OBD_ENABLED, true);
+                break;
         }
     }
 
@@ -502,6 +530,24 @@ public class MainActivity extends AppCompatActivity
         ((View) mSpeedView.getParent()).setVisibility(mPrefShowSpeed ? View.VISIBLE : View.GONE);
         mSpeedView.setUnit(mPrefSpeedUnit);
     }
+
+    //endregion
+
+    //region OBD
+
+    private ServiceConnection mObdConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mObdService = ((ObdService.ObdBinder) service).getService();
+            mObdService.addOnObdStatusChangeListener(status ->
+                    Toast.makeText(getApplicationContext(), "Status changed to: " + status.getString(getApplicationContext()), Toast.LENGTH_SHORT).show());
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mObdService = null;
+        }
+    };
 
     //endregion
 }

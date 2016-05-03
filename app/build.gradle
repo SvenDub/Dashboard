@@ -42,4 +42,5 @@ dependencies {
     compile 'com.koushikdutta.ion:ion:2.1.7'
     compile 'com.annimon:stream:1.0.7'
     compile 'com.github.meierjan:AndroidSliderPreference:1.1'
+    compile 'com.github.pires:obd-java-api:1.0-RC15'
 }
