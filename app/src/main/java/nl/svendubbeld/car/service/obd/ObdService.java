@@ -21,12 +21,16 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.annimon.stream.Stream;
+import com.github.pires.obd.commands.SpeedCommand;
+import com.github.pires.obd.commands.control.VinCommand;
 import com.github.pires.obd.commands.engine.RPMCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
 import com.github.pires.obd.commands.protocol.TimeoutCommand;
+import com.github.pires.obd.commands.temperature.EngineCoolantTemperatureCommand;
 import com.github.pires.obd.enums.ObdProtocols;
+import com.github.pires.obd.exceptions.NoDataException;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -49,6 +53,11 @@ public class ObdService extends Service {
     private Thread mReconnectThread;
 
     private List<OnObdStatusChangeListener> mStatusChangeListeners = new CopyOnWriteArrayList<>();
+
+    private int mRpm;
+    private int mSpeed;
+    private float mEngineTemp;
+    private String mVin;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -100,9 +109,10 @@ public class ObdService extends Service {
         while (!Thread.currentThread().isInterrupted()) {
             if (mSocket != null && mSocket.isConnected() && mStatus == Status.CONNECTED) {
                 try {
-                    RPMCommand rpmCommand = new RPMCommand();
-                    rpmCommand.run(mSocket.getInputStream(), mSocket.getOutputStream());
-
+                    updateRpm();
+                    updateSpeed();
+                    updateEngineTemp();
+                    updateVin();
                 } catch (IOException | InterruptedException e) {
                     Log.e(TAG, "Error while executing command", e);
                     try {
@@ -122,6 +132,46 @@ public class ObdService extends Service {
                     Log.w(TAG, "OBD Thread while sleeping", e);
                 }
             }
+        }
+    }
+
+    private void updateVin() throws IOException, InterruptedException {
+        try {
+            VinCommand vinCommand = new VinCommand();
+            vinCommand.run(mSocket.getInputStream(), mSocket.getOutputStream());
+            setVin(vinCommand.getCalculatedResult());
+        } catch (NoDataException e) {
+            Log.e(TAG, "No data available for VIN. Message: " + e.getMessage());
+        }
+    }
+
+    private void updateEngineTemp() throws IOException, InterruptedException {
+        try {
+            EngineCoolantTemperatureCommand temperatureCommand = new EngineCoolantTemperatureCommand();
+            temperatureCommand.run(mSocket.getInputStream(), mSocket.getOutputStream());
+            setEngineTemp(temperatureCommand.getTemperature());
+        } catch (NoDataException e) {
+            Log.e(TAG, "No data available for engine temperature. Message: " + e.getMessage());
+        }
+    }
+
+    private void updateSpeed() throws IOException, InterruptedException {
+        try {
+            SpeedCommand speedCommand = new SpeedCommand();
+            speedCommand.run(mSocket.getInputStream(), mSocket.getOutputStream());
+            setSpeed(speedCommand.getMetricSpeed());
+        } catch (NoDataException e) {
+            Log.e(TAG, "No data available for speed. Message: " + e.getMessage());
+        }
+    }
+
+    private void updateRpm() throws IOException, InterruptedException {
+        try {
+            RPMCommand rpmCommand = new RPMCommand();
+            rpmCommand.run(mSocket.getInputStream(), mSocket.getOutputStream());
+            setRpm(rpmCommand.getRPM());
+        } catch (NoDataException e) {
+            Log.e(TAG, "No data available for RPM. Message: " + e.getMessage());
         }
     }
 
@@ -268,6 +318,38 @@ public class ObdService extends Service {
 
             Log.i(TAG, "Status changed to: " + mStatus);
         }
+    }
+
+    public int getRpm() {
+        return mRpm;
+    }
+
+    public void setRpm(int rpm) {
+        mRpm = rpm;
+    }
+
+    public int getSpeed() {
+        return mSpeed;
+    }
+
+    public void setSpeed(int speed) {
+        mSpeed = speed;
+    }
+
+    public float getEngineTemp() {
+        return mEngineTemp;
+    }
+
+    public void setEngineTemp(float engineTemp) {
+        mEngineTemp = engineTemp;
+    }
+
+    public String getVin() {
+        return mVin;
+    }
+
+    public void setVin(String vin) {
+        mVin = vin;
     }
 
     public class ObdBinder extends Binder {
