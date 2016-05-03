@@ -10,6 +10,7 @@ public abstract class Preferences {
     public static final String PREF_KEY_SHOW_DATE = "pref_key_show_date";
     public static final String PREF_KEY_SHOW_MEDIA = "pref_key_show_media";
     public static final String PREF_KEY_SHOW_SPEED = "pref_key_show_speed";
+    public static final String PREF_KEY_SHOW_ROAD = "pref_key_show_road";
     public static final String PREF_KEY_SPEAK_NOTIFICATIONS = "pref_key_speak_notifications";
     public static final String PREF_KEY_SPEAK_NOTIFICATIONS_VOLUME = "pref_key_speak_notifications_volume";
     public static final String PREF_KEY_UNIT_SPEED = "pref_key_unit_speed";

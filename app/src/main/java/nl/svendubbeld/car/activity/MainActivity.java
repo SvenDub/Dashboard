@@ -6,6 +6,7 @@ import android.app.ActivityOptions;
 import android.app.UiModeManager;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Location;
@@ -14,6 +15,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -21,6 +24,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.util.Log;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.widget.ImageView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -29,21 +37,64 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
 import nl.svendubbeld.car.R;
+import nl.svendubbeld.car.animation.SpeakNotificationsIconAnimation;
+import nl.svendubbeld.car.preference.Preferences;
 import nl.svendubbeld.car.service.FetchAddressIntentService;
+import nl.svendubbeld.car.widget.DateView;
 import nl.svendubbeld.car.widget.MediaControlView;
 import nl.svendubbeld.car.widget.SpeedView;
 
 public class MainActivity extends AppCompatActivity
         implements GoogleApiClient.OnConnectionFailedListener, LocationListener,
-        GoogleApiClient.ConnectionCallbacks {
+        GoogleApiClient.ConnectionCallbacks, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 1;
     private static final int REQUEST_CODE_PERMISSION_MEDIA_CONTROL = 2;
 
     private static final int GEOCODER_INTERVAL = 10000;
 
+    /**
+     * "pref_key_speak_notifications"
+     */
+    private boolean mPrefSpeakNotifications = true;
+    /**
+     * "pref_key_apps_dialer"
+     */
+    private String mPrefAppsDialer = "default";
+    /**
+     * "pref_key_show_date"
+     */
+    private boolean mPrefShowDate = true;
+    /**
+     * "pref_key_show_media"
+     */
+    private boolean mPrefShowMedia = true;
+    /**
+     * "pref_key_show_speed"
+     */
+    private boolean mPrefShowSpeed = true;
+    /**
+     * "pref_key_show_road"
+     */
+    private boolean mPrefShowRoad = true;
+    /**
+     * "pref_key_unit_speed"
+     */
+    private int mPrefSpeedUnit = 1;
+    /**
+     * "pref_key_keep_screen_on"
+     */
+    private boolean mPrefKeepScreenOn = true;
+    /**
+     * "pref_key_night_mode"
+     */
+    private String mPrefNightMode = "auto";
+
+    private SharedPreferences mSharedPref;
+
     private GoogleApiClient mGoogleApiClient;
 
+    private DateView mDateView;
     private SpeedView mSpeedView;
     private MediaControlView mMediaView;
 
@@ -51,8 +102,11 @@ public class MainActivity extends AppCompatActivity
     private CardView mNavigationButton;
     private CardView mVoiceButton;
     private CardView mNotificationsButton;
+    private ImageView mNotificationsIcon;
     private CardView mSettingsButton;
     private CardView mExitButton;
+
+    private AlertDialog mNotificationListenerDialog;
 
     private LocationRequest mLocationRequest;
     private AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
@@ -78,8 +132,11 @@ public class MainActivity extends AppCompatActivity
 
         mUiModeManager = (UiModeManager) getSystemService(UI_MODE_SERVICE);
 
+        mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
         setContentView(R.layout.activity_main);
 
+        mDateView = (DateView) findViewById(R.id.date);
         mSpeedView = (SpeedView) findViewById(R.id.speed);
         mMediaView = (MediaControlView) findViewById(R.id.media);
 
@@ -87,6 +144,7 @@ public class MainActivity extends AppCompatActivity
         mNavigationButton = (CardView) findViewById(R.id.btn_navigation);
         mVoiceButton = (CardView) findViewById(R.id.btn_voice);
         mNotificationsButton = (CardView) findViewById(R.id.btn_speak_notifications);
+        mNotificationsIcon = (ImageView) findViewById(R.id.btn_speak_notifications_icon);
         mSettingsButton = (CardView) findViewById(R.id.btn_settings);
         mExitButton = (CardView) findViewById(R.id.btn_exit);
 
@@ -113,8 +171,7 @@ public class MainActivity extends AppCompatActivity
                         .show();
             }
         });
-        mNotificationsButton.setOnClickListener(v -> {
-        });
+        mNotificationsButton.setOnClickListener(v -> mSharedPref.edit().putBoolean(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS, !mPrefSpeakNotifications).apply());
         mSettingsButton.setOnClickListener(v -> {
             Intent settingsIntent = new Intent(this, SettingsActivity.class);
             startActivity(settingsIntent, ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getWidth(), v.getWidth()).toBundle());
@@ -123,17 +180,54 @@ public class MainActivity extends AppCompatActivity
             mUiModeManager.disableCarMode(UiModeManager.DISABLE_CAR_MODE_GO_HOME);
             finish();
         });
+
+        mNotificationListenerDialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_notification_access_title)
+                .setMessage(R.string.dialog_notification_access_message)
+                .setPositiveButton(R.string.dialog_notification_access_positive, (dialog, which) -> {
+                    startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
+                    dialog.dismiss();
+                })
+                .setNegativeButton(R.string.dialog_notification_access_negative, (dialog, which) -> {
+                    mSharedPref.edit().putBoolean(Preferences.PREF_KEY_SHOW_MEDIA, false).putBoolean(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS, false).apply();
+                    dialog.dismiss();
+                })
+                .setCancelable(false)
+                .create();
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        mSharedPref.registerOnSharedPreferenceChangeListener(this);
+        mPrefShowDate = mSharedPref.getBoolean(Preferences.PREF_KEY_SHOW_DATE, true);
+        mPrefShowSpeed = mSharedPref.getBoolean(Preferences.PREF_KEY_SHOW_SPEED, true);
+        mPrefShowRoad = mSharedPref.getBoolean(Preferences.PREF_KEY_SHOW_ROAD, true);
+        mPrefShowMedia = mSharedPref.getBoolean(Preferences.PREF_KEY_SHOW_MEDIA, true);
+        mPrefSpeakNotifications = mSharedPref.getBoolean(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS, true);
+        mPrefKeepScreenOn = mSharedPref.getBoolean(Preferences.PREF_KEY_KEEP_SCREEN_ON, true);
+        mPrefNightMode = mSharedPref.getString(Preferences.PREF_KEY_NIGHT_MODE, "auto");
+        mPrefSpeedUnit = Integer.parseInt(mSharedPref.getString(Preferences.PREF_KEY_UNIT_SPEED, "1"));
+        mPrefAppsDialer = mSharedPref.getString(Preferences.PREF_KEY_DIALER, "builtin");
+
+        toggleDate();
+        toggleMedia();
+        toggleNightMode();
+        toggleSpeakNotificationsIcon(false);
+        toggleSpeed();
+        toggleRoad();
+
         mMediaView.startMediaUpdates();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+
+        mSharedPref.unregisterOnSharedPreferenceChangeListener(this);
+
         stopLocationUpdates();
         mMediaView.stopMediaUpdates();
     }
@@ -173,7 +267,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLocationChanged(Location location) {
-        if (SystemClock.elapsedRealtime() - mLastGeocoderMillis > GEOCODER_INTERVAL) {
+        if (mPrefShowRoad && SystemClock.elapsedRealtime() - mLastGeocoderMillis > GEOCODER_INTERVAL) {
             startIntentService(location);
 
             mLastGeocoderMillis = SystemClock.elapsedRealtime();
@@ -286,4 +380,129 @@ public class MainActivity extends AppCompatActivity
 
     //endregion
 
+    //region Preferences
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        switch (key) {
+            case Preferences.PREF_KEY_SHOW_DATE:
+                mPrefShowDate = sharedPreferences.getBoolean(Preferences.PREF_KEY_SHOW_DATE, true);
+                toggleDate();
+                break;
+            case Preferences.PREF_KEY_SHOW_SPEED:
+                mPrefShowSpeed = sharedPreferences.getBoolean(Preferences.PREF_KEY_SHOW_SPEED, true);
+                toggleSpeed();
+                break;
+            case Preferences.PREF_KEY_SHOW_ROAD:
+                mPrefShowRoad = sharedPreferences.getBoolean(Preferences.PREF_KEY_SHOW_ROAD, true);
+                toggleRoad();
+                break;
+            case Preferences.PREF_KEY_KEEP_SCREEN_ON:
+                mPrefKeepScreenOn = sharedPreferences.getBoolean(Preferences.PREF_KEY_KEEP_SCREEN_ON, true);
+                mUiModeManager.enableCarMode(UiModeManager.ENABLE_CAR_MODE_GO_CAR_HOME | (mPrefKeepScreenOn ? 0 : UiModeManager.ENABLE_CAR_MODE_ALLOW_SLEEP));
+                break;
+            case Preferences.PREF_KEY_SHOW_MEDIA:
+                mPrefShowMedia = sharedPreferences.getBoolean(Preferences.PREF_KEY_SHOW_MEDIA, true);
+                toggleMedia();
+                break;
+            case Preferences.PREF_KEY_SPEAK_NOTIFICATIONS:
+                mPrefSpeakNotifications = sharedPreferences.getBoolean(Preferences.PREF_KEY_SPEAK_NOTIFICATIONS, true);
+
+                // Check notification access
+                if (mPrefSpeakNotifications) {
+                    String enabledNotificationListeners = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
+                    if ((enabledNotificationListeners == null) || (!enabledNotificationListeners.contains(getPackageName()))) {
+                        Log.w("NotificationListener", "No Notification Access");
+                        if (!mNotificationListenerDialog.isShowing()) {
+                            mNotificationListenerDialog.show();
+                        }
+                    }
+                }
+
+                toggleSpeakNotificationsIcon();
+                break;
+            case Preferences.PREF_KEY_NIGHT_MODE:
+                mPrefNightMode = sharedPreferences.getString(Preferences.PREF_KEY_NIGHT_MODE, "auto");
+                toggleNightMode();
+                break;
+            case Preferences.PREF_KEY_DIALER:
+                mPrefAppsDialer = sharedPreferences.getString(Preferences.PREF_KEY_DIALER, "builtin");
+                break;
+        }
+    }
+
+    private void toggleRoad() {
+        if (!mPrefShowRoad) {
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setTitle(R.string.app_name);
+                getSupportActionBar().setSubtitle("");
+            }
+        }
+    }
+
+    private void toggleDate() {
+        mDateView.setVisibility(mPrefShowDate ? View.VISIBLE : View.GONE);
+    }
+
+    /**
+     * Shows or hides the media player depending on {@link #mPrefShowMedia}.
+     */
+    private void toggleMedia() {
+        mMediaView.setVisibility(mPrefShowMedia ? View.VISIBLE : View.GONE);
+    }
+
+    /**
+     * Sets the night mode according to {@link #mPrefNightMode}.
+     */
+    private void toggleNightMode() {
+        switch (mPrefNightMode) {
+            default:
+            case "auto":
+                mUiModeManager.setNightMode(UiModeManager.MODE_NIGHT_AUTO);
+                break;
+            case "always":
+                mUiModeManager.setNightMode(UiModeManager.MODE_NIGHT_YES);
+                break;
+            case "never":
+                mUiModeManager.setNightMode(UiModeManager.MODE_NIGHT_NO);
+                break;
+        }
+    }
+
+    /**
+     * Sets the speak notifications toggle to reflect {@link #mPrefSpeakNotifications}. Animation is
+     * enabled.
+     */
+    private void toggleSpeakNotificationsIcon() {
+        toggleSpeakNotificationsIcon(true);
+    }
+
+    /**
+     * Sets the speak notifications toggle to reflect {@link #mPrefSpeakNotifications}.
+     *
+     * @param animate Whether to use an animation for the change.
+     */
+    private void toggleSpeakNotificationsIcon(boolean animate) {
+        int alphaEnabled = 255;
+        int alphaDisabled = 64;
+
+        if (animate) {
+            Animation animation = new SpeakNotificationsIconAnimation(mNotificationsIcon, mPrefSpeakNotifications, alphaEnabled, alphaDisabled);
+            animation.setInterpolator(new LinearInterpolator());
+            animation.setDuration(250L);
+            mNotificationsIcon.startAnimation(animation);
+        } else {
+            mNotificationsIcon.setImageAlpha(mPrefSpeakNotifications ? alphaEnabled : alphaDisabled);
+        }
+    }
+
+    /**
+     * Shows or hides the speed depending on {@link #mPrefShowSpeed}.
+     */
+    private void toggleSpeed() {
+        mSpeedView.setVisibility(mPrefShowSpeed ? View.VISIBLE : View.GONE);
+        mSpeedView.setUnit(mPrefSpeedUnit);
+    }
+
+    //endregion
 }

@@ -2,6 +2,11 @@
 <resources>
     <declare-styleable name="SpeedView">
         <attr name="showLabel" format="boolean"/>
+        <attr name="unit" format="enum">
+            <enum name="ms" value="0"/>
+            <enum name="kmh" value="1"/>
+            <enum name="mph" value="2"/>
+        </attr>
     </declare-styleable>
 
     <attr name="colorDialer" format="color"/>

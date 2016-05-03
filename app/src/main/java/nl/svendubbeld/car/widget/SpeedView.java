@@ -12,11 +12,17 @@ import com.google.android.gms.location.LocationListener;
 import nl.svendubbeld.car.R;
 import nl.svendubbeld.car.unit.speed.KilometerPerHour;
 import nl.svendubbeld.car.unit.speed.MeterPerSecond;
+import nl.svendubbeld.car.unit.speed.MilesPerHour;
 import nl.svendubbeld.car.unit.speed.Speed;
 
 public class SpeedView extends FrameLayout implements LocationListener {
 
+    public static final int UNIT_MS = 0;
+    public static final int UNIT_KMH = 1;
+    public static final int UNIT_MPH = 2;
+
     private boolean mShowLabel = true;
+    private int mUnit = 0;
 
     private TextView mSpeedView;
     private TextView mLabelView;
@@ -31,6 +37,7 @@ public class SpeedView extends FrameLayout implements LocationListener {
 
         try {
             mShowLabel = a.getBoolean(R.styleable.SpeedView_showLabel, true);
+            mUnit = a.getInteger(R.styleable.SpeedView_unit, 0);
         } finally {
             a.recycle();
         }
@@ -55,6 +62,20 @@ public class SpeedView extends FrameLayout implements LocationListener {
         requestLayout();
     }
 
+    public int getUnit() {
+        return mUnit;
+    }
+
+    public void setUnit(int unit) {
+        if (unit >= 3 || unit < 0) {
+            throw new IllegalArgumentException("\"unit\" has to be one of UNIT_MS, UNIT_KMH or UNIT_MPH");
+        }
+
+        mUnit = unit;
+        invalidate();
+        requestLayout();
+    }
+
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         mLabelView.setVisibility(mShowLabel ? VISIBLE : GONE);
@@ -66,8 +87,22 @@ public class SpeedView extends FrameLayout implements LocationListener {
     public void onLocationChanged(Location location) {
         Speed speed = new MeterPerSecond(location.getSpeed());
 
-        Speed speedKmh = new KilometerPerHour(speed);
+        Speed newSpeed;
 
-        mSpeedView.setText(speedKmh.getValueString(0));
+        switch (mUnit) {
+            default:
+            case UNIT_MS:
+                newSpeed = new MeterPerSecond(speed);
+                break;
+            case UNIT_KMH:
+                newSpeed = new KilometerPerHour(speed);
+                break;
+            case UNIT_MPH:
+                newSpeed = new MilesPerHour(speed);
+                break;
+        }
+
+        mSpeedView.setText(newSpeed.getValueString(0));
+        mLabelView.setText(newSpeed.getUnit());
     }
 }

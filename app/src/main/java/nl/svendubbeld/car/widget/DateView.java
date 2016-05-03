@@ -24,7 +24,14 @@ public class DateView extends FrameLayout {
         inflate(getContext(), R.layout.view_date, this);
 
         mDateView = (TextClock) findViewById(R.id.date_date);
-        DateFormat shortDateFormat = android.text.format.DateFormat.getMediumDateFormat(getContext());
+        DateFormat shortDateFormat;
+
+        if (!isInEditMode()) {
+            shortDateFormat = android.text.format.DateFormat.getMediumDateFormat(getContext());
+        } else {
+            shortDateFormat = DateFormat.getDateInstance();
+        }
+
         if (shortDateFormat instanceof SimpleDateFormat) {
             mDateView.setFormat24Hour(((SimpleDateFormat) shortDateFormat).toPattern());
             mDateView.setFormat12Hour(((SimpleDateFormat) shortDateFormat).toPattern());
