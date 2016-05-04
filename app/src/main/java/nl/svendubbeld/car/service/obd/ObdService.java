@@ -112,7 +112,6 @@ public class ObdService extends Service {
                     updateRpm();
                     updateSpeed();
                     updateEngineTemp();
-                    updateVin();
                 } catch (IOException | InterruptedException e) {
                     Log.e(TAG, "Error while executing command", e);
                     try {
@@ -255,10 +254,12 @@ public class ObdService extends Service {
 
                 new EchoOffCommand().run(mSocket.getInputStream(), mSocket.getOutputStream());
                 new LineFeedOffCommand().run(mSocket.getInputStream(), mSocket.getOutputStream());
-                new TimeoutCommand(125).run(mSocket.getInputStream(), mSocket.getOutputStream());
+                new TimeoutCommand(25).run(mSocket.getInputStream(), mSocket.getOutputStream());
                 new SelectProtocolCommand(ObdProtocols.AUTO).run(mSocket.getInputStream(), mSocket.getOutputStream());
 
                 setStatus(Status.CONNECTED);
+
+                updateVin();
 
                 return true;
             } catch (IOException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
