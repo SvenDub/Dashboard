@@ -32,7 +32,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -158,6 +157,8 @@ public class MainActivity extends AppCompatActivity
         mNotificationsIcon = (ImageView) findViewById(R.id.btn_speak_notifications_icon);
         mSettingsButton = (CardView) findViewById(R.id.btn_settings);
         mExitButton = (CardView) findViewById(R.id.btn_exit);
+
+        mSpeedView.setOnClickListener(v -> startActivity(new Intent(this, ObdActivity.class)));
 
         mDialerButton.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_DIAL)));
         mNavigationButton.setOnClickListener(v -> {
@@ -539,8 +540,6 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mObdService = ((ObdService.ObdBinder) service).getService();
-            mObdService.addOnObdStatusChangeListener(status ->
-                    Toast.makeText(getApplicationContext(), "Status changed to: " + status.getString(getApplicationContext()), Toast.LENGTH_SHORT).show());
         }
 
         @Override

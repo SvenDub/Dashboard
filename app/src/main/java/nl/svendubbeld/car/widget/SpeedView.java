@@ -76,17 +76,7 @@ public class SpeedView extends FrameLayout implements LocationListener {
         requestLayout();
     }
 
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        mLabelView.setVisibility(mShowLabel ? VISIBLE : GONE);
-
-        super.onLayout(changed, left, top, right, bottom);
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        Speed speed = new MeterPerSecond(location.getSpeed());
-
+    public void setSpeed(Speed speed) {
         Speed newSpeed;
 
         switch (mUnit) {
@@ -104,5 +94,19 @@ public class SpeedView extends FrameLayout implements LocationListener {
 
         mSpeedView.setText(newSpeed.getValueString(0));
         mLabelView.setText(newSpeed.getUnit());
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        mLabelView.setVisibility(mShowLabel ? VISIBLE : GONE);
+
+        super.onLayout(changed, left, top, right, bottom);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        Speed speed = new MeterPerSecond(location.getSpeed());
+
+        setSpeed(speed);
     }
 }

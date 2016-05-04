@@ -31,6 +31,8 @@ import com.github.pires.obd.commands.protocol.TimeoutCommand;
 import com.github.pires.obd.commands.temperature.EngineCoolantTemperatureCommand;
 import com.github.pires.obd.enums.ObdProtocols;
 import com.github.pires.obd.exceptions.NoDataException;
+import com.github.pires.obd.exceptions.UnableToConnectException;
+import com.github.pires.obd.exceptions.UnsupportedCommandException;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -53,6 +55,7 @@ public class ObdService extends Service {
     private Thread mReconnectThread;
 
     private List<OnObdStatusChangeListener> mStatusChangeListeners = new CopyOnWriteArrayList<>();
+    private List<OnObdDataReceivedListener> mDataReceivedListeners = new CopyOnWriteArrayList<>();
 
     private int mRpm;
     private int mSpeed;
@@ -112,8 +115,28 @@ public class ObdService extends Service {
                     updateRpm();
                     updateSpeed();
                     updateEngineTemp();
+                    updateVin();
                 } catch (IOException | InterruptedException e) {
                     Log.e(TAG, "Error while executing command", e);
+                    try {
+                        disconnect();
+                    } catch (IOException e1) {
+                        Log.e(TAG, "Error while disconnecting");
+                    }
+
+                    if (!Thread.currentThread().isInterrupted()) {
+                        doReconnect();
+                    }
+                } catch (UnableToConnectException e) {
+                    Log.e(TAG, "Unable to connect", e);
+                    setStatus(Status.CAR_OFF);
+
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e1) {
+                        Log.w(TAG, "OBD Thread interrupted while sleeping", e1);
+                    }
+
                     try {
                         disconnect();
                     } catch (IOException e1) {
@@ -141,6 +164,8 @@ public class ObdService extends Service {
             setVin(vinCommand.getCalculatedResult());
         } catch (NoDataException e) {
             Log.e(TAG, "No data available for VIN. Message: " + e.getMessage());
+        } catch (UnsupportedCommandException e) {
+            Log.e(TAG, "VIN is not supported. Message: " + e.getMessage());
         }
     }
 
@@ -151,6 +176,8 @@ public class ObdService extends Service {
             setEngineTemp(temperatureCommand.getTemperature());
         } catch (NoDataException e) {
             Log.e(TAG, "No data available for engine temperature. Message: " + e.getMessage());
+        } catch (UnsupportedCommandException e) {
+            Log.e(TAG, "Engine temperature is not supported. Message: " + e.getMessage());
         }
     }
 
@@ -161,6 +188,8 @@ public class ObdService extends Service {
             setSpeed(speedCommand.getMetricSpeed());
         } catch (NoDataException e) {
             Log.e(TAG, "No data available for speed. Message: " + e.getMessage());
+        } catch (UnsupportedCommandException e) {
+            Log.e(TAG, "Speed is not supported. Message: " + e.getMessage());
         }
     }
 
@@ -171,6 +200,8 @@ public class ObdService extends Service {
             setRpm(rpmCommand.getRPM());
         } catch (NoDataException e) {
             Log.e(TAG, "No data available for RPM. Message: " + e.getMessage());
+        } catch (UnsupportedCommandException e) {
+            Log.e(TAG, "RPM is not supported. Message: " + e.getMessage());
         }
     }
 
@@ -257,9 +288,9 @@ public class ObdService extends Service {
                 new TimeoutCommand(25).run(mSocket.getInputStream(), mSocket.getOutputStream());
                 new SelectProtocolCommand(ObdProtocols.AUTO).run(mSocket.getInputStream(), mSocket.getOutputStream());
 
-                setStatus(Status.CONNECTED);
+                //updateVin();
 
-                updateVin();
+                setStatus(Status.CONNECTED);
 
                 return true;
             } catch (IOException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
@@ -302,6 +333,18 @@ public class ObdService extends Service {
         }
     }
 
+    public void addOnObdDataReceivedListener(OnObdDataReceivedListener listener) {
+        if (!mDataReceivedListeners.contains(listener)) {
+            mDataReceivedListeners.add(listener);
+        }
+    }
+
+    public void removeOnObdDataReceivedListener(OnObdDataReceivedListener listener) {
+        if (mDataReceivedListeners.contains(listener)) {
+            mDataReceivedListeners.add(listener);
+        }
+    }
+
     public Status getStatus() {
         return mStatus;
     }
@@ -326,7 +369,14 @@ public class ObdService extends Service {
     }
 
     public void setRpm(int rpm) {
-        mRpm = rpm;
+        if (mRpm != rpm) {
+            mRpm = rpm;
+
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(() -> Stream
+                    .of(mDataReceivedListeners)
+                    .forEach(value -> value.onObdDataReceived(Data.RPM, rpm)));
+        }
     }
 
     public int getSpeed() {
@@ -334,7 +384,14 @@ public class ObdService extends Service {
     }
 
     public void setSpeed(int speed) {
-        mSpeed = speed;
+        if (mSpeed != speed) {
+            mSpeed = speed;
+
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(() -> Stream
+                    .of(mDataReceivedListeners)
+                    .forEach(value -> value.onObdDataReceived(Data.SPEED, speed)));
+        }
     }
 
     public float getEngineTemp() {
@@ -342,7 +399,14 @@ public class ObdService extends Service {
     }
 
     public void setEngineTemp(float engineTemp) {
-        mEngineTemp = engineTemp;
+        if (mEngineTemp != engineTemp) {
+            mEngineTemp = engineTemp;
+
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(() -> Stream
+                    .of(mDataReceivedListeners)
+                    .forEach(value -> value.onObdDataReceived(Data.ENGINE_TEMP, engineTemp)));
+        }
     }
 
     public String getVin() {
@@ -350,7 +414,14 @@ public class ObdService extends Service {
     }
 
     public void setVin(String vin) {
-        mVin = vin;
+        if (!mVin.equals(vin)) {
+            mVin = vin;
+
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(() -> Stream
+                    .of(mDataReceivedListeners)
+                    .forEach(value -> value.onObdDataReceived(Data.VIN, vin)));
+        }
     }
 
     public class ObdBinder extends Binder {
@@ -366,7 +437,8 @@ public class ObdService extends Service {
         DISCONNECTING,
         BLUETOOTH_OFF,
         DEVICE_NOT_SELECTED,
-        DEVICE_NOT_AVAILABLE;
+        DEVICE_NOT_AVAILABLE,
+        CAR_OFF;
 
         @NonNull
         public String getString(Context context) {
@@ -385,9 +457,18 @@ public class ObdService extends Service {
                     return context.getString(R.string.obd_service_device_not_selected);
                 case DEVICE_NOT_AVAILABLE:
                     return context.getString(R.string.obd_service_device_not_available);
+                case CAR_OFF:
+                    return context.getString(R.string.obd_service_car_off);
                 default:
                     return context.getString(R.string.obd_service_unknown);
             }
         }
+    }
+
+    public enum Data {
+        RPM,
+        SPEED,
+        ENGINE_TEMP,
+        VIN
     }
 }

@@ -27,6 +27,7 @@
     <string name="no_polite">No, thanks</string>
     <string name="obd_service">OBD II</string>
     <string name="obd_service_bluetooth_off">Bluetooth off</string>
+    <string name="obd_service_car_off">ECU not ready</string>
     <string name="obd_service_connected">Connected</string>
     <string name="obd_service_connecting">Connecting</string>
     <string name="obd_service_device">Device</string>
