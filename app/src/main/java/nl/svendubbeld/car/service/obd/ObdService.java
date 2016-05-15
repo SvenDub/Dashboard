@@ -60,7 +60,7 @@ public class ObdService extends Service {
     private int mRpm;
     private int mSpeed;
     private float mEngineTemp;
-    private String mVin;
+    private String mVin = "";
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
