@@ -248,7 +248,13 @@ public class MainActivity extends AppCompatActivity
         stopLocationUpdates();
         mMediaView.stopMediaUpdates();
 
-        unbindService(mObdConnection);
+        if (mObdService != null) {
+            try {
+                unbindService(mObdConnection);
+            } catch (IllegalArgumentException e) {
+                Log.e(ObdService.TAG, "Could not unbind service. " + e.getMessage());
+            }
+        }
     }
 
     @Override

@@ -43,10 +43,10 @@ import nl.svendubbeld.car.R;
 import nl.svendubbeld.car.activity.MainActivity;
 import nl.svendubbeld.car.preference.Preferences;
 
-public class ObdService extends Service {
+public class ObdService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final int ONGOING_NOTIFICATION_ID = 1;
-    private static final String TAG = "OBDII";
+    public static final String TAG = "OBDII";
 
     private final IBinder mIBinder = new ObdBinder();
     private Status mStatus = Status.DISCONNECTED;
@@ -79,10 +79,9 @@ public class ObdService extends Service {
 
         startForeground(ONGOING_NOTIFICATION_ID, getNotification());
 
-        reconnect();
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 
-        mObdThread = new Thread(this::run);
-        mObdThread.start();
+        reconnect();
     }
 
     @Override
@@ -90,6 +89,8 @@ public class ObdService extends Service {
         super.onDestroy();
 
         Log.d(TAG, "Stopping OBD II Service");
+
+        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
 
         if (mObdThread != null) {
             mObdThread.interrupt();
@@ -166,6 +167,8 @@ public class ObdService extends Service {
             Log.e(TAG, "No data available for VIN. Message: " + e.getMessage());
         } catch (UnsupportedCommandException e) {
             Log.e(TAG, "VIN is not supported. Message: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "Error while updating VIN. Message: " + e.getMessage());
         }
     }
 
@@ -178,6 +181,8 @@ public class ObdService extends Service {
             Log.e(TAG, "No data available for engine temperature. Message: " + e.getMessage());
         } catch (UnsupportedCommandException e) {
             Log.e(TAG, "Engine temperature is not supported. Message: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "Error while updating Engine temperature. Message: " + e.getMessage());
         }
     }
 
@@ -190,6 +195,8 @@ public class ObdService extends Service {
             Log.e(TAG, "No data available for speed. Message: " + e.getMessage());
         } catch (UnsupportedCommandException e) {
             Log.e(TAG, "Speed is not supported. Message: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "Error while updating speed. Message: " + e.getMessage());
         }
     }
 
@@ -202,6 +209,8 @@ public class ObdService extends Service {
             Log.e(TAG, "No data available for RPM. Message: " + e.getMessage());
         } catch (UnsupportedCommandException e) {
             Log.e(TAG, "RPM is not supported. Message: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "Error while updating RPM. Message: " + e.getMessage());
         }
     }
 
@@ -218,6 +227,14 @@ public class ObdService extends Service {
     public void disconnect() throws IOException {
         setStatus(Status.DISCONNECTING);
 
+        if (mObdThread != null) {
+            mObdThread.interrupt();
+        }
+
+        if (mReconnectThread != null) {
+            mReconnectThread.interrupt();
+        }
+
         try {
             if (mSocket != null) {
                 mSocket.close();
@@ -231,6 +248,9 @@ public class ObdService extends Service {
         if (mStatus != Status.CONNECTING) {
             mReconnectThread = new Thread(this::doReconnect);
             mReconnectThread.start();
+
+            mObdThread = new Thread(this::run);
+            mObdThread.start();
         }
     }
 
@@ -248,26 +268,27 @@ public class ObdService extends Service {
 
         // Check if Bluetooth user chose to enable
         if (adapter.isEnabled()) {
-            String addr = selectDeviceFromPreferences();
 
-            if (addr.isEmpty()) {
-                setStatus(Status.DEVICE_NOT_SELECTED);
-            } else {
-                boolean connect;
-                do {
+            boolean connect = false;
+            do {
+                String addr = selectDeviceFromPreferences();
+
+                if (addr.isEmpty()) {
+                    setStatus(Status.DEVICE_NOT_SELECTED);
+                } else {
                     connect = connect(addr);
+                }
 
-                    if (!connect) {
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException e) {
-                            Log.w(TAG, "Thread interrupted while sleeping");
-                            Thread.currentThread().interrupt();
-                        }
+                if (!connect) {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        Log.w(TAG, "Thread interrupted while sleeping");
+                        Thread.currentThread().interrupt();
                     }
                 }
-                while (!connect && !Thread.currentThread().isInterrupted());
             }
+            while (!connect && !Thread.currentThread().isInterrupted());
         } else {
             setStatus(Status.BLUETOOTH_OFF);
         }
@@ -421,6 +442,32 @@ public class ObdService extends Service {
             handler.post(() -> Stream
                     .of(mDataReceivedListeners)
                     .forEach(value -> value.onObdDataReceived(Data.VIN, vin)));
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        switch (key) {
+            case Preferences.PREF_KEY_OBD_ENABLED:
+                try {
+                    disconnect();
+                } catch (IOException e) {
+                    Log.e(TAG, "Error while closing connection", e);
+                }
+
+                if (sharedPreferences.getBoolean(key, true)) {
+                    reconnect();
+                }
+                break;
+            case Preferences.PREF_KEY_OBD_DEVICE:
+                try {
+                    disconnect();
+                } catch (IOException e) {
+                    Log.e(TAG, "Error while closing connection", e);
+                }
+
+                reconnect();
+                break;
         }
     }
 
