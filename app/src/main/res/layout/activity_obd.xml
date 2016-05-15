@@ -2,11 +2,11 @@
 <android.support.design.widget.CoordinatorLayout
     android:id="@+id/layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.ObdActivity"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    tools:context=".activity.ObdActivity">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -29,10 +29,10 @@
 
                 <TextView
                     android:id="@+id/vin"
-                    android:textSize="54sp"
-                    android:textAlignment="center"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textSize="54sp"/>
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
@@ -42,10 +42,10 @@
 
                 <TextView
                     android:id="@+id/status"
-                    android:textSize="54sp"
-                    android:textAlignment="center"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textSize="54sp"/>
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
@@ -55,9 +55,9 @@
 
                 <nl.svendubbeld.car.widget.SpeedView
                     android:id="@+id/speed"
-                    app:unit="kmh"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    app:unit="kmh"/>
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
@@ -65,12 +65,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <TextView
+                <nl.svendubbeld.car.widget.DialView
                     android:id="@+id/rpm"
-                    android:textSize="54sp"
-                    android:textAlignment="center"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="200dp"
+                    android:padding="10dp"
+                    android:textColor="@android:color/black"
+                    app:labels="1000"
+                    app:labelsHighlighted="@array/rpm_highlights"
+                    app:max="8000"
+                    app:showValue="true"/>
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
@@ -80,10 +84,10 @@
 
                 <TextView
                     android:id="@+id/engine_temp"
-                    android:textSize="54sp"
-                    android:textAlignment="center"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textSize="54sp"/>
             </android.support.v7.widget.CardView>
         </LinearLayout>
     </ScrollView>

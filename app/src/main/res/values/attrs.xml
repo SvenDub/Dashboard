@@ -9,6 +9,20 @@
         </attr>
     </declare-styleable>
 
+    <declare-styleable name="DialView">
+        <attr name="showValue" format="boolean"/>
+        <attr name="needleColor" format="color"/>
+        <attr name="ringColor" format="color"/>
+        <attr name="android:textColor"/>
+        <attr name="max" format="float"/>
+        <attr name="progress" format="float"/>
+        <!-- Shows a label every set amount of steps -->
+        <attr name="labels" format="float"/>
+        <!-- Show these labels with a different color -->
+        <attr name="labelsHighlighted" format="reference"/>
+        <attr name="decimals" format="integer"/>
+    </declare-styleable>
+
     <attr name="colorDialer" format="color"/>
     <attr name="colorNavigation" format="color"/>
     <attr name="colorVoice" format="color"/>

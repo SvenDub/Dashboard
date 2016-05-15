@@ -17,6 +17,7 @@ import nl.svendubbeld.car.service.obd.ObdService;
 import nl.svendubbeld.car.service.obd.OnObdDataReceivedListener;
 import nl.svendubbeld.car.service.obd.OnObdStatusChangeListener;
 import nl.svendubbeld.car.unit.speed.KilometerPerHour;
+import nl.svendubbeld.car.widget.DialView;
 import nl.svendubbeld.car.widget.SpeedView;
 
 public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedListener, OnObdStatusChangeListener, SharedPreferences.OnSharedPreferenceChangeListener {
@@ -35,7 +36,7 @@ public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedL
     private TextView mVinView;
     private TextView mStatusView;
     private SpeedView mSpeedView;
-    private TextView mRpmView;
+    private DialView mRpmView;
     private TextView mEngineTempView;
 
     private ObdService mObdService;
@@ -51,7 +52,7 @@ public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedL
         mVinView = (TextView) findViewById(R.id.vin);
         mStatusView = (TextView) findViewById(R.id.status);
         mSpeedView = (SpeedView) findViewById(R.id.speed);
-        mRpmView = (TextView) findViewById(R.id.rpm);
+        mRpmView = (DialView) findViewById(R.id.rpm);
         mEngineTempView = (TextView) findViewById(R.id.engine_temp);
     }
 
@@ -110,7 +111,7 @@ public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedL
         switch (dataType) {
             case RPM:
                 if (mRpmView != null) {
-                    mRpmView.setText(String.valueOf((int) data));
+                    mRpmView.setProgress((int) data);
                 }
                 break;
             case SPEED:
