@@ -350,7 +350,7 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
                 setStatus(Status.CONNECTED);
 
                 return true;
-            } catch (IOException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            } catch (IOException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | UnableToConnectException e) {
                 Log.e(TAG, "Could not connect to device", e);
                 setStatus(Status.DEVICE_NOT_AVAILABLE);
                 return false;

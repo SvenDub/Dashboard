@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -33,6 +34,7 @@ public class DialView extends View implements ValueAnimator.AnimatorUpdateListen
     private List<Float> mLabels = new ArrayList<>();
     private List<Float> mHighlightedLabels = new ArrayList<>();
     private int mDecimals;
+    private Drawable mIcon;
     private String mFormat;
     private Paint mTextPaint;
     private Paint mTextPaintHighlight;
@@ -68,6 +70,8 @@ public class DialView extends View implements ValueAnimator.AnimatorUpdateListen
 
             mDecimals = a.getInt(R.styleable.DialView_decimals, -1);
             setDecimals(mDecimals);
+
+            mIcon = a.getDrawable(R.styleable.DialView_bottomIcon);
         } finally {
             a.recycle();
         }
@@ -75,7 +79,7 @@ public class DialView extends View implements ValueAnimator.AnimatorUpdateListen
         init();
 
         if (isInEditMode()) {
-            setProgress(getMax()/3);
+            setProgress(getMax() / 3);
             mProgressAnimator.setFloatValues(mProgress);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                 mProgressAnimator.setCurrentFraction(1f);
@@ -99,7 +103,7 @@ public class DialView extends View implements ValueAnimator.AnimatorUpdateListen
 
         mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mTextPaint.setColor(mTextColor);
-        mTextPaint.setTextSize(50);
+        mTextPaint.setTextSize(35);
 
         mTextPaintHighlight = new Paint(mTextPaint);
         mTextPaintHighlight.setColor(mNeedleColor);
@@ -209,6 +213,16 @@ public class DialView extends View implements ValueAnimator.AnimatorUpdateListen
             } else {
                 drawTextCentred(formatLabel((float) mProgressAnimator.getAnimatedValue()), mBounds.centerX(), mBounds.centerY(), mTextPaintBig, canvas);
             }
+        }
+
+        if (mIcon != null) {
+            mIcon.setTint(getNeedleColor());
+            int left = (int) getPointAtArc(0)[0];
+            int right = (int) getPointAtArc(getMax())[0];
+            float width = right - left;
+            double height = (mIcon.getIntrinsicHeight() / (float) mIcon.getIntrinsicWidth()) * (0.6 * width);
+            mIcon.setBounds((int) (left + 0.2 * width), (int) (mBounds.bottom - height), (int) (right - 0.2 * width), (int) mBounds.bottom);
+            mIcon.draw(canvas);
         }
     }
 
@@ -360,5 +374,13 @@ public class DialView extends View implements ValueAnimator.AnimatorUpdateListen
                 mFormat += "0";
             }
         }
+    }
+
+    public Drawable getIcon() {
+        return mIcon;
+    }
+
+    public void setIcon(Drawable icon) {
+        mIcon = icon;
     }
 }

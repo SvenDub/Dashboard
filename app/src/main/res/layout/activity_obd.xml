@@ -68,6 +68,7 @@
                         android:layout_weight="1"
                         android:padding="10dp"
                         android:textColor="@android:color/black"
+                        app:bottomIcon="@drawable/ic_engine_temp"
                         app:labels="90"
                         app:max="180"
                         app:showValue="false"/>
@@ -79,6 +80,7 @@
                         android:layout_weight="1"
                         android:padding="10dp"
                         android:textColor="@android:color/black"
+                        app:bottomIcon="@drawable/ic_fuel_level"
                         app:labels="25"
                         app:max="100"
                         app:showValue="false"/>
@@ -90,6 +92,7 @@
                         android:layout_weight="1"
                         android:padding="10dp"
                         android:textColor="@android:color/black"
+                        app:bottomIcon="@drawable/ic_fuel_rate"
                         app:labels="10"
                         app:max="30"
                         app:showValue="false"/>

@@ -21,6 +21,7 @@
         <!-- Show these labels with a different color -->
         <attr name="labelsHighlighted" format="reference"/>
         <attr name="decimals" format="integer"/>
+        <attr name="bottomIcon" format="reference" />
     </declare-styleable>
 
     <attr name="colorDialer" format="color"/>
