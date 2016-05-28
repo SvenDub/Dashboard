@@ -24,6 +24,7 @@ import com.annimon.stream.Stream;
 import com.github.pires.obd.commands.SpeedCommand;
 import com.github.pires.obd.commands.control.VinCommand;
 import com.github.pires.obd.commands.engine.RPMCommand;
+import com.github.pires.obd.commands.fuel.FuelLevelCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
@@ -35,6 +36,8 @@ import com.github.pires.obd.exceptions.UnableToConnectException;
 import com.github.pires.obd.exceptions.UnsupportedCommandException;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -61,6 +64,7 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
     private int mSpeed;
     private float mEngineTemp;
     private String mVin = "";
+    private float mFuelLevel;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -113,10 +117,11 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
         while (!Thread.currentThread().isInterrupted()) {
             if (mSocket != null && mSocket.isConnected() && mStatus == Status.CONNECTED) {
                 try {
-                    updateRpm();
-                    updateSpeed();
-                    updateEngineTemp();
-                    updateVin();
+                    updateRpm(mSocket.getInputStream(), mSocket.getOutputStream());
+                    updateSpeed(mSocket.getInputStream(), mSocket.getOutputStream());
+                    updateEngineTemp(mSocket.getInputStream(), mSocket.getOutputStream());
+                    updateVin(mSocket.getInputStream(), mSocket.getOutputStream());
+                    updateFuelLevel(mSocket.getInputStream(), mSocket.getOutputStream());
                 } catch (IOException | InterruptedException e) {
                     Log.e(TAG, "Error while executing command", e);
                     try {
@@ -158,10 +163,10 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
         }
     }
 
-    private void updateVin() throws IOException, InterruptedException {
+    private void updateVin(InputStream in, OutputStream out) throws IOException, InterruptedException {
         try {
             VinCommand vinCommand = new VinCommand();
-            vinCommand.run(mSocket.getInputStream(), mSocket.getOutputStream());
+            vinCommand.run(in, out);
             setVin(vinCommand.getCalculatedResult());
         } catch (NoDataException e) {
             Log.e(TAG, "No data available for VIN. Message: " + e.getMessage());
@@ -172,10 +177,10 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
         }
     }
 
-    private void updateEngineTemp() throws IOException, InterruptedException {
+    private void updateEngineTemp(InputStream in, OutputStream out) throws IOException, InterruptedException {
         try {
             EngineCoolantTemperatureCommand temperatureCommand = new EngineCoolantTemperatureCommand();
-            temperatureCommand.run(mSocket.getInputStream(), mSocket.getOutputStream());
+            temperatureCommand.run(in, out);
             setEngineTemp(temperatureCommand.getTemperature());
         } catch (NoDataException e) {
             Log.e(TAG, "No data available for engine temperature. Message: " + e.getMessage());
@@ -186,10 +191,10 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
         }
     }
 
-    private void updateSpeed() throws IOException, InterruptedException {
+    private void updateSpeed(InputStream in, OutputStream out) throws IOException, InterruptedException {
         try {
             SpeedCommand speedCommand = new SpeedCommand();
-            speedCommand.run(mSocket.getInputStream(), mSocket.getOutputStream());
+            speedCommand.run(in, out);
             setSpeed(speedCommand.getMetricSpeed());
         } catch (NoDataException e) {
             Log.e(TAG, "No data available for speed. Message: " + e.getMessage());
@@ -200,10 +205,10 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
         }
     }
 
-    private void updateRpm() throws IOException, InterruptedException {
+    private void updateRpm(InputStream in, OutputStream out) throws IOException, InterruptedException {
         try {
             RPMCommand rpmCommand = new RPMCommand();
-            rpmCommand.run(mSocket.getInputStream(), mSocket.getOutputStream());
+            rpmCommand.run(in, out);
             setRpm(rpmCommand.getRPM());
         } catch (NoDataException e) {
             Log.e(TAG, "No data available for RPM. Message: " + e.getMessage());
@@ -211,6 +216,20 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
             Log.e(TAG, "RPM is not supported. Message: " + e.getMessage());
         } catch (Exception e) {
             Log.e(TAG, "Error while updating RPM. Message: " + e.getMessage());
+        }
+    }
+
+    private void updateFuelLevel(InputStream in, OutputStream out) throws IOException, InterruptedException {
+        try {
+            FuelLevelCommand fuelLevelCommand = new FuelLevelCommand();
+            fuelLevelCommand.run(in, out);
+            setFuelLevel(fuelLevelCommand.getFuelLevel());
+        } catch (NoDataException e) {
+            Log.e(TAG, "No data available for fuel level. Message: " + e.getMessage());
+        } catch (UnsupportedCommandException e) {
+            Log.e(TAG, "Fuel level is not supported. Message: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "Error while updating fuel level. Message: " + e.getMessage());
         }
     }
 
@@ -445,6 +464,21 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
         }
     }
 
+    public float getFuelLevel() {
+        return mFuelLevel;
+    }
+
+    public void setFuelLevel(float fuelLevel) {
+        if (mFuelLevel != fuelLevel) {
+            mFuelLevel = fuelLevel;
+
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(() -> Stream
+                    .of(mDataReceivedListeners)
+                    .forEach(value -> value.onObdDataReceived(Data.FUEL_LEVEL, fuelLevel)));
+        }
+    }
+
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
@@ -516,6 +550,7 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
         RPM,
         SPEED,
         ENGINE_TEMP,
-        VIN
+        VIN,
+        FUEL_LEVEL
     }
 }
