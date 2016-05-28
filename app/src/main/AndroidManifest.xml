@@ -49,7 +49,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="nl.svendubbeld.car.activity.MainActivity"/>
         </activity>
-        <activity android:name=".activity.ObdActivity" />
+        <activity
+            android:name=".activity.ObdActivity"
+            android:label="@string/obd_service"
+            android:icon="@drawable/ic_stat_engine"
+            android:parentActivityName=".activity.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.MainActivity"/>
+        </activity>
 
         <service
             android:name=".service.FetchAddressIntentService"
