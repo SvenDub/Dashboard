@@ -27,32 +27,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/vin"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAlignment="center"
-                    android:textSize="54sp"/>
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                style="@style/CardViewStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/status"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAlignment="center"
-                    android:textSize="54sp"/>
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                style="@style/CardViewStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
                 <nl.svendubbeld.car.widget.SpeedView
                     android:id="@+id/speed"
                     android:layout_width="match_parent"
@@ -86,25 +60,28 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-                <nl.svendubbeld.car.widget.DialView
-                    android:id="@+id/engine_temp"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:textColor="@android:color/black"
-                    app:labels="90"
-                    app:max="180"
-                    app:showValue="false"/>
+
+                    <nl.svendubbeld.car.widget.DialView
+                        android:id="@+id/engine_temp"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:padding="10dp"
+                        android:textColor="@android:color/black"
+                        app:labels="90"
+                        app:max="180"
+                        app:showValue="false"/>
+
                     <nl.svendubbeld.car.widget.DialView
                         android:layout_width="0dp"
-                        android:layout_weight="1"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:padding="10dp"/>
+
                     <nl.svendubbeld.car.widget.DialView
                         android:layout_width="0dp"
-                        android:layout_weight="1"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:padding="10dp"/>
                 </LinearLayout>
             </android.support.v7.widget.CardView>

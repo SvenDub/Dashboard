@@ -9,7 +9,6 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.TextView;
 
 import nl.svendubbeld.car.R;
 import nl.svendubbeld.car.preference.Preferences;
@@ -33,8 +32,6 @@ public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedL
 
     private SharedPreferences mSharedPref;
 
-    private TextView mVinView;
-    private TextView mStatusView;
     private SpeedView mSpeedView;
     private DialView mRpmView;
     private DialView mEngineTempView;
@@ -49,8 +46,6 @@ public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedL
 
         setContentView(R.layout.activity_obd);
 
-        mVinView = (TextView) findViewById(R.id.vin);
-        mStatusView = (TextView) findViewById(R.id.status);
         mSpeedView = (SpeedView) findViewById(R.id.speed);
         mRpmView = (DialView) findViewById(R.id.rpm);
         mEngineTempView = (DialView) findViewById(R.id.engine_temp);
@@ -95,8 +90,8 @@ public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedL
             mObdService.addOnObdStatusChangeListener(ObdActivity.this);
             mObdService.addOnObdDataReceivedListener(ObdActivity.this);
 
-            if (mStatusView != null) {
-                mStatusView.setText(mObdService.getStatus().getString(ObdActivity.this));
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setSubtitle(mObdService.getStatus().getString(ObdActivity.this));
             }
         }
 
@@ -125,8 +120,8 @@ public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedL
                 }
                 break;
             case VIN:
-                if (mVinView != null) {
-                    mVinView.setText((String) data);
+                if (getSupportActionBar() != null) {
+                    getSupportActionBar().setTitle((String) data);
                 }
                 break;
         }
@@ -134,8 +129,8 @@ public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedL
 
     @Override
     public void onObdStatusChanged(ObdService.Status status) {
-        if (mStatusView != null) {
-            mStatusView.setText(status.getString(this));
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setSubtitle(status.getString(this));
         }
     }
 
