@@ -185,11 +185,11 @@ public class DialView extends View implements ValueAnimator.AnimatorUpdateListen
         float y;
 
         if (mBounds.width() > mBounds.height() * MODE_RATIO) {
-            theta = Math.toRadians(Math.min(speed / getMax(), 1) * 140f + 200f);
+            theta = Math.toRadians(Math.max(Math.min(speed / getMax(), 1), 0) * 140f + 200f);
             x = (float) Math.cos(theta) * (bounds.centerX() - bounds.left) + bounds.centerX();
             y = (float) Math.sin(theta) * (bounds.centerY() * 2 - bounds.top) + bounds.centerY() * 2;
         } else {
-            theta = Math.toRadians(Math.min(speed / getMax(), 1) * 300f + 120f);
+            theta = Math.toRadians(Math.max(Math.min(speed / getMax(), 1), 0) * 300f + 120f);
             x = (float) Math.cos(theta) * (bounds.centerX() - bounds.left) + bounds.centerX();
             y = (float) Math.sin(theta) * (bounds.centerY() - bounds.top) + bounds.centerY();
         }
