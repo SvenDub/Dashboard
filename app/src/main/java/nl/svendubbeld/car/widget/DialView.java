@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
@@ -75,6 +76,10 @@ public class DialView extends View implements ValueAnimator.AnimatorUpdateListen
 
         if (isInEditMode()) {
             setProgress(getMax()/3);
+            mProgressAnimator.setFloatValues(mProgress);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                mProgressAnimator.setCurrentFraction(1f);
+            }
         }
     }
 
