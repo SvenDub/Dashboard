@@ -1,6 +1,9 @@
 package nl.svendubbeld.car.activity;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.app.UiModeManager;
@@ -29,6 +32,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
@@ -44,13 +48,14 @@ import nl.svendubbeld.car.animation.SpeakNotificationsIconAnimation;
 import nl.svendubbeld.car.preference.Preferences;
 import nl.svendubbeld.car.service.FetchAddressIntentService;
 import nl.svendubbeld.car.service.obd.ObdService;
+import nl.svendubbeld.car.service.obd.OnObdStatusChangeListener;
 import nl.svendubbeld.car.widget.DateView;
 import nl.svendubbeld.car.widget.MediaControlView;
 import nl.svendubbeld.car.widget.SpeedView;
 
 public class MainActivity extends AppCompatActivity
         implements GoogleApiClient.OnConnectionFailedListener, LocationListener,
-        GoogleApiClient.ConnectionCallbacks, SharedPreferences.OnSharedPreferenceChangeListener {
+        GoogleApiClient.ConnectionCallbacks, SharedPreferences.OnSharedPreferenceChangeListener, OnObdStatusChangeListener {
 
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 1;
     private static final int REQUEST_CODE_PERMISSION_MEDIA_CONTROL = 2;
@@ -105,6 +110,7 @@ public class MainActivity extends AppCompatActivity
     private DateView mDateView;
     private SpeedView mSpeedView;
     private MediaControlView mMediaView;
+    private ImageView mObdIconView;
 
     private CardView mDialerButton;
     private CardView mNavigationButton;
@@ -123,6 +129,7 @@ public class MainActivity extends AppCompatActivity
     private UiModeManager mUiModeManager;
 
     private ObdService mObdService;
+    private ObjectAnimator mObdIconAnimator;
 
     //region Lifecycle
 
@@ -149,6 +156,7 @@ public class MainActivity extends AppCompatActivity
         mDateView = (DateView) findViewById(R.id.date);
         mSpeedView = (SpeedView) findViewById(R.id.speed);
         mMediaView = (MediaControlView) findViewById(R.id.media);
+        mObdIconView = (ImageView) findViewById(R.id.obd);
 
         mDialerButton = (CardView) findViewById(R.id.btn_dialer);
         mNavigationButton = (CardView) findViewById(R.id.btn_navigation);
@@ -205,6 +213,12 @@ public class MainActivity extends AppCompatActivity
                 .setCancelable(false)
                 .create();
 
+        mObdIconAnimator = ObjectAnimator.ofPropertyValuesHolder(mObdIconView,
+                PropertyValuesHolder.ofFloat("alpha", 1, 0));
+        mObdIconAnimator.setDuration(1000);
+        mObdIconAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        mObdIconAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        mObdIconAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
     }
 
     @Override
@@ -249,6 +263,7 @@ public class MainActivity extends AppCompatActivity
         mMediaView.stopMediaUpdates();
 
         if (mObdService != null) {
+            mObdService.removeOnObdStatusChangeListener(this);
             try {
                 unbindService(mObdConnection);
             } catch (IllegalArgumentException e) {
@@ -546,6 +561,7 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mObdService = ((ObdService.ObdBinder) service).getService();
+            mObdService.addOnObdStatusChangeListener(MainActivity.this);
         }
 
         @Override
@@ -553,6 +569,31 @@ public class MainActivity extends AppCompatActivity
             mObdService = null;
         }
     };
+
+    @Override
+    public void onObdStatusChanged(ObdService.Status status) {
+        if (mObdIconView != null) {
+            switch (status) {
+                case CONNECTED:
+                    mObdIconView.setVisibility(View.VISIBLE);
+                    mObdIconAnimator.setCurrentPlayTime(0);
+                    mObdIconAnimator.pause();
+                    break;
+                case CONNECTING:
+                case DISCONNECTING:
+                    mObdIconView.setVisibility(View.VISIBLE);
+                    mObdIconAnimator.start();
+                    break;
+                case DISCONNECTED:
+                case BLUETOOTH_OFF:
+                case DEVICE_NOT_SELECTED:
+                case DEVICE_NOT_AVAILABLE:
+                case CAR_OFF:
+                    mObdIconView.setVisibility(View.GONE);
+                    break;
+            }
+        }
+    }
 
     //endregion
 }

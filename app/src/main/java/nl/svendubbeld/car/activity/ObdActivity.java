@@ -80,9 +80,8 @@ public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedL
         if (mObdService != null) {
             mObdService.removeOnObdDataReceivedListener(this);
             mObdService.removeOnObdStatusChangeListener(this);
+            unbindService(mObdConnection);
         }
-
-        unbindService(mObdConnection);
     }
 
     //region OBD

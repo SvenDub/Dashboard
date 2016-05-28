@@ -37,6 +37,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
+                <ImageView
+                    android:id="@+id/obd"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="end"
+                    android:layout_margin="@dimen/activity_horizontal_margin"
+                    android:contentDescription="@string/obd_service"
+                    android:src="@drawable/ic_stat_engine"
+                    android:tint="@color/accent"
+                    android:alpha="1"
+                    android:visibility="gone"/>
+
                 <nl.svendubbeld.car.widget.SpeedView
                     android:id="@+id/speed"
                     android:layout_width="match_parent"
