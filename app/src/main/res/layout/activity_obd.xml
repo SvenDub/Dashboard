@@ -84,10 +84,15 @@
                         app:showValue="false"/>
 
                     <nl.svendubbeld.car.widget.DialView
+                        android:id="@+id/fuel_rate"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:padding="10dp"/>
+                        android:padding="10dp"
+                        android:textColor="@android:color/black"
+                        app:labels="10"
+                        app:max="30"
+                        app:showValue="false"/>
                 </LinearLayout>
             </android.support.v7.widget.CardView>
         </LinearLayout>

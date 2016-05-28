@@ -36,6 +36,7 @@ public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedL
     private DialView mRpmView;
     private DialView mEngineTempView;
     private DialView mFuelLevelView;
+    private DialView mFuelRateView;
 
     private ObdService mObdService;
 
@@ -51,6 +52,7 @@ public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedL
         mRpmView = (DialView) findViewById(R.id.rpm);
         mEngineTempView = (DialView) findViewById(R.id.engine_temp);
         mFuelLevelView = (DialView) findViewById(R.id.fuel_level);
+        mFuelRateView = (DialView) findViewById(R.id.fuel_rate);
     }
 
     @Override
@@ -131,6 +133,10 @@ public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedL
                     mFuelLevelView.setProgress((float) data);
                 }
                 break;
+            case FUEL_RATE:
+                if (mFuelRateView != null) {
+                    mFuelRateView.setProgress((float) data);
+                }
         }
     }
 

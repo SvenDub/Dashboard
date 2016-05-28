@@ -24,6 +24,7 @@ import com.annimon.stream.Stream;
 import com.github.pires.obd.commands.SpeedCommand;
 import com.github.pires.obd.commands.control.VinCommand;
 import com.github.pires.obd.commands.engine.RPMCommand;
+import com.github.pires.obd.commands.fuel.ConsumptionRateCommand;
 import com.github.pires.obd.commands.fuel.FuelLevelCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
@@ -65,6 +66,7 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
     private float mEngineTemp;
     private String mVin = "";
     private float mFuelLevel;
+    private float mFuelRate;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -122,6 +124,7 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
                     updateEngineTemp(mSocket.getInputStream(), mSocket.getOutputStream());
                     updateVin(mSocket.getInputStream(), mSocket.getOutputStream());
                     updateFuelLevel(mSocket.getInputStream(), mSocket.getOutputStream());
+                    updateFuelRate(mSocket.getInputStream(), mSocket.getOutputStream());
                 } catch (IOException | InterruptedException e) {
                     Log.e(TAG, "Error while executing command", e);
                     try {
@@ -230,6 +233,20 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
             Log.e(TAG, "Fuel level is not supported. Message: " + e.getMessage());
         } catch (Exception e) {
             Log.e(TAG, "Error while updating fuel level. Message: " + e.getMessage());
+        }
+    }
+
+    private void updateFuelRate(InputStream in, OutputStream out) throws IOException, InterruptedException {
+        try {
+            ConsumptionRateCommand fuelRateCommand = new ConsumptionRateCommand();
+            fuelRateCommand.run(in, out);
+            setFuelRate(fuelRateCommand.getLitersPerHour());
+        } catch (NoDataException e) {
+            Log.e(TAG, "No data available for fuel rate. Message: " + e.getMessage());
+        } catch (UnsupportedCommandException e) {
+            Log.e(TAG, "Fuel rate is not supported. Message: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "Error while updating fuel rate. Message: " + e.getMessage());
         }
     }
 
@@ -479,6 +496,21 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
         }
     }
 
+    public float getFuelRate() {
+        return mFuelRate;
+    }
+
+    public void setFuelRate(float fuelRate) {
+        if (mFuelRate != fuelRate) {
+            mFuelRate = fuelRate;
+
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(() -> Stream
+                    .of(mDataReceivedListeners)
+                    .forEach(value -> value.onObdDataReceived(Data.FUEL_RATE, fuelRate)));
+        }
+    }
+
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
@@ -551,6 +583,7 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
         SPEED,
         ENGINE_TEMP,
         VIN,
-        FUEL_LEVEL
+        FUEL_LEVEL,
+        FUEL_RATE
     }
 }
