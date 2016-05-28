@@ -37,7 +37,7 @@ public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedL
     private TextView mStatusView;
     private SpeedView mSpeedView;
     private DialView mRpmView;
-    private TextView mEngineTempView;
+    private DialView mEngineTempView;
 
     private ObdService mObdService;
 
@@ -53,7 +53,7 @@ public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedL
         mStatusView = (TextView) findViewById(R.id.status);
         mSpeedView = (SpeedView) findViewById(R.id.speed);
         mRpmView = (DialView) findViewById(R.id.rpm);
-        mEngineTempView = (TextView) findViewById(R.id.engine_temp);
+        mEngineTempView = (DialView) findViewById(R.id.engine_temp);
     }
 
     @Override
@@ -121,7 +121,7 @@ public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedL
                 break;
             case ENGINE_TEMP:
                 if (mEngineTempView != null) {
-                    mEngineTempView.setText(String.valueOf((float) data));
+                    mEngineTempView.setProgress((float) data);
                 }
                 break;
             case VIN:

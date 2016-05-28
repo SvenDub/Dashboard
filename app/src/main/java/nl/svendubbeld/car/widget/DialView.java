@@ -114,14 +114,46 @@ public class DialView extends View implements ValueAnimator.AnimatorUpdateListen
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        float xpad = (float) (getPaddingLeft() + getPaddingRight());
-        float ypad = (float) (getPaddingTop() + getPaddingBottom());
+        int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
+        int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
+        int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
+        int heightSpecSize = MeasureSpec.getSize(heightMeasureSpec);
 
-        float ww = (float) w - xpad;
-        float hh = (float) h - ypad;
+        int width;
+        int height;
+
+        int widthWithoutPadding = widthSpecSize - getPaddingLeft() - getPaddingRight();
+        int heightWithoutPadding = heightSpecSize - getPaddingTop() - getPaddingBottom();
+
+        if (widthSpecMode != MeasureSpec.EXACTLY && heightSpecMode != MeasureSpec.UNSPECIFIED) {
+            height = heightWithoutPadding;
+            width = height;
+        } else if (widthSpecMode != MeasureSpec.UNSPECIFIED && heightSpecMode != MeasureSpec.EXACTLY) {
+            width = widthWithoutPadding;
+            height = width;
+        } else if (widthSpecMode == MeasureSpec.UNSPECIFIED && heightSpecMode == MeasureSpec.UNSPECIFIED) {
+            width = Math.max(widthWithoutPadding, heightWithoutPadding);
+            height = width;
+        } else {
+            height = heightWithoutPadding;
+            width = widthWithoutPadding;
+        }
+
+        setMeasuredDimension(width + getPaddingLeft() + getPaddingRight(), height + getPaddingTop() + getPaddingBottom());
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldW, int oldH) {
+        super.onSizeChanged(w, h, oldW, oldH);
+
+        float xPad = (float) (getPaddingLeft() + getPaddingRight());
+        float yPad = (float) (getPaddingTop() + getPaddingBottom());
+
+        float ww = (float) w - xPad;
+        float hh = (float) h - yPad;
 
         mBounds = new RectF(0f, 0f, ww, hh);
         mBounds.offsetTo(getPaddingLeft(), getPaddingTop());
@@ -175,21 +207,21 @@ public class DialView extends View implements ValueAnimator.AnimatorUpdateListen
         }
     }
 
-    private float[] getPointAtArc(float speed) {
-        return getPointAtArc(speed, mBounds);
+    private float[] getPointAtArc(float value) {
+        return getPointAtArc(value, mBounds);
     }
 
-    private float[] getPointAtArc(float speed, RectF bounds) {
+    private float[] getPointAtArc(float value, RectF bounds) {
         double theta;
         float x;
         float y;
 
         if (mBounds.width() > mBounds.height() * MODE_RATIO) {
-            theta = Math.toRadians(Math.max(Math.min(speed / getMax(), 1), 0) * 140f + 200f);
+            theta = Math.toRadians(Math.max(Math.min(value / getMax(), 1), 0) * 140f + 200f);
             x = (float) Math.cos(theta) * (bounds.centerX() - bounds.left) + bounds.centerX();
             y = (float) Math.sin(theta) * (bounds.centerY() * 2 - bounds.top) + bounds.centerY() * 2;
         } else {
-            theta = Math.toRadians(Math.max(Math.min(speed / getMax(), 1), 0) * 300f + 120f);
+            theta = Math.toRadians(Math.max(Math.min(value / getMax(), 1), 0) * 300f + 120f);
             x = (float) Math.cos(theta) * (bounds.centerX() - bounds.left) + bounds.centerX();
             y = (float) Math.sin(theta) * (bounds.centerY() - bounds.top) + bounds.centerY();
         }

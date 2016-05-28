@@ -68,7 +68,7 @@
                 <nl.svendubbeld.car.widget.DialView
                     android:id="@+id/rpm"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
+                    android:layout_height="wrap_content"
                     android:padding="10dp"
                     android:textColor="@android:color/black"
                     app:labels="1000"
@@ -82,12 +82,31 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/engine_temp"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAlignment="center"
-                    android:textSize="54sp"/>
+                    android:orientation="horizontal">
+                <nl.svendubbeld.car.widget.DialView
+                    android:id="@+id/engine_temp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:textColor="@android:color/black"
+                    app:labels="90"
+                    app:max="180"
+                    app:showValue="false"/>
+                    <nl.svendubbeld.car.widget.DialView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:padding="10dp"/>
+                    <nl.svendubbeld.car.widget.DialView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:padding="10dp"/>
+                </LinearLayout>
             </android.support.v7.widget.CardView>
         </LinearLayout>
     </ScrollView>
