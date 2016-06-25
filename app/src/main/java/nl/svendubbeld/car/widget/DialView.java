@@ -139,12 +139,15 @@ public class DialView extends View implements ValueAnimator.AnimatorUpdateListen
 
         if (widthSpecMode != MeasureSpec.EXACTLY && heightSpecMode != MeasureSpec.UNSPECIFIED) {
             height = heightWithoutPadding;
+            //noinspection SuspiciousNameCombination
             width = height;
         } else if (widthSpecMode != MeasureSpec.UNSPECIFIED && heightSpecMode != MeasureSpec.EXACTLY) {
             width = widthWithoutPadding;
+            //noinspection SuspiciousNameCombination
             height = width;
-        } else if (widthSpecMode == MeasureSpec.UNSPECIFIED && heightSpecMode == MeasureSpec.UNSPECIFIED) {
+        } else if (widthSpecMode == MeasureSpec.UNSPECIFIED) {
             width = Math.max(widthWithoutPadding, heightWithoutPadding);
+            //noinspection SuspiciousNameCombination
             height = width;
         } else {
             height = heightWithoutPadding;
@@ -168,7 +171,7 @@ public class DialView extends View implements ValueAnimator.AnimatorUpdateListen
         mBounds.offsetTo(getPaddingLeft(), getPaddingTop());
 
         mLabelBounds = new RectF(mBounds);
-        mLabelBounds.inset(90, 90 * (hh / ww));
+        mLabelBounds.inset(((float) Math.sqrt(ww)) * 4f, ((float) Math.sqrt(hh)) * 4f * (hh / ww));
 
         mMarkerBounds = new RectF(mBounds);
         mMarkerBounds.inset(35, 35 * (hh / ww));
