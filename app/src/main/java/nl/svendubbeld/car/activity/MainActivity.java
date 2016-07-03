@@ -47,6 +47,7 @@ import nl.svendubbeld.car.R;
 import nl.svendubbeld.car.animation.SpeakNotificationsIconAnimation;
 import nl.svendubbeld.car.preference.Preferences;
 import nl.svendubbeld.car.service.FetchAddressIntentService;
+import nl.svendubbeld.car.service.NotificationListenerService;
 import nl.svendubbeld.car.service.obd.ObdService;
 import nl.svendubbeld.car.service.obd.OnObdStatusChangeListener;
 import nl.svendubbeld.car.widget.DateView;
@@ -170,6 +171,17 @@ public class MainActivity extends AppCompatActivity
 
         mDialerButton.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_DIAL)));
         mNavigationButton.setOnClickListener(v -> {
+            try {
+                if (NotificationListenerService.getService().isMapsRunning()) {
+                    Intent navigationIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:"));
+                    startActivity(navigationIntent);
+                } else {
+                    startActivity(new Intent(this, NavigationActivity.class));
+                }
+            } catch (Exception e) {
+                Log.e("NotificationListenerService", "Service not available.");
+                startActivity(new Intent(this, NavigationActivity.class));
+            }
         });
         mVoiceButton.setOnClickListener(v -> {
             // Launch voice assistance. It launches Google Now over the current activity instead

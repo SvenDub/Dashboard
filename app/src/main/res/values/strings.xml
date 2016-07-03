@@ -4,6 +4,7 @@
     <string name="automatic">Auto</string>
     <string name="built_in">Built-in</string>
     <string name="cancel">Cancel</string>
+    <string name="contacts_disabled">Contact suggestions disabled</string>
     <string name="default_app">Default</string>
     <string name="delete">Delete</string>
     <string name="dialog_notification_access_message">Please enable Notification Access to use media controls or spoken notifications</string>
@@ -22,6 +23,10 @@
     <string name="media_disabled">Media updates disabled</string>
     <string name="media_idle">No media playing</string>
     <string name="medium">Medium</string>
+    <string name="navigate">Navigate</string>
+    <string name="navigation_favorites">Favorites</string>
+    <string name="navigation_favorites_empty">No favorites set</string>
+    <string name="navigation_input">Destination</string>
     <string name="never">Never</string>
     <string name="no">No</string>
     <string name="no_polite">No, thanks</string>
@@ -71,4 +76,6 @@
     <string name="title_activity_settings">Settings</string>
     <string name="yes">Yes</string>
     <string name="yes_enthusiastic">Make it so!</string>
+    <string name="placeholder_name">John Smith</string>
+    <string name="placeholder_address">Main Street 4</string>
 </resources>

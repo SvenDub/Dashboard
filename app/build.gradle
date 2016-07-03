@@ -14,6 +14,7 @@ android {
         versionCode 7
         versionName version_name
         resValue "string", "app_version_name", version_name
+        resValue "string", "maps_api_key", NL_SVENDUBBELD_CAR_MAPS_API_KEY
     }
     buildTypes {
         release {
@@ -38,9 +39,12 @@ dependencies {
     compile 'com.android.support:cardview-v7:24.0.0'
     compile 'com.android.support:support-v4:24.0.0'
     compile 'com.android.support:design:24.0.0'
-    compile 'com.google.android.gms:play-services-location:9.0.2'
+    compile 'com.google.android.gms:play-services-location:9.2.0'
+    compile 'com.google.android.gms:play-services-maps:9.2.0'
     compile 'com.koushikdutta.ion:ion:2.1.7'
     compile 'com.annimon:stream:1.0.7'
     compile 'com.github.meierjan:AndroidSliderPreference:1.1'
     compile 'com.github.pires:obd-java-api:1.0-RC15'
+    compile 'de.hdodenhof:circleimageview:2.0.0'
+    compile 'nl.svendubbeld:inject:1.2'
 }
