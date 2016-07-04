@@ -136,6 +136,7 @@ public class ObdActivity extends AppCompatActivity implements OnObdDataReceivedL
                 if (mFuelRateView != null) {
                     mFuelRateView.setProgress((float) data);
                 }
+                break;
         }
     }
 

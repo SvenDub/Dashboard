@@ -23,6 +23,7 @@ import android.util.Log;
 import com.annimon.stream.Stream;
 import com.github.pires.obd.commands.SpeedCommand;
 import com.github.pires.obd.commands.control.VinCommand;
+import com.github.pires.obd.commands.engine.LoadCommand;
 import com.github.pires.obd.commands.engine.RPMCommand;
 import com.github.pires.obd.commands.fuel.ConsumptionRateCommand;
 import com.github.pires.obd.commands.fuel.FuelLevelCommand;
@@ -67,6 +68,7 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
     private String mVin = "";
     private float mFuelLevel;
     private float mFuelRate;
+    private float mLoad;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -125,6 +127,7 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
                     updateVin(mSocket.getInputStream(), mSocket.getOutputStream());
                     updateFuelLevel(mSocket.getInputStream(), mSocket.getOutputStream());
                     updateFuelRate(mSocket.getInputStream(), mSocket.getOutputStream());
+                    updateLoad(mSocket.getInputStream(), mSocket.getOutputStream());
                 } catch (IOException | InterruptedException e) {
                     Log.e(TAG, "Error while executing command", e);
                     try {
@@ -247,6 +250,20 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
             Log.e(TAG, "Fuel rate is not supported. Message: " + e.getMessage());
         } catch (Exception e) {
             Log.e(TAG, "Error while updating fuel rate. Message: " + e.getMessage());
+        }
+    }
+
+    private void updateLoad(InputStream in, OutputStream out) throws IOException, InterruptedException {
+        try {
+            LoadCommand loadCommand = new LoadCommand();
+            loadCommand.run(in, out);
+            setLoad(loadCommand.getPercentage());
+        } catch (NoDataException e) {
+            Log.e(TAG, "No data available for engine load. Message: " + e.getMessage());
+        } catch (UnsupportedCommandException e) {
+            Log.e(TAG, "Engine load is not supported. Message: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "Error while updating engine load. Message: " + e.getMessage());
         }
     }
 
@@ -511,6 +528,21 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
         }
     }
 
+    public float getLoad() {
+        return mLoad;
+    }
+
+    public void setLoad(float load) {
+        if (mLoad != load) {
+            mLoad = load;
+
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(() -> Stream
+                    .of(mDataReceivedListeners)
+                    .forEach(value -> value.onObdDataReceived(Data.LOAD, load)));
+        }
+    }
+
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
@@ -584,6 +616,7 @@ public class ObdService extends Service implements SharedPreferences.OnSharedPre
         ENGINE_TEMP,
         VIN,
         FUEL_LEVEL,
-        FUEL_RATE
+        FUEL_RATE,
+        LOAD
     }
 }
